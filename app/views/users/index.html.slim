@@ -1,0 +1,26 @@
+.page-header.page-header-block
+  .page-header-section
+    - if policy(User).create?
+      = link_to_with_icon 'ico-plus-circle2', 'Add Team Member', new_user_path, class: 'btn btn-primary'
+  .page-header-section
+    .toolbar.clearfix
+      - unless current_user.corporate?
+        .col-xs-5
+          .btn-group
+            = link_to users_path, class: ('btn ' +  ('deleted' == params[:scope] ? 'btn-default': 'btn-success')) do
+              | Active
+            = link_to users_path(:scope => 'deleted'), class: ('btn ' +  ('deleted' == params[:scope] ? 'btn-success': 'btn-default')) do
+              | Inactive
+      .col-xs-6.col-xs-push-1
+        .has-icon
+          input#shuffle-filter.form-control name="shuffle-filter" placeholder=("Search people") type="search" /
+          i.ico-search.form-control-icon
+
+#shuffle-grid.row
+  - if @scope == 'deleted'
+    = render partial: 'user_role', collection: @user_roles
+  - else
+    = render @matching_users
+  = render partial: "pending_invitation", collection: @pending_invitations unless params[:scope] == 'deleted'
+a.totop.animation data-hideanim="bounceOut" data-offset="50%" data-showanim="bounceIn" data-toggle=("waypoints totop") href="#" 
+  i.ico-angle-up

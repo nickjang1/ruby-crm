@@ -1,0 +1,71 @@
+- body_class 'room-maintenance-page'
+
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold= t('.header', room_number: @room.room_number)
+  .page-header-section
+    .actions.pull-right
+      = link_to_with_icon 'ico-clock', t('.continue_later'), maintenance_rooms_path, class: 'btn btn-primary', data: {confirm: t('.continue_later_confirm')}, method: :get
+      '
+      = link_to_with_icon 'ico-close2', t('.cancel'), maintenance_record_path(@record), class: 'btn btn-danger', data: {confirm: t('.cancel_confirm')}, method: :delete
+.row
+  .col-sm-12
+    table.table#area-checklist-table data-room-id=(@room.id) data-cycle-id=(current_cycle(:room).id) data-room-number=(@room.room_number) data-record-id=(@record.id) permitted-single-click-pm=(policy(Maintenance::ChecklistItemMaintenance).single_click_pm?)
+      thead.hidden
+        tr
+          th
+          th
+      tbody
+    .indicator.inline
+      span.spinner
+
+script#area-checklist-template type="x-tmpl-mustache"
+  .area-detail-div
+    table.table-condensed.nm.area-detail-table
+      | {{#subcategories}}
+      tr data-item-id="{{id}}"
+        td.checklist-item-name
+          span= '{{name}}'
+          | {{#fixed}}
+          dl.dl-horizontal.maintenance-detail
+            dt Fixed:
+            dd= '{{comment}}'
+          | {{/fixed}}
+          | {{#issues}}
+          dl.dl-horizontal.work-order-detail
+            dt Work Order:
+            dd &#35;{{work_order.id}}
+          | {{/issues}}
+        td.maintenance-actions width=170
+          = link_to '{{cancel_path}}',
+                    class: 'room-checklist-action no-issues {{#no_maintenance}}inactive{{/no_maintenance}} {{#no_issues}}active{{/no_issues}}',
+                    data: {status: Maintenance::ChecklistItemMaintenance::STATUS_NO_ISSUES, confirm: '{{cancel_confirm_msg}}', remote: true, method: :delete} do
+            i.ico-ok.fa-fw
+          '
+          = link_to '{{cancel_path}}',
+                    class: 'room-checklist-action issue-fixed {{#no_maintenance}}inactive{{/no_maintenance}} {{#fixed}}active{{/fixed}}',
+                    data: {status: Maintenance::ChecklistItemMaintenance::STATUS_FIXED, confirm: '{{cancel_confirm_msg}}', remote: true, method: :delete} do
+            i.ico-wand.fa-fw
+          '
+          = link_to 'javascript:void(0)',
+                    class: 'room-checklist-action work-order {{#no_maintenance}}inactive{{/no_maintenance}} {{#issues}}active{{/issues}}',
+                    data: {status: Maintenance::ChecklistItemMaintenance::STATUS_ISSUES} do
+            i.ico-tools.fa-fw
+      | {{/subcategories}}
+
+#room-maintenance-comment-modal.modal.fade
+  .modal-dialog
+    form.modal-content id="room-fixed-form" data-parsley-validate=true
+      = render 'maintenance/shared/request_wo_modal_content'
+
+#room-maintenance-completed-modal.modal.fade
+  .modal-dialog
+    = form_for @record, url: maintenance_record_path(@record), html: { class: 'modal-content' } do |f|
+      .modal-header
+        .cell.text-center
+          h4.semibold.text-primary.modal-title= t('.maintenance_completed_header')
+      .modal-body
+        = f.hidden_field :status, value: Maintenance::MaintenanceRecord::STATUS_FINISHED
+        p#maintenance-information
+      .modal-footer
+        = f.submit 'OK', class: 'btn btn-primary btn-expanded'

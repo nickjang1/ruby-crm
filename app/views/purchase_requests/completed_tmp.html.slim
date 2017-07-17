@@ -1,0 +1,66 @@
+= simple_form_for @purchase_request, html: {class: 'purchase_request multi-submit'} do |f|
+.page-header.page-header-block
+  .page-header-section
+    h4.nm.ml10
+      span.text-muted Step 3: Completed
+      .pull-right
+        - if can? :create, PurchaseOrder
+          a  data-action= 'reject' class= 'btn btn-danger'
+            i.ico-thumbs-down2
+            '
+            |  Reject
+          '
+          a  data-action= 'approve' class= 'btn btn-success'
+            i.ico-thumbs-up2
+            '
+            | Approve
+        - else
+          .order_status
+            Waiting for approval
+.panel.panel-default
+  .table-wrapper
+    .table-info.text-danger
+    table.column-filtering.searchable-table.table.no-top-border.no-bottom-border.datatable.table-hover
+      thead
+        tr
+          td
+            input.form-control name="search_engine" placeholder=("Item #") type="search" /
+          td
+            input.form-control name="search_engine" placeholder=("Item Name") type="search" /
+          td
+          td
+        tr
+          th Item #
+          th Item Name
+          th Count
+          th Requested qty
+          th Receiving(s)
+          th Date
+          th Qty in purchase unit
+          th Qty in price unit
+          th Price
+          th Purchase unit
+          th Price & purchase unit (if different from purchase unit)
+          th Total cost
+
+      tbody
+        - @purchase_request.item_requests.each do |item_request|
+          tr class=('skipped' if item_request.skip_inventory?)  
+            td= item_request.item.id
+            td= item_request.item.name
+            td= item_request.count ||= ('Skipped' if item_request.skip_inventory?)
+            td= item_request.quantity
+            td
+            td
+            td
+            td
+            td
+            td
+            td
+            td
+  .summary.ml10.mb10
+    | Total order cost:
+    br
+    | Freight/Shipping Charges (by each receiving):
+    br
+    | Total Freight/Shipping Charges:

@@ -1,0 +1,68 @@
+- body_class 'maintenance-dashboard-page messaging-enabled-form work-orders-comment'
+
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold= t('.header')
+.row
+  .col-md-9
+    .row
+      .col-lg-4.col-md-4.col-sm-122
+        .panel.panel-default.widget
+          = link_to maintenance_work_orders_path, class: 'panel-body' do
+            h4.semibold.nm.text-center
+              i.pull-left.ico-tools.mr5
+              | Open Work Orders
+
+            h2.thin.mt5.text-muted.text-center
+              span= Maintenance::WorkOrder.active.count
+      - if current_cycle(:room)
+        .col-lg-4.col-md-4.col-sm-122
+          .panel.panel-default.widget
+            = link_to maintenance_rooms_path, class: 'panel-body' do
+              h4.semibold.nm.text-center
+                i.pull-left.ico-bed.mr5
+                | Guest Rooms Pending
+
+              h2.thin.mt5.text-muted.text-center
+                span= current_cycle(:room).rooms_remaining.count
+                span.small= " / "
+                span.small= Maintenance::Room.room_count
+      - if current_cycle(:public_area)
+        .col-lg-4.col-md-4.col-sm-122
+          .panel.panel-default.widget
+            = link_to maintenance_public_areas_path, class: 'panel-body' do
+              h4.semibold.nm.text-center
+                i.pull-left.ico-office.mr5
+                | Public area pending
+              h2.thin.mt5.text-muted.text-center
+                span= current_cycle(:public_area).public_areas_remaining.count
+                span.small= " / "
+                span.small= Maintenance::PublicArea.active.count
+    = render 'personalized_tasks'
+    = render partial: 'maintenance/shared/charts/work_order_trends'
+
+    .panel
+      .panel-body
+        #week-vs-room-chart
+        .indicator
+          .spinner
+
+    - if Maintenance::Cycle.current.present?
+      .panel.panel-default
+        .panel-heading
+          .panel-title PM Room Progress (#{current_cycle_range})
+          .panel-toolbar.text-right
+            .option
+              button.btn.up data-toggle="panelcollapse"
+                i.arrow
+        .panel-collapse.pull.out
+          .panel-body
+            .indicator.show
+              span.spinner
+            #pm-room-progress-line-chart.chart.mt10 style="height:250px;"
+  .col-md-3
+    = render 'activity'
+= render partial: 'shared/messages', locals: { model: Maintenance::WorkOrder.new, add_message: true }
+
+css:
+  .small{ font-size: 60% !important; }

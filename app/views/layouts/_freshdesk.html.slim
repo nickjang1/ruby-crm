@@ -1,0 +1,3 @@
+- unless Rails.env.test?
+  javascript:
+    FreshWidget.init("", {"queryString": "&widgetType=popup&helpdesk_ticket[requester]=#{current_user.email unless current_user.nil?}", "widgetType": "popup", "buttonType": "text", "buttonText": "Ask Us", "buttonColor": "white", "buttonBg": "#00ADDD", "alignment": "3", "offset": "10px", "formHeight": "500px", "url": "https://lodgistics.freshdesk.com"} );

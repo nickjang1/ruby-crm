@@ -1,0 +1,911 @@
+# Sample localization file for English. Add more files in this directory for other locales.
+# See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
+
+en:
+  activity:
+    work_order:
+      created:
+        color: primary
+        icon: ico-tools
+        title: New WO Created
+        body: "%{user} <span class='semibold text-default'>created</span> %{url} for <span style='color: black'>%{maintainable_name}</span>"
+      reopened:
+        color: info
+        icon: ico-tools
+        title: WO Reopened
+        body: "%{user} <span class='semibold text-default'>reopened</span> %{url} for <span style='color: black'>%{maintainable_name}</span>"
+      closed:
+        color: success
+        icon: ico-tools
+        title: WO Closed
+        body: "%{user} <span class='semibold text-default'>closed</span> %{url}"
+      status_working:
+        color: warning
+        icon: ico-tools
+        title: WO is being worked on
+        body: "%{user} <span class='semibold text-default'>started working</span> on %{url}"
+    room:
+      pm_started:
+        color: primary
+        icon: ico-bed
+        title: Room PM Started
+        body: "%{user} <span class='semibold text-default'>started</span> PM for %{maintainable}"
+      pm_finished:
+        color: success
+        icon: ico-bed
+        title: Room PM Completed
+        body: "%{user} <span class='semibold text-default'>completed PM</span> for %{maintainable}. <br>%{status}"
+      pm_inspected:
+        color: success
+        icon: ico-info2
+        title: Room Inspection Completed
+        body: "%{user} <span class='semibold text-default'>completed inspection</span> for %{maintainable}. <br>%{status}"
+    public_area:
+      pm_started:
+        color: primary
+        icon: ico-office
+        title: Public Area PM Started
+        body: "%{user} <span class='semibold text-default'>started</span> PM for %{maintainable}"
+      pm_finished:
+        color: success
+        icon: ico-office
+        title: Public Area PM Completed
+        body: "%{user} <span class='semibold text-default'>completed PM</span> for %{maintainable}. <br>%{status}"
+      pm_inspected:
+        color: success
+        icon: ico-info2
+        title: Public Area Inspection Completed
+        body: "%{user} <span class='semibold text-default'>completed inspection</span> for %{maintainable}. <br>%{status}"
+    equipment:
+      pm_started:
+        color: primary
+        icon: ico-fan
+        title: Equipment PM Started
+        body: "%{user} <span class='semibold text-default'>started</span> PM for %{maintainable}"
+      pm_finished:
+        color: success
+        icon: ico-fan
+        title: Equipment PM Completed
+        body: "%{user} <span class='semibold text-default'>completed PM</span> for %{maintainable}. <br>%{status}"
+      pm_inspected:
+        color: success
+        icon: ico-info2
+        title: Equipment Inspection Completed
+        body: "%{user} <span class='semibold text-default'>completed inspection</span> for %{maintainable}. <br>%{status}"
+    maintenance_record:
+      finished:
+        no_issues: "No issues found during PM. %{type} is in great shape!"
+      completed:
+        no_issues: "No issues found during Inspection. %{type} is in great shape!"
+    comment:
+      created:
+        color: primary
+        icon: ico-pen5
+        title: "%{user} added a log entry"
+        body: "<div class='clearfix limit-line-3'>%{body}</div>"
+
+  time:
+    formats:
+      mini: '%b %d'
+      short: '%m/%d/%Y'
+      medium: '%b %d, %Y'
+      long: '%Y-%m-%d %H:%M:%S%:z'
+      short_date_and_time: '%Y-%m-%d %H:%M'
+      date_and_am_pm: '%b %d, %I:%M %p'
+      engage_time: '%I:%M %p'
+  date:
+    formats:
+      short: '%m/%d/%Y'
+      mini: '%b %d'
+  currency: '$'
+  devise:
+    failure:
+      unconfirmed_admin: "Account has not been confirmed by the user."
+      deleted_admin: "User's account has been deleted."
+      deleted: "Your account was deleted."
+  errors:
+    e_404:
+      whoops:  WHOOPS!!
+      page_doesnt_exist: "The page you're looking for does not exits..."
+      back_to_dashboard: Back To Dashboard
+      or: "&nbsp;&nbsp;OR&nbsp;&nbsp;"
+  layouts:
+    header:
+      my_profile: My Profile
+      sign_out: Sign Out
+      property_settings: Hotel Settings
+      corporate_settings: Corporate Settings
+    sidebar_left:
+      main_menu: Main Menu
+      dashboard: Dashboard
+      lists: Lists
+      requests: Requests
+      orders: Orders
+      items: Items
+      reports: Reports
+      guest_logs: Hotel Guest Logs
+      engage: Hotel Guest Logs
+      favorites: Favorites
+      setup: Setup
+      team: Team
+      pm_menu: Maintenance
+      procurement: Procurement
+      pm_room_select: Guest Room PM
+      pm_public_areas_select: Public Areas PM
+      pm_equipment_select: Equipment PM
+      pm_room_inspection: Guest Room Inspection
+      pm_public_areas_inspection: Public Areas Inspection
+      pm_equipment_inspection: Equipment Inspection
+      pm_setup: PM Setup
+      pm_setup_rooms: Guest Room Maintenance
+      pm_setup_public_areas: Public Areas
+      pm_setup_scheduled: Scheduled
+      pm_work_orders: Work Orders
+  controllers:
+    application:
+      no_properties_for_user: User has no properties
+    categories:
+      categories: Categories
+    departments:
+      departments: Departments
+      department_inactivated: Department inactivated
+      department_updated: "Department %{name} was successfully updated"
+    email:
+      email_sent: Email has been successfully sent!
+    fax:
+      fax_being_processing: Fax is being processing.
+      vendor_has_no_fax: "Vendor doesn't have fax number."
+      fax_sent_successfully: Fax has been successfully sent.
+      fax_sent: Fax sent
+      failed_to_send: Failed to send fax.
+    items:
+      items: Items
+      import: Import Items
+      failed_to_upload_template: Template failed to upload
+      need_to_select_file: You need to select a file to upload!
+      import_successful: "File %{file_name} imported successfully. %{items_count} New Items were created."
+      item_created: Item was successfully created.
+      item_updated: Item was successfully updated.
+      items_updated: Items were successfully updated.
+      items_deleted: Items were successfully deleted.
+      breadcrumb_new: New Item
+      breadcrumb_edit: "Item #%{number}"
+    lists:
+      lists: Lists
+    locations:
+      locations: Locations
+    properties:
+      content_may_have_changed: "<strong>#{info}</strong>, the content in this page may have changed."
+      no_properties_selected: "<strong>No property is selected</strong>, the content in this page may have changed."
+      property_changed: "%{name} selected"
+      property_updated: Property updated
+    purchase_receipts:
+      orders: Orders
+      order: "Purchase Order %{number}"
+      receiving: "%{ordinal} Receiving"
+      order_received: "Purchase Order %{number} was successfully received."
+    property_settings:
+      property_settings: Property Settings
+    reports:
+      reports: Reports
+      favorites: Favorites
+      favorite_reports: Favorite Reports
+      reports_listing: Reports Listing
+      no_cycle: 'Current cycle does not exist. Please create new cycle'
+    tags:
+      tag_created: "%{model} was successfully created"
+      tag_updated: "%{tag_type_h} %{tag_name} was successfully updated"
+      tag_deleted: "#{tag_name} deleted"
+    users:
+      add_member: Add Member
+      team: Team
+      user: "User %{name}"
+      user_is_inactive: This user is inactive
+      change_password: Change Password
+      user_was_created: User was successfully created.
+      user_was_updated: User was successfully updated.
+      user_was_inactivated: User was successfully inactivated.
+    vendors:
+      vendors: Vendors
+      title_new: New Vendor
+      title_edit: Edit Vendor
+      vendor_was_created: Vendor was successfully created.
+      vendor_was_updated: Vendor was successfully updated.
+      vendor_was_deleted: Vendor was successfully deleted.
+    corporate_connections:
+      no_such_user: "No corporate user with this email address exists. Please verify the email and try again."
+      settings: Settings
+      connect_to_corporate: Connect to Corporate
+      connected_successfully: Connection with Corporate has been set up successfully.
+      connection_declined: Connection declined
+    corporate:
+      property_connections:
+        connected_successfully: Connection with Hotel has been set up successfully.
+        connection_declined: Connection declined
+    vpt:
+      prepare_error: Error on purchase order for VPT
+    maintenance:
+      root: Maintenance
+      base:
+        cycle_is_expired_message:
+          room: "Guest Room Maintenance<br>cycle #%{cycle_number} completed"
+          public_area: "Public Area Maintenance cycle #%{cycle_number} completed"
+      setup:
+        index: Setup
+        rooms: Guest Rooms
+        public_areas: Public Areas
+        equipment: Equipment
+      rooms:
+        index: Guest Room PM
+        inspection: Guest Room Inspection
+        show: 'Room %{room_number}'
+      equipments:
+        index: Equipments
+        show: '%{name} Maintenance'
+      public_areas:
+        index: Public Areas
+        show: '%{name} Maintenance'
+        inspection: Public Area Inspection
+        inspect: Public Area
+    guest_logs: Guest Log
+    engage:
+      dashboard: Hotel Guest Log
+
+  corporate_connections:
+    new:
+      cancel: Cancel
+      connect: Connect to your Corporate Organization
+      email: "Email "
+      email_confirmation: "Confirm Email "
+      submit_invitation: Submit Invitation
+      previous: Previous
+      send_invitation_to_corp_user: Send invitation to a Corporate User
+      add_an_email_to_corporate: Add the email address of a Corporate user. They will need to verify  the link to your hotel in their Lodgistics setup.
+    show_verification:
+      connect: Connect to your Corporate Organization
+      waiting_for_verification: Waiting for verification from Corporate.
+      previous: Previous
+      verification_required: Verification From Corporate Required
+      corporate_needs_to_verify_connection: "Your Corporate organization needs to verify the connection with your hotel in their Lodgistics setup. Once this is completed, you can confirm the link."
+    show_confirm:
+      connect: Connect to your Corporate Organization
+      confirm_corp: Confirm your Corporate Organization
+      verify_details: Verify the details of your Corporate Organization and confirm the connection to allow the Corporate access to your Hotel.
+      cancel: Cancel Linking
+      confirm: Confirm
+    steps_indicator:
+      send_invite: Send Invite
+      wait_for_verification: Wait for Verification
+      confirm_corporate_link: Confirm Corporate Link
+  shared:
+    open_pr_po_for_item:
+      widget_title: "Open Requests & Orders"
+      line_pr: "%{unit_count} %{unit_name} | %{state} PR %{number}"
+      line_po: "%{unit_count} %{unit_name} | %{state} PO %{number}"
+      badge: "%{requests_count} | %{orders_count}"
+      no_quantity: No quantity added
+    messages:
+      no_messages: No comments present for this request
+      add_message: Add Comment
+  tags:
+    tag:
+      confirm_delete: "Delete %{tag_type} '%{tag_name}'."
+    new:
+      cancel: Cancel
+    form:
+      name: Name <span class="text-danger">*</span>
+  users:
+    profile_form:
+      profile: Profile
+      photo: Photo
+      update: Update
+      remove_photo: Remove Photo
+      select_photo: Select Photo
+      name: "Name "
+      title: "Title "
+      email: "Email "
+      login: "Email or Username "
+      username: "Username "
+      password: "Password"
+      password_confirmation: "Confirm Password"
+      phone: "Phone Number "
+      primary_hotel: "Primary Hotel "
+      departments: "Departments "
+      order_approval_limit: "Order Approval Limit "
+      role: "Role "
+      activate: Activate
+      inactivate: Inactivate
+      first_last_name: First and Last name
+      users_title: "Enter User's Title"
+    user:
+      corporate: Corporate
+    sessions:
+      property_changed_success_message: "You have successfully logged into '%{hotel_name}'"
+      property_changed_error_message: "You have no access to this hotel"
+    pending_invitation:
+      pending_invite: Pending Invite
+      invitation_sent: Invitation Sent
+  vendors:
+    vendor:
+      confirm_inactivate: "Inactivate vendor '%{vendor_name}'."
+      total_spent: Total Spent
+      orders_open: Orders Open
+      orders_completed: Orders Completed
+      click_to_send_email: Click here to send email
+      phone: "P: %{phone}"
+      fax: "F: %{fax}"
+    new:
+      cancel: Cancel
+    form:
+      name: Name <span class="text-danger">*</span>
+      profile: Profile
+      vpt_interface: VPT Interface
+      delete: Delete
+      cancel: Cancel
+      confirm_inactivate: "Inactivate vendor '%{vendor_name}'."
+    procurement:
+      vpt:
+        partner_id_placeholder: Partner ID
+        partner_id: Partner ID
+        username: Username
+        username_placeholder: Username
+        password: Password
+        password_placeholder: Password
+        idivision: Division
+        division_placeholder: Division
+        customer_number: Customer Number
+        customer_number_placeholder: Customer Number
+        department_number: Department Number
+        department_number_placeholder: Department Number
+        customer_group: Customer Group
+        customer_group_placeholder: Customer Group
+      punchout:
+        identity_placeholder: Identity
+        identity: Identity
+        password_placeholder: Password
+        password: Password
+      procurement_selector_placeholder: Select procurement interface
+    profile:
+      address: Address
+      street_placeholder: Street
+      city_placeholder: City
+      zip_placeholder: Zip
+      contact_name_placeholder: Name
+      email_placeholder: Email
+      phone: Phone
+      fax: Fax
+      phone_placeholder: Phone
+      fax_placeholder: Fax
+      order_info: Order Information
+      shipping_method_placeholder: Shipping Method
+      shipping_terms_placeholder: Shipping Terms
+    vpt:
+      division: "* Division"
+      division_placeholder: Division
+      customer_number: "* Customer Number"
+      customer_number_placeholder: Customer Number
+      department_number: "* Department Number"
+      department_number_placeholder: Department Number
+      customer_group: Customer Group
+      customer_group_placeholder: Customer Group
+  budgets:
+    index:
+      add_budget: Add Budget Item
+      budgets: Budget
+  purchase_receipts:
+    new:
+      title: "Receive Purchase Order %{order_number}"
+      current_receiving: CURRENT RECEIVING
+      freight_shipping: FREIGHT SHIPPING
+      previous_receiving_and_freight: PREVIOUS RECEIVING AND FREIGHT
+      total: TOTAL
+  purchase_requests:
+    completed_with_edits:
+      approve: "Request %{req_number} was approved with edits."
+      reject: "Request %{req_number} was rejected with edits."
+    finish_step_message:
+      approve: "Request %{req_number} approved and %{orders_count} Orders created."
+      reject: "Request %{req_number} rejected"
+      commit: "Request %{req_number} was saved"
+      finish: "Inventory for Request %{req_number} finished"
+    index:
+      name: Requests
+      number: "Request #"
+      requested_by: Requested By
+      delivery_date: "Date"
+      vendors: Vendor
+      items_and_cost: Items
+      status: Status
+      search_placeholder: Search Requests
+    edit:
+      name: Editing Request
+      request_number: "Request %{request_number}"
+      request: "Order Quantities"
+      states:
+        inventory: Inventory
+        request: Order Quantities
+        completed: Approve as Order(s)
+        ordered: Ordered
+    purchase_request:
+      statuses:
+        inventory: Incomplete Counts
+        request: Request
+        approved: Approved
+        ordered: Ordered
+        completed: Pending Approval
+        rejected: Rejected
+      button_labels:
+        inventory: Inventory
+        request: Complete Request
+        completed: Review
+        rejected: Complete Request
+        approved: Approved
+        ordered: Review
+      approval:
+        request: "You have a new Request (%{request_number}) for approval. Click here to review."
+        approved: "Your Request (%{request_number}) has been approved by %{name}."
+        rejected: "Your Request (%{request_number}) has been rejected by %{name}."
+        approval_request_sent: "Request (%{request_number}) approval is sent to GM(s)."
+        approval_request_received: "Request (%{request_number}) Approval received."
+    inventory:
+      title: Inventory
+      print: Save & Print
+      save: Save
+      next: Next
+      finish: Finish
+      item_number: "Item #"
+      item_name: Item Name
+      locations: Location
+      on_hand_qty: On Hand Qty
+      unit: Unit
+      skip_inv: Skip Inv.
+      skip: Skip
+      item_count_placeholder: blank = skip
+      finish_confirmation_message: "Finish Inventory and Close Request %{req_number}?. The Request will not be editable after this action."
+      finish_confirmation_message_new_record: "Finish Inventory and Close Request?. The Request will not be editable after this action."
+    request:
+      title: Request %{number}
+      save: Save
+      next: Next
+      finish: Finish
+      item_name: Item Name
+      vendor: Vendor
+      par: PAR
+      on_hand_qty: On Hand Qty
+      request_quantity: Quantity
+      purchase_price: Price
+      total_item_cost: Total Item cost
+      skipped: Skipped
+      total_price: Total Price
+      quantity_validation: Items with quantity 0 will be removed from the request
+    completed:
+      title: Request Approval %{number}
+      item_name: Item Name
+      vendor: Vendor
+      par: PAR
+      on_hand_qty: On Hand Qty
+      request_quantity: Quantity
+      purchase_price: Price
+      total_item_cost: Total Item cost
+      approve: Approve
+      reject: Reject
+      waiting_for_approval: Waiting for approval
+      approve_request_modal_title: "Approve Request %{req_number} and create %{orders_count} Purchase Orders"
+      reject_request_modal_title: "Reject Request  %{req_number}. Request will be sent back to %{creator_name} for updates"
+      total_price: "Total price:"
+      skipped: Skipped
+      add_reason_for_rejecting_request: Add a reason for rejecting Request.
+      please_add_a_comment_for_rejection: Please add a comment to explain the rejection.
+      close: Close
+      comment_is_required: Comment for rejection is mandatory
+    ordered:
+      title: Request %{number}
+      item_number: "Item #"
+      order_number_vendor: PO Number & Vendor
+      item_name: Item Name
+      par: PAR
+      locations: Locations
+      unit: Unit
+      on_hand_qty: On Hand Qty
+      request_quantity: Quantity
+      purchase_price: Price
+      total_item_cost: Total Item cost
+    requests_steps_indicator:
+      take_inventory: Take Inventory
+      set_requested_quantities: Set Requested Quantities
+      input_order_quantities: Input Order Quantities
+      aprove_as_orders: Approve as Order(s)
+
+  purchase_orders:
+    show:
+      title: Review PO %{order_number}
+    index:
+      name: Orders
+      number: "Order #"
+      requested_by: Order Created By & Requested By
+      delivery_date: Delivery Date
+      vendors: Vendor
+      items_and_cost: Items
+      status: Status
+      search_placeholder: Search Orders
+    purchase_order:
+      fax_statuses:
+        sending: Fax being Sent
+        failed: Error Faxing
+        success: Fax Delivered
+      statuses:
+        open: Open
+        sent: Sent
+        partially_received: Partially Received
+        closed: Closed
+      button_labels:
+        open: Send to Vendor
+        mark_as_sent: Mark as Sent
+        fax: Fax PO
+        retry_fax: Retry Faxing PO
+        sent: Receive
+        partially_received: Receive
+        closed: Review Order
+        print: Print PO
+        cancel: Cancel PO
+      confirm:
+        email: Send PO %{order_number} to '%{vendor_name}'.
+        fax: Fax PO %{order_number} to '%{vendor_name}'.
+        vpt: Send PO %{order_number} to '%{vendor_name}'.
+  items:
+    index:
+      add_item: Add Item
+      import_items: Import Items
+      order_selected: Order Selected
+      delete_selected: Delete Selected
+      showing_x_from_total: "Showing <span id='loaded-items-counter'>%{loaded}</span> from <span id='total-items-counter'>%{total}</span>"
+      loading: Loading more items ...
+      scroll_to_load_more: Scroll down to load more items
+    form:
+      name_placeholder: Enter Name
+      brand_placeholder: Select Brand
+      description_placeholder: Enter Item Description
+      pack_size_placeholder: Qty
+      purchased_as: "Purchased as <span class='text-danger'>*</span>"
+      purchase_price: "Purchase Price <span class='text-danger'>*</span> ="
+      inventoried_as: "INVENTORIED AS <span class='text-danger'>*</span>"
+      par: PAR =
+      select_unit_prompt: SELECT UNIT
+      category: "Category <span class='text-danger'>*</span>"
+      locations: Locations
+      is_taxable: IS TAXABLE
+      is_asset: IS ASSET
+      remove_item: Delete
+      confirm_delete: You are about removing this item
+    vendor_fields:
+      vendor: "VENDOR <span class='text-danger'>*</span>"
+      sku: SKU
+      vendor_price: VENDOR PRICE
+      preferred: PREFERRED
+    item:
+      more_vendors: "<strong>+ %{count} more</strong>"
+  reports:
+    maintenance_work_orders:
+      location: Location
+      assigned_to: Assigned To
+      opened_on: Opened On
+      description: Description
+    items_consumption:
+      top_5_consumed_items: "&nbsp; Top 5 consumed items"
+      top_10_consumed_items: "&nbsp; Top 10 consumed items"
+      item_name: Item Name
+      last_inventory_time: Last inventory
+      last_order_sent_at: Last Order Sent On
+      avarage_monthly_orders: Avg Monthly Orders
+      avarage_order_quantity: Avg Order Qty
+      order_cost: Order Cost
+      quarter: Quarter
+      6_month: 6 Month
+      year: Year
+    pm_productivity_report:
+      maintenance-publicarea: "Public Area"
+      maintenance-room: "Time to PM Guest Rooms"
+      maintenance-equipment: "Equipment"
+      maintenance-roompmprogress: "Guest Room PM Progress"
+      maintenance-workorderproductivity: "Work Order Productivity"
+    work_order_trendings:
+      location: Location
+      assigned_to: Assigned To
+      created_by: Created By
+      closed_by: Closed By
+      opened_on: Opened On
+      description: Description
+      unassigned: " UNASSIGNED"
+      third_party: " 3rd party"
+      priority:
+        l: "<span class='text-success'>(Low)</span>"
+        m: "<span class='text-warning'>(Medium)</span>"
+        h: "<span class='text-danger'>(High)</span>"
+    report:
+      report_fav: Remove this Report from your Favorites
+      report_nonfav: Add this Report as your Favorite
+  departments:
+    index:
+      add_deparment: Add Department
+    department:
+      confirm_delete: "Delete department '%{name}'."
+    form:
+      name: 'Name <span class="text-danger">*</span>'
+      name_placeholder: Department name
+      categories: Categories
+      users: Users
+    items_table:
+      add_user_tooltip: Add the User to the Department
+      remove_user_tooltip: Remove the User from the Department
+      add_category_tooltip: Add the Category to the Department
+      remove_category_tooltip: Remove the Category from the Department
+      category_item_name: Category Name
+      category_item_name_filter: Category Name Filter
+      user_item_name: User Name
+      user_item_name_filter: User Name Filter
+      role: Role
+      role_filter: Role Filter
+  pages:
+    dashboard:
+      dashboard: Dashboard
+      po: PO
+      tasks: Tasks
+      send: Send
+      receive: " Receive"
+      start_request: " Start Request"
+      spending_by_category: MTD Spending by Category
+      lists: Lists
+      list_description_will_go_here: list description will go here when it exists
+      budget_and_spend: Budget and Spend
+      time_period: Time period
+      year_to_date: Year to Date
+      month_to_date: Month to Date
+    purchase_request_row:
+      pr: PR
+      waiting_for_approval: Waiting for Approval
+    setup:
+      vendors: Vendors
+      categories: Categories
+      locations: Locations
+      departments: Departments
+      budgets: Budgets
+  property_settings:
+    index:
+      corporate: Corporate
+      connect_to_corporate: Connect to Corporate
+      review_corporate_connection: Review Corporate connection
+      permission_title: Permission Settings
+      settings: Settings
+
+  corporate:
+    settings:
+      index:
+        review: Review
+        connections: Hotel Connections
+        rejected_corporate: Rejected by Corporate
+        rejected_property: Rejected by Property
+        confirmed: Confirmed
+    pages:
+      dashboard:
+        spend_by_hotel: Hotel Spend Comparison
+        hotel_spending_comparison_for: "Hotel Spending Comparison for %{year}"
+        hotel_spending_comparison: Hotel Spending Comparison
+      hotel_wo_comparison:
+        title: Open Work Orders by Hotel
+      spend_budget_by_hotel:
+        approvals: Approvals
+        approve: " Approve"
+        budget_spend_by_hotel: Budget Vs Spend Chart comparison for Hotels
+        select_duration: "Select Duration :"
+        duration: Duration
+        month_to_date: Month to Date
+        year_to_date: Year to Date
+        budget: Budget
+        spend: Spend
+        spend_budget_by_hotel: Spend & Budget by Hotel
+    property_connections:
+      show_verification:
+        reject: Reject
+        confirm_connection_with_hotel: Confirm connection with hotel
+      show_confirm:
+        waiting_for_verification: Waiting for verification from hotel
+        verification_required: Verification from Hotel required
+        hotel_needs_to_verify_connection: Hotel needs to confirm connection
+      steps_indicator:
+        receive_invite: Receive Invite
+        confirm_corporate_link: Confirm Corporate Link
+        wait_for_verification: Waiting for Hotel to Finalize the connection
+  maintenance:
+    pages:
+      dashboard:
+        header: Dashboard
+      work_order_trends:
+        trending: Trending Issues
+    rooms:
+      index:
+        header: Guest Room Maintenance
+        room_maintenance_summary: Summary of Guest Room Maintenance
+        current_cycle: CYCLE
+        rooms_completed: "Guest Rooms Completed :"
+        enter_room_number: Enter Room Number
+        choose_room_from_list: Choose the Guest Room to Maintain
+        rooms_remaining: Guest Rooms Remaining
+        guest_room_count: Guest Room Count
+        in_progress: In Progress
+        completed: Completed
+        missed_rooms: Missed Guest Rooms
+        floors_rooms: "Floors & Guest Rooms"
+        num_rooms_remaining: GUEST ROOMS REMAINING
+        days_remaining: DAYS REMAINING
+      inspection:
+        header: Guest Room Inspection
+        room_maintenance_summary: Summary of Guest Room Maintenance
+        current_cycle: CYCLE
+        rooms_completed: "Guest Rooms Completed :"
+        in_progress: "In Progress :"
+        enter_room_number: Enter Room Number
+        choose_room_from_list: Choose the Guest Room to Inspect
+        rooms_last_week: Last 7 days
+        all_rooms: All Guest Rooms
+        floors_rooms: "Floors & Guest Rooms"
+        guest_rooms_inspected: GUEST ROOMS INSPECTED
+        days_remaining: DAYS REMAINING
+      inspect:
+        header: 'Guest Room #%{room_number} Inspect'
+        complete_inspection: Complete
+        continue_later: Continue Later
+        cancel_inspection: Cancel
+        complete_inspection_confirm: Do you want to complete inspection of this room?
+        inspect_item_confirm: Do you want to mark this item as inspected?
+        continue_later_confirm: Do you want to close the current inspection and save progress for finishing this guest room later?
+        cancel_confirm: Do you want to cancel inspecting this room? You will lose all the progress made on this guest room.
+        work_order_header: Enter description what is wrong
+        work_order_placeholder: Please enter a detailed description.
+        cancel_form: Cancel
+        work_order_submit: Create Work Order
+      show:
+        header: 'Guest Room PM - Room %{room_number}'
+        cancel: Cancel
+        continue_later: Continue Later
+        continue_later_confirm: Do you want to close the current maintenance and save progress for finishing this guest room later?
+        cancel_confirm: Do you want to cancel maintaining this guest room? You will lose all the progress made on this guest room.
+        maintenance_completed_header: Maintenance Completed
+    setup:
+      public_areas:
+        header: 'Public Area Maintenance Setup'
+      rooms:
+        save_guest_rooms: Save Guest Rooms
+    records:
+      update:
+        maintenance_completed: 'Great job! You have completed maintenance for Guest Room %{room_number}.'
+        public_area_maintenance_completed: 'Great job! You have completed maintenance for Public Area %{public_area}.'
+        equipment_maintenance_completed: 'Great job! You have completed maintenance for Equipment %{equipment}.'
+        maintenance_fixed_info: '%{count} issue(s) fixed'
+        maintenance_work_order_info: '%{count} work order(s) created'
+    public_areas:
+      index:
+        header: Public Area Selection
+        choose_public_area_from_list: Choose the Public Area to Maintain
+        current_cycle: CYCLE
+        num_public_areas_remaining: PUBLIC AREAS REMAINING
+        days_remaining: DAYS REMAINING
+        public_areas_remaining: Areas Remaining
+        missed_public_areas: Missed Areas
+        completed: Completed
+        in_progress: In Progress
+        public_areas: "Public Areas"
+        public_area_maintenance: Public Areas Maintenance
+      show:
+        header: '%{name}'
+        cancel: Cancel
+        continue_later: Continue Later
+        continue_later_confirm: Do you want to close the current maintenance and save progress for finishing this public area later?
+        cancel_confirm: Do you want to cancel maintaining this room? You will lose all the progress made on this guest room.
+        comment_header: 'Enter what you fixed'
+        comment_placeholder: Explain what you fixed.
+        maintenance_completed_header: 'You have completed maintenance for %{public_area}'
+      inspection:
+        header: Public Area Inspection
+        current_cycle: CYCLE
+        panel_title: Choose the Public Area to Inspect
+        public_areas_inspected: PUBLIC AREAS INSPECTED
+        days_remaining: DAYS REMAINING
+        table_title: Public Areas
+        start: Inspect
+        continue: Continue
+      inspect:
+        header: '%{name} Inspect'
+        complete_inspection: Complete
+        continue_later: Continue Later
+        cancel_inspection: Cancel
+        complete_inspection_confirm: Do you want to complete inspection of this public area?
+        inspect_item_confirm: Do you want to mark this item as inspected?
+        continue_later_confirm: Do you want to close the current inspection and save progress for finishing this guest room later?
+        cancel_confirm: Do you want to cancel inspecting this public area? You will lose all the progress made on this public area.
+        work_order_header: Enter description what is wrong
+        work_order_placeholder: Please enter a detailed description.
+        cancel_form: Cancel
+        work_order_submit: Create Work Order
+    equipments:
+      show:
+        continue_later_confirm: Do you want to close the current maintenance and save progress for finishing this equipment later?
+        cancel_confirm: Do you want to cancel maintaining this equipment? You will lose all the progress made on this equipment.
+        fixed_header: What did you fix?
+        fixed_placeholder: Please describe in detail.
+        work_order_header: Request a Work Order
+        work_order_placeholder: Please describe the request in detail..
+        cancel_form: Cancel
+        fixed_submit: Mark Fixed
+        work_order_submit: Create Work Order
+        maintenance_completed_header: Maintenance Completed
+    shared:
+      request_wo_modal_content:
+        fixed_header: What did you fix?
+        fixed_placeholder: Please describe in detail.
+        work_order_header: Request a Work Order
+        work_order_placeholder: Please describe the request in detail..
+        cancel_form: Cancel
+        fixed_submit: Mark Fixed
+        work_order_submit: Create Work Order
+    work_orders:
+      work_order_assigned:
+        assigned: " assigned"
+        unassigned: " UNASSIGNED"
+        third_party: " 3rd party"
+        assigned_to: "Assigned To:"
+      maintainable:
+        room: "Room #%{room_number}"
+      index:
+        new_work_order: New work order
+        work_orders: "Work Orders "
+        sort: "Sort: "
+        sort_description: Description
+        sort_days: Days opened
+        description_placeholder: Description
+        grouping_options:
+          priority: "Group By: Priority"
+          wo_type: "Group By: Type of WO"
+          status: "Group By: Status"
+          assigned_to: "Group By: Assigned To"
+          created_by: "Group By: Created By"
+        priorities:
+          h: High Priority
+          m: Medium Priority
+          l: Low Priority
+      work_order:
+        description: "Request: "
+        location: "Location: "
+        request: "Request: "
+        status: "Status: "
+        closing_comment: "Closing comment: "
+        duration: "Time to complete: "
+        days_open: "  <span class=\"text-muted\">Open for</span> %{days} days"
+        days_elapsed: "  <span class=\"text-muted\">Time to resolve:</span> %{days} days"
+        created_by: "Created By:"
+        closed_by: "Closed By:"
+        priority: "Priority: "
+        priorities:
+          l: Low Priority
+          m: Medium Priority
+          h: High Priority
+        due_to: "  <span class=\"text-muted\">Due by</span> %{date}"
+        closed_at: "  <span class=\"text-muted\">Closed on</span> %{date} "
+        opened_today: " Opened Today"
+        closed_same_day: " Closed Same Day"
+      form:
+        status: Status <span class="text-danger">*</span>
+        priority: Priority <span class="text-danger">*</span>
+        assigned_to: Assigned to
+        description: Request  <span class="text-danger">*</span>
+        description_placeholder: Description
+        wo_location: Location <span class="text-danger">*</span>
+        due_to: Due Date
+        other_location: Other Location <span class="text-danger">*</span>
+        checklist_item: Checklist Item
+        room: Room <span class="text-danger">*</span>
+        equipment: Equipment <span class="text-danger">*</span>
+      sms:
+        assigned: "%{assignee_name}, a High priority Work Order (#%{id}) for '%{location_and_checklist_name}' @ '%{hotel_name}' has been assigned to you. Please click the following link to view the work order. - %{url} "
+  guest_logs:
+    index:
+      title: Guest Logs

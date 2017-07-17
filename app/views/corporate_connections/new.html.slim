@@ -1,0 +1,32 @@
+= simple_form_for @connection, html: {class: 'purchase_request form-horizontal'} do |f|
+  
+  .panel.panel-default
+    .panel-heading
+      h4.panel-title= t('.connect')
+    = render 'steps_indicator', step: 0
+    .panel-body
+      strong.text-primary= t('.send_invitation_to_corp_user')
+      br
+      strong.text-muted= t('.add_an_email_to_corporate')
+      hr
+
+      .form-group
+        label.col-sm-3.control-label
+          = t('.email')
+          span.text-danger *
+        .col-sm-6
+          .form-stack.has-icon.pull-left
+            = f.text_field :email, placeholder: t('.email'), class: 'form-control input-lg', require: true, data: { :'parsley-required' => ""}
+            i.ico-envelop3.form-control-icon
+
+      .form-group
+        label.col-sm-3.control-label
+          = t('.email_confirmation')
+          span.text-danger *
+        .col-sm-6
+          .form-stack.has-icon.pull-left
+            = f.text_field :email_confirmation, placeholder: t('.email'), class: 'form-control input-lg', require: true, data: { :'parsley-required' => ""}
+            i.ico-envelop3.form-control-icon
+    .panel-footer
+      = link_to t('.cancel'), :property_settings, class: 'btn btn-default pull-left'
+      input.pull-right.btn.btn-primary type="submit" value=t('.submit_invitation')

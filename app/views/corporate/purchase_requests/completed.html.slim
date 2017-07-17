@@ -1,0 +1,121 @@
+- Property.current_id = @property.id
+= simple_form_for @purchase_request, url: corporate_purchase_request_path(@purchase_request), html: {id: "pr-form", class: 'purchase_request request-order test-request-completed-form'} do |f|
+  = hidden_field_tag :property_id, @property.id
+  = f.input_field :rejection_reason, as: :hidden, id: "rejection-reason-hidden"
+  .page-header.page-header-block
+    .page-header-section
+      h4.title.semibold.clearfix
+        span.pull-left= t('purchase_requests.completed.title', number: @purchase_request.number)
+        .pull-right
+          input#commit type='hidden' name='commit'
+          a.btn.btn-success.test-approve-btn data-action='approve' data-confirm="#{ t('purchase_requests.completed.approve_request_modal_title', req_number: @purchase_request.number, orders_count: @purchase_request.items_by_vendor.count) }"
+            i.ico-check
+            |  #{ t('purchase_requests.completed.approve') }
+          '
+          a.btn.btn-danger data-action='reject' data-toggle="modal" data-target="#myModal" data-confirm2="#{ t('purchase_requests.completed.reject_request_modal_title', req_number: @purchase_request.number, creator_name: @purchase_request.user.name) }"
+            i.ico-cancel
+            |  #{ t('purchase_requests.completed.reject') }
+ 
+  .panel.panel-default
+    = render '/purchase_requests/requests_steps_indicator', step: PurchaseRequest::STATES.index(@purchase_request.state.to_sym)
+    
+    table.column-filtering.searchable-table.table.mt10.table-hover
+      thead
+        tr
+          th
+            input.form-control name="search_engine" placeholder=t('purchase_requests.completed.item_name') type="search" /
+          th
+            input.form-control name="search_engine" placeholder=t('purchase_requests.completed.vendor') type="search" /
+          th
+            input.form-control name="search_engine" placeholder=t('purchase_requests.completed.par') type="search" /
+          th
+            input.form-control name="search_engine" placeholder=t('purchase_requests.completed.on_hand_qty') type="search" /
+          th
+            input.form-control name="search_engine" placeholder=t('purchase_requests.completed.request_quantity') type="search" /
+          th
+            input.form-control name="search_engine" placeholder=t('purchase_requests.completed.purchase_price') type="search" /
+          th
+            input.form-control name="search_engine" placeholder=t('purchase_requests.completed.total_item_cost') type="search" /
+
+        tr
+
+          th.width-min200= t('purchase_requests.completed.item_name')
+          th.text-center.width-min200= t('purchase_requests.completed.vendor')
+          th.text-center.nosort width="100px"= t('purchase_requests.completed.par')
+          th.text-center= t('purchase_requests.completed.on_hand_qty')
+          th.text-center= t('purchase_requests.completed.request_quantity')
+          th.text-right= t('purchase_requests.completed.purchase_price')
+          th.text-center= t('purchase_requests.completed.total_item_cost')
+      tbody
+        = f.simple_fields_for :item_requests do |g|
+          tr
+            td
+              = g.object.item.try :name
+              = g.input :item_id, as: :hidden
+              = g.input :id, as: :hidden
+            td.text-center
+              = g.object.item.vendors.first.try(:name)
+              = g.input :item_id, label: false, as: :hidden, autofocus: true
+            td.text-center
+              = g.object.item.par_level
+              - if g.object.item.par_level.present?
+                br
+                = humanized_unit_format g.object.item.inventory_unit
+            td.text-center
+              - unless g.object.skip_inventory?
+                = quantity_format g.object.count
+                br
+                = humanized_unit_format g.object.item.inventory_unit
+              - else
+                span.badge.badge-danger= t('purchase_requests.completed.skipped')
+            td.text-center
+              = quantity_format g.object.quantity || 0
+              br
+              = humanized_unit_format g.object.item.unit
+            td.text-right= humanized_currency_format(g.object.item.price)
+            td.text-center
+              span.text-primary.bold= humanized_currency_format(g.object.total_item_price)
+
+    .row
+      .col-md-12
+        .panel-footer.mt10
+          .list-table.pa10
+              li
+                h5.semibold.nm= t('purchase_requests.completed.total_price')
+              li.text-right
+                h3.semibold.nm.text-primary= humanized_currency_format(@purchase_request.total_price)
+
+#myModal.modal aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" 
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close data-dismiss="modal" type="button" 
+          span aria-hidden="true" &times;
+          span.sr-only= t('purchase_requests.completed.close')
+        h4#myModalLabel.modal-title=t('purchase_requests.completed.reject_request_modal_title', req_number: @purchase_request.number, creator_name: @purchase_request.user.name)
+      .modal-body
+        h5=t('purchase_requests.completed.add_reason_for_rejecting_request')
+        textarea#rejection-reason.form-control placeholder=t('purchase_requests.completed.please_add_a_comment_for_rejection')
+      .modal-footer
+        button.btn.btn-default data-dismiss="modal" type="button" NO! this was a terrible idea.
+        button#confirm-rejection.btn.btn-danger disabled="disabled" data-toggle="tooltip" data-placement="bottom" title=t('purchase_requests.completed.comment_is_required')
+          | YES I'm sure!
+
+
+- content_for :js do
+  coffee:
+    $(document).ready ->
+      $('.purchase_request .page-header-section a.btn').on 'dialog.confirmed', ->
+        $(this).parent().find('#commit').val($(this).data('action'))
+        $('form#pr-form').submit()
+        return false
+
+      $('#rejection-reason').on 'input change', ->
+        $('#confirm-rejection').attr('disabled', $(this).val() is '')
+
+      $('#confirm-rejection').on 'click', ->
+        $('#commit').val('reject')
+        $('#rejection-reason-hidden').val($('#rejection-reason').val())
+        $('form#pr-form').submit()
+
+- Property.current_id = nil

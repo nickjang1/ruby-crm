@@ -1,0 +1,341 @@
+- body_class 'engage-dashboard'
+
+.page-header.page-header-block
+  .page-header-section
+    .toolbar.clearfix.nm
+      .pull-right
+        button#btn-print.btn.btn-default.mr10 type="button"
+          span.ico-print2
+          '
+          span.hidden-xs Print PDF
+        button#btn-cancel.btn.btn-danger.mr10 type="button" style="display: none;"
+          span.ico-close2
+          span.hidden-xs  Cancel
+        button#btn-new-message.btn.btn-primary data-target="#form-message" data-toggle="collapse"
+          span.ico-plus-circle2
+          '
+          span.hidden-xs New Message
+      .pull-right.mr10
+        .has-icon
+          input#search-query.form-control placeholder="Search Comment" type="text"
+          i.ico-search.form-control-icon
+  form.collapse#form-message
+    input.form-control#message-title type="text" placeholder="Title (optional)"
+    .summernote
+
+.row
+  .col-md-7
+    .panel.panel-default.follow-up-list style="display: none;"
+      .panel-heading
+        h3.panel-title
+          ul.list-table
+            li.text-left style="width: 30px;"
+            li.text-center
+              | Follow Up Messages (
+              span#follow-up-count 0
+              | )
+            li.text-right style="width: 30px;"
+              button.btn.btn-panel-toggle.up data-toggle="panelcollapse"
+                i.arrow
+      .panel-collapse.pull.in.out
+        .panel-body.log-list
+        .loading.indicator
+          .spinner
+
+    .panel.panel-default
+      .panel-heading
+        h3.panel-title
+          ul.list-table.date-selector data-type="message"
+            li.text-left style="width: 30px;"
+              button.btn.btn-sm.btn-default.btn-prev-day type="button" <
+            li.text-center
+              | Messages (
+              span#message-count 0
+              | )
+              br
+              input.date-value.semibold value="Today"
+            li.text-right style="width: 30px;"
+              button.btn.btn-sm.btn-default.btn-next-day >
+      .panel-body.log-list
+        .message-list
+        .loading.indicator
+          .spinner
+
+  .col-md-5
+    .panel.panel-default
+      .panel-heading
+        h3.panel-title
+          ul.list-table.date-selector data-type="alarm"
+            li.text-left style="width: 30px;"
+              button.btn.btn-sm.btn-default.btn-prev-day type="button" <
+            li.text-center
+              | Upcoming Wake Up calls (
+              span#alarm-count 0
+              | )
+              br
+              input.date-value.semibold value="Today" style="display: none;"
+            li.text-right style="width: 30px;"
+              button.btn.btn-sm.btn-default.btn-next-day style="display: none;" >
+      .panel-body.log-list
+        .alarm-list
+        .loading.indicator
+          .spinner
+
+    /.panel.panel-default
+      .panel-heading
+        h3.panel-title
+          ul.list-table.date-selector data-type="pickup"
+            li.text-left style="width: 30px;"
+              button.btn.btn-sm.btn-default.btn-prev-day type="button" <
+            li.text-center
+              | Upcoming Pickup/Dropoff (
+              span#pickup-count 0
+              | )
+              br
+              input.date-value.semibold value="Today"
+            li.text-right style="width: 30px;"
+              button.btn.btn-sm.btn-default.btn-next-day >
+      .panel-body.log-list
+
+    /.panel.panel-default
+      .panel-heading
+        ul.list-table.date-selector data-type="pickup"
+          li.text-left
+            button.btn.btn-sm.btn-default.btn-prev-day type="button" <
+          li.text-center
+            | Upcoming Pickup/Dropoff calls (
+            span#pickup-count 0
+            | )
+            br
+            input.date-value.semibold value="Today"
+          li.text-right
+            button.btn.btn-sm.btn-default.btn-next-day >
+      .panel-body.log-list
+
+input#follow-up-picker
+#alarmConfirmationDialog.modal aria-hidden="true" role="dialog" tabindex="-1"
+  .modal-dialog
+    .modal-content
+      .modal-header.pa10
+        a.close data-dismiss="modal" &times;
+        h4
+          i.ico-alarm2.mr10
+          | Review Wake Up call
+      .modal-body.pa10
+        p Confirm the wake up call information below.
+        br
+        p
+          span.text-muted Wake Up: &nbsp;
+          span#message
+        p
+          span.text-muted Wake Up Time: &nbsp;
+          span#alarm_at
+      .modal-footer
+        button.btn.modal-close data-dismiss="modal" aria-hidden="true"  Cancel
+        a.btn.btn-success.confirm data-dismiss="modal"  Save
+
+script.mustache-template.engage-message-reply-template type="x-tmpl-mustache"
+  ul.list-table.replied-messages
+    li.text-right
+      blockquote
+        p
+          | {{{body}}}
+    li.user-detail
+      img.img-circle.img-bordered alt="{{created_by}}" src="{{created_by_avatar}}"
+      .text-center.mt5
+        span.semibold.text-muted
+          | {{created_by}}
+        br
+        span.text-muted
+          | {{created_at_date}}, {{created_at}}
+        br
+
+script.mustache-template.engage-message-template type="x-tmpl-mustache"
+  .panel.widget.message-panel data-id="{{id}}" data-follow-up="{{follow_up_show}}" class="{{#title}}with-title{{/title}}"
+    | {{#title}}
+    p.message-title.title.semibold
+      | {{title}}
+    | {{/title}}
+    a.panel-ribbon.pull-right href="javascript:void(0)" class="{{#liked}}liked{{/liked}}"
+      i.ico-heart4
+      i.ico-heart3
+    ul.list-table.message-body
+      li.user-detail
+        img.img-circle.img-bordered alt="{{created_by}}" src="{{created_by_avatar}}"
+        .text-center.mt5
+          span.semibold.text-muted
+            | {{created_by}}
+          br
+          span.text-muted.name
+            | {{#follow_up_show}}
+            | {{created_at_date}},
+            '
+            | {{/follow_up_show}}
+            | {{created_at}}
+      li.message-detail
+        | {{#room_number}}
+        span.room-badge
+          | Room
+          '
+          | #
+          | {{room_number}}
+        | {{/room_number}}
+        | {{#work_order_id}}
+        span.work-order-badge
+          | WO
+          '
+          | #
+          | {{work_order_id}}
+        | {{/work_order_id}}
+        .ico-quotes-left.text-muted.mt5
+        .pl5.pr10
+          | {{{body}}}
+        .ico-quotes-right.text-muted.text-right.pr10
+    a.toggle-replies href="javascript:void(0)" data-toggle="collapse" data-target="#message-{{id}}-replies"
+      span.toggle-message Show Comments
+      '
+      | (
+      span.count 0
+      | )
+    .replies.collapse id="message-{{id}}-replies"
+      | {{#replies}}
+      | {{> reply}}
+      | {{/replies}}
+    .panel-footer
+      ul.list-table.message-actions
+        li
+          | {{#follow_up_range}}
+          a.cancel-follow-up href="javascript:void(0)" data-start="{{follow_up_start}}" data-end="{{follow_up_end}}" title="Cancel Follow up." data-toggle="tooltip" data-container="body"
+            i.ico-calendar
+            '
+            span
+              | ({{follow_up_range}})
+          | {{/follow_up_range}}
+          | {{^follow_up_range}}
+          a.follow-up href="javascript:void(0)" title="Follow up on the message on a future date. Select a date or a range of dates." data-toggle="tooltip" data-container="body"
+            i.ico-calendar
+          | {{/follow_up_range}}
+          | {{#work_order_id}}
+          a.working-order
+            i.ico-tools
+          | {{/work_order_id}}
+          | {{^work_order_id}}
+          a.add-work-order href="#" data-description="{{body}}" data-room-number="{{room_number}}" data-toggle="tooltip" data-container="body" title="Create a Work Order from the message."
+            i.ico-tools
+          | {{/work_order_id}}
+          | {{#broadcast_range}}
+          a.cancel-broadcast href="javascript:void(0)" data-start="{{broadcast_start}}" data-end="{{broadcast_end}}" data-toggle="tooltip" data-container="body" title="Cancel Broadcast."
+            i.ico-bullhorn.inline-block
+            '
+            span
+              | ({{broadcast_range}})
+          | {{/broadcast_range}}
+          | {{^broadcast_range}}
+          a.broadcast href="javascript:void(0)" data-toggle="tooltip" data-container="body" title="Broadcast the message at the top of the Lodgistics app. Select a date or a range of dates."
+            i.ico-bullhorn
+          | {{/broadcast_range}}
+        li.text-right style="width: 150px;"
+          .likes
+            span.img-group.img-group-stack.likes-images
+              | {{#likes}}
+              img.img-circle alt="{{name}}" src="{{avatar}}"
+              | {{/likes}}
+            | {{#likes_count}}
+            span.likes-text
+              | {{likes_count}} likes
+            | {{/likes_count}}
+          | {{#completed_at}}
+          a.user-detail.inline-block.uncomplete-task.text-success href="#" data-toggle="tooltip" data-container="body" title="Mark task as not completed."
+            span.text DONE
+            br
+            span
+              | {{completed_at}}
+            br
+            span.name
+              | {{completed_by}}
+          | {{/completed_at}}
+          | {{^completed_at}}
+          a.complete-task href="javascript:void(0)" data-toggle="tooltip" data-container="body" title="Mark the task as completed."
+            i.ico-checkmark3
+          | {{/completed_at}}
+          a.reply.engage-tooltip href="javascript:void(0)" data-toggle="collapse" data-target="#message-{{id}}-reply" title="Respond to the previous message(s)." data-container="body"
+            i.ico-undo2
+    form.reply-form.collapse id="message-{{id}}-reply"
+      .input-group
+        textarea.form-control rows="2" placeholder="Type comment here"
+        span.input-group-btn
+          button.submit-reply.btn.btn-primary.btn-sm Save Comment
+
+script.mustache-template.engage-alarm-template type="x-tmpl-mustache"
+  ul.list-table.alarm data-id="{{id}}"
+    li.time
+      div.text-muted.time-string
+        | {{due_time}}
+      div.semibold class="text-muted {{#due_date_today}}text-danger{{/due_date_today}} {{#due_date_tomorrow}}text-warning{{/due_date_tomorrow}}"
+        | {{due_date_str}}
+    li.room
+      | {{#room_number}}
+      span.room-badge
+        | Room
+        '
+        | #
+        | {{room_number}}
+      | {{/room_number}}
+    li.detail
+      | {{body}}
+    li.actions
+      | {{#completed_at}}
+      a.uncomplete-alarm.inline-block.text-success href="javascript:void(0)"
+        span DONE
+        br
+        span
+          | {{completed_at}}
+        br
+        span.name
+          | {{completed_by}}
+      | {{/completed_at}}
+      | {{^completed_at}}
+      a.mark-done href="javascript:void(0)"
+        i.ico-checkmark3
+      | {{/completed_at}}
+      a.inline-block.delete.text-danger href="javascript:void(0)"
+        i.ico-trash
+
+script.mustache-template.engage-pick-up-template type="x-tmpl-mustache"
+  ul.list-table.pickup
+    li.time
+      div 6 AM
+      div TODAY
+    li.detail
+      span Pick-up Mr. T from Airport
+    li.actions
+      a.mark-done href="javascript:void(0)"
+        i.ico-checkmark3
+      span.text-primary Done
+      a.delete.text-danger href="javascript:void(0)"
+        i.ico-trash
+    ul.list-table.pickup
+      li.time
+        div 6 AM
+        div TODAY
+      li.detail
+        span Pick-up Mr. T from Airport
+      li.actions
+        a.mark-done href="javascript:void(0)"
+          i.ico-checkmark3
+        span.text-primary Done
+        a.delete.text-danger href="javascript:void(0)"
+          i.ico-trash
+
+script.mustache-template.engage-lost-found-template type="x-tmpl-mustache"
+  ul.list-table.lost-found
+    li.text-left
+      span.status-badge LOST
+      div Pair of Sunglasses
+      div by Suzanne's in Room #504
+      div
+        span.semibold Location:
+        '
+        span Gym
+    li.actions
+      a.btn.btn-primary.btn-outline href="javascript:void(0)" Found

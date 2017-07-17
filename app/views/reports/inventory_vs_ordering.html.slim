@@ -1,0 +1,249 @@
+.page-header.page-header-block
+  .page-header-section
+    h4.nm
+      | Inventory vs Ordering
+      .pull-right#table-actions
+.row
+  .report-sidebar.col-md-4
+    .panel.panel-default
+      .panel-body
+        form#filters
+          .row.mb10
+            .col-md-12
+              span.radio.custom-radio.custom-radio-primary
+                input#sort-and-limit0 name='sort_and_limit' data-target-column="all" data-limit=-1 type="radio" checked=true
+                label for="sort-and-limit0" &nbsp; All
+          .row.mb10
+            .col-md-12
+              span.radio.custom-radio.custom-radio-primary
+                input#filters-selected name='sort_and_limit' type="radio"
+                label for="filters-selected" &nbsp;
+                select#show-filter disabled=true
+                  option value="" Filter By
+                  option value="#select-location" Filter by Locations
+                  option value="#select-items" Filter by Items
+                  option value="#select-categories" Filter by Categories
+                  option value="#select-lists" Filter by Lists
+
+          .row.mb10.filter#select-locations
+            .col-md-12
+              select.selectize-filter.form-control multiple="multiple" data-filter-column="location"
+                option value=""  Select Locations
+                = options_from_collection_for_select Location.all, :id, :name
+
+          .row.mb10.filter#select-items
+            .col-md-12
+              select.selectize-filter.form-control multiple="multiple" data-filter-column="item_name"
+                option value=""  Select Items
+                = options_from_collection_for_select Item.all, :name, :name
+
+          .row.mb10.filter#select-categories
+            .col-md-12
+              select.selectize-filter.form-control multiple="multiple" data-filter-column="category"
+                option value=""  Select Categories
+                = options_from_collection_for_select Category.all, :id, :name
+    
+          .row.filter#select-lists
+            .col-md-12
+              select.selectize-filter.form-control multiple="multiple" data-filter-column="lists"
+                option value=""  Select Lists
+                = options_from_collection_for_select List.all, :id, :name
+  
+  .report-body.col-md-8
+    .panel.panel-inverse
+      .panel-heading
+        .fc.fc-ltr.fc-unthemed#calendar-control
+          .fc-toolbar
+            .fc-left
+              .fc-button-group
+                a.fc-button.fc-state-default.fc-corner-left#offset-minus <
+                a.fc-button.fc-state-default.fc-corner-right#offset-plus >
+            .fc-right
+              .fc-button-group.date-range-type
+                a.fc-button.fc-state-default.fc-corner-left data-value="quarter" Quarter
+                a.fc-button.fc-state-default data-value="halfYear" 6 Month
+                a.fc-button.fc-state-default.fc-corner-right data-value="year" Year
+
+            .fc-center
+              h2.text-center#date-range-indicator ...
+
+      .panel-collapse.pull.out
+        table.searchable-table.table.no-bottom-border.table-hover#report-data
+          thead
+            tr
+              th#item_id.hiddenCol.numeric
+              th#location.hiddenCol.numeric
+              th#category.hiddenCol.numeric
+              th#lists.hiddenCol.numeric
+              th#item_name.col-xs-4 Item Name
+              th.text-center Avg counts/mo
+              th.text-center Avg orders/mo
+              th.text-center Last count
+              th.text-center Last order
+
+        #loading.indicator
+          span.spinner
+
+  javascript:
+    export_filename = "Inventory vs Ordering Report - " + moment().format("YYYY.MM.DD") + " - #{current_user.name}"
+  coffee:
+    $(document).ready ->
+      #preserve original table heading for reference later since datatable clobers it by disappearing the hidden columns etc
+      savedThead =  do ->
+        thead = $('table#report-data thead').clone()
+        ->
+          thead
+
+      dateRangeIndicator = $('#date-range-indicator')
+      loading            = $('#loading')
+      dateRange = new DateRange('quarter')
+
+      # DataTables initialization:
+      table = $('table#report-data').DataTable(
+        paging: false
+        dom: 'Trt'
+        "columnDefs": [
+          { "type": "num", "targets": 'numeric' }
+        ]
+        aoColumnDefs: [
+          { bVisible: false, aTargets: [ 'hiddenCol' ] }
+          { sClass: 'text-right', aTargets: [ 'text-right' ] }
+          { sClass: 'text-center', aTargets: [ 'text-center' ] }
+        ]
+        oTableTools:
+          sSwfPath: "/assets/adminre_theme_v120/plugins/datatables/tabletools/swf/copy_csv_xls_pdf.swf"
+          aButtons: [
+            {
+              "sExtends": "print",
+            },
+            {
+              "sExtends": "pdf",
+              "sFileName": export_filename + ".pdf"
+            },
+            {
+              "sExtends": "csv",
+              "sFileName": export_filename + ".csv"
+            }
+          ]
+      )
+
+
+      loadData = ->
+        dateRangeIndicator.text(dateRange)
+        loading.show()
+
+        $.debounce(1000, ->
+          $.ajax({
+            dataType: 'json'
+            type: "GET"
+            url: Routes.report_path("render/inventory_vs_ordering")
+            data:
+              from: dateRange.from4rails()
+              to: dateRange.to4rails()
+            success: (data)->
+              loading.show()
+              table.clear().draw()
+
+              $(data).each (i, el)->
+                table.row.add( [
+                  el.item_id   # hidden
+                  el.locations  # hidden
+                  el.category  # hidden
+                  el.lists     # hidden
+
+                  el.item_name
+                  "<div class='text-center'>#{el.avg_counts}</div>"
+                  "<div class='text-center'>#{ el.avg_orders }</div>"
+                  "<div class='text-center'>#{ el.last_count_at }</div>"
+                  "<div class='text-center'>#{ el.last_order_at }</div>"
+                ] ).draw()
+            complete: -> loading.hide()
+          })
+        )()
+     
+      # Date filter events
+      $('.date-range-type > a').on('click', ->
+        $(this).parent().find('a').removeClass('fc-state-active')
+        $(this).addClass 'fc-state-active'
+        if dateRange.type isnt $(this).data('value') # reset all offsets if changed $range type
+          dateRange.setType($(this).data('value'))
+          loadData()
+      )
+
+      $(".date-range-type > a[data-value='#{ dateRange.type }']").trigger('click')
+
+      $('#date-range-forward').on 'click', -> dateRange.forward(); loadData()
+      $('#date-range-backward').on 'click', -> dateRange.backward(); loadData()
+
+
+      # initial dom manipulation stuff
+      $('.DTTT').appendTo('#table-actions')
+
+      # loading data after page render complete:
+      loadData()
+
+
+      clearFiltersAndSorts = ->
+        table.search('').columns().search('').page.len(-1).draw()
+
+      getColIndexById = (id)->
+        return savedThead().find('th#' +  id).index()
+
+      # filters
+      $('select.selectize-filter').selectize(
+        onChange: ->
+          columnToFilter = $(@.$input).data('filter-column')
+
+          filteringFor = @.$input.val() || []
+          regexifiedJoinedFilter = filteringFor.map((i)-> "^#{i}$").join("|")
+
+          table.columns( getColIndexById(columnToFilter)).search(regexifiedJoinedFilter, true, false).draw()
+      )
+      
+      # Sort and limit
+      sortAndLimitByEval = (targetCol, limit) ->
+        columnIdx = getColIndexById(targetCol)
+        sortedDataArr = table.rows({search:'applied'}).data().toArray()
+        indexOfFirstNonMatch = sortedDataArr.findIndex( (e,i,arr) ->
+          cellVal = e[columnIdx]
+          parsedCellVal = parseInt(cellVal.replace( /^\D+/g, ''))
+          isMatch = eval "#{parsedCellVal} #{limit}"  # e.g. eval "15 > 5" 
+          isNonMatch = !isMatch
+
+          return isNonMatch # we want the index of first non match...i.e. first row that is not > 5
+        )
+        limit = indexOfFirstNonMatch
+        table.page.len(limit)
+        table.draw()
+
+      $('input:radio[name="sort_and_limit"]').on 'change', ->
+        clearFiltersAndSorts()
+        $('form#filters')[0].reset()
+        $(@).prop('checked', true)
+        $('.row.filter').hide()
+        targetCol =  $(@).data('target-column')
+
+        #disable inputs that belong to other radios  
+        if $(@).attr('id') is 'filters-selected'
+          $('select#show-filter').prop('disabled', false)
+        else
+          $('select#show-filter').prop('disabled', true)
+
+        return unless targetCol
+
+        limit = $(@).data('limit')
+
+        unless targetCol is 'all'
+          columnIdx = getColIndexById(targetCol)
+          table.column(columnIdx).order('desc').draw()
+        
+      $('.row.filter').hide()
+
+      $('select#show-filter').on 'change', ->
+        clearFiltersAndSorts()
+        $('select.selectize-filter').each () ->
+          @.selectize.clear()
+        $('.row.filter').hide()
+        $($(@).val()).show()
+
+      table.column(getColIndexById('increase')).order('desc').draw()

@@ -1,0 +1,86 @@
+- body_class 'room-inspect-page'
+
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold= t('.header', room_number: @room.room_number)
+  .page-header-section.clearfix
+    .actions.pull-right
+      = link_to_with_icon 'ico-stack-checkmark', t('.complete_inspection'),
+                          complete_inspection_maintenance_record_path(@record, maintenance_maintenance_record: {status: Maintenance::MaintenanceRecord::STATUS_COMPLETED}),
+                          class: 'btn btn-primary', data: {confirm: t('.complete_inspection_confirm')}, method: :post
+      = link_to_with_icon 'ico-clock', t('.continue_later'), inspection_maintenance_rooms_path, class: 'btn btn-primary', data: {confirm: t('.complete_inspection_confirm')}, method: :get
+      = link_to_with_icon 'ico-close2', t('.cancel_inspection'), cancel_inspection_maintenance_record_path(@record), class: 'btn btn-danger', data: {confirm: t('.complete_inspection_confirm')}, method: :post
+.row
+  .col-sm-12
+    table.table#room-inspect-table data-room-id=(@room.id) data-cycle-id=(current_cycle(:room).id) data-room-number=(@room.room_number) data-record-id=(@record.id)
+      thead.hidden
+        tr
+          th
+          th
+      tbody
+    .indicator.inline
+      span.spinner
+script#area-checklist-template type="x-tmpl-mustache"
+  .area-detail-div
+    table.table-condensed.nm.area-detail-table
+      | {{#subcategories}}
+      tr data-item-id="{{maintenance_id}}"
+        td.checklist-item-name
+          .maintenance-status
+            | {{#no_issues}}
+            = link_to 'javascript:void(0)', class: 'maintenance-status-icon no-issues' do
+              i.ico-ok.fa-fw
+            | {{/no_issues}}
+            | {{#fixed}}
+            = link_to 'javascript:void(0)', class: 'maintenance-status-icon fixed' do
+              i.ico-wand.fa-fw
+            | {{/fixed}}
+            | {{#issues}}
+            = link_to 'javascript:void(0)', class: 'maintenance-status-icon work-order' do
+              i.ico-tools.fa-fw
+            | {{/issues}}
+          .maintenance-description
+            span= '{{name}}'
+            | {{#fixed}}
+            dl.dl-horizontal.maintenance-detail
+              dt Fixed:
+              dd= '{{comment}}'
+            | {{/fixed}}
+            | {{#issues}}
+            dl.dl-horizontal.work-order-detail.no-wrapping
+              dt Work Order:
+              dd &#35;{{work_order.id}}
+            dl.dl-horizontal.work-order-detail
+              dt.no-width
+              dd
+                | {{work_order.description}}
+            | {{/issues}}
+            | {{#inspected}}
+            dl.dl-horizontal.work-order-detail
+              dt Work Order:
+              dd &#35;{{inspection_work_order.id}}
+            dl.dl-horizontal.work-order-detail
+              dt.no-width
+              dd
+                | {{inspection_work_order.description}}
+            | {{/inspected}}
+        td.maintenance-actions width=80
+          = link_to '{{cancel_path}}',
+                    class: 'room-checklist-action spot-check {{^inspected}}inactive{{/inspected}} {{#inspected}}active{{/inspected}}', method: :delete,
+                    data: {status: Maintenance::ChecklistItemMaintenance::STATUS_NO_ISSUES, confirm: t('.inspect_item_confirm'), remote: true} do
+            i.ico-tools.fa-fw
+      | {{/subcategories}}
+
+#room-inspection-work-order-modal.modal.fade
+  .modal-dialog
+    form.modal-content id="room-work-order-form" data-parsley-validate=true
+      .modal-header
+        .cell.text-center
+          button.close data-dismiss="modal" type="button" ×
+          h4.semibold.text-primary.modal-title.work-order-title= t('.work_order_header')
+      .modal-body
+        .form-group
+          textarea class="form-control" rows=5 placeholder=(t('.work_order_placeholder')) id="work-order-comment" required=true data-parsley-maxlength=500
+      .modal-footer
+        button.btn.btn-default data-dismiss="modal" type="button"= t('.cancel_form')
+        button.btn.btn-primary type="submit" id="work-order-form-submit"= t('.work_order_submit')

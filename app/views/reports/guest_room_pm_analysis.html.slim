@@ -1,0 +1,340 @@
+.page-header.page-header-block
+  .page-header-section
+    h4.pull-left
+      | Guest Room PM Analysis
+      .pull-right#table-actions
+    .pull-right
+      .pull-right
+        = link_to 'Print PDF', '#', onclick: 'printPDF()', class: 'btn btn-default'
+      - if @prev_property_id.nil? # if corporate user is running the report
+        .pull-right.mr10
+          = select_tag :property_id, options_for_select(current_corporate.properties.pluck(:name, :id)), class: "form-control"
+.row
+  .report-sidebar.col-md-4
+    #filters.panel.panel-default
+      .panel-body
+        .row.mb10
+          .col-md-12
+            span.checkbox.custom-checkbox.custom-checkbox-primary
+              input#filter-option-1 name="only_missed_rooms" type="checkbox"
+              label for="filter-option-1" &nbsp; Display missed rooms only
+        .row.mb10
+          .col-md-12
+            span.checkbox.custom-checkbox.custom-checkbox-primary
+              input#filter-option-2 name="only_inspected_rooms" value="1" type="checkbox"
+              label for="filter-option-2"  &nbsp; Display Inspected Rooms
+        .form-group
+
+    #sort-options.panel.panel-default
+      .panel-body
+        .row.mb10
+          .col-md-12
+            span.radio.custom-radio.custom-radio-primary
+              input#sort-type-1 name="sort_type" type="radio" value="room_no" checked=""
+              label for="sort-type-1" &nbsp; Sort by Name
+        .row.mb10
+          .col-md-12
+            span.radio.custom-radio.custom-radio-primary
+              input#sort-type-2 name="sort_type" type="radio" value="status"
+              label for="sort-type-2"  &nbsp; Sort by Status
+  
+  .report-body.col-md-8
+    .panel.panel-inverse
+      .panel-heading
+        .fc.fc-ltr.fc-unthemed#calendar-control
+          .fc-toolbar
+            .fc-left
+              .fc-button-group
+                a.fc-button.fc-state-default.fc-corner-left#offset-minus <
+                a.fc-button.fc-state-default.fc-corner-right#offset-plus >
+            .fc-right
+              .fc-button-group.date-range-type#report-type
+                a.fc-button.fc-state-default.fc-corner-left.active data-value="cyclely" Cycle
+                a.fc-button.fc-state-default.fc-corner-right data-value="yearly" Year
+            .fc-center
+              h2.text-center#report-indicator
+                span.report-type Cycle
+                span.reported-cycle ...
+
+      .panel-collapse.pull.out
+        .clearfix
+          .col-sm-4.text-center
+            .cycle-label
+              .r-label
+                | Current&nbsp;
+                span.report-type
+              .r-value
+                span.current-cycle &nbsp;
+              .r-label
+                span Reported&nbsp;
+                span.report-type
+              .r-value.reported-cycle
+            .year-label.hide
+              .r-label Total Rooms
+              .r-value.room-count= Maintenance::Room.count
+              .r-label Completion %(previous)
+              .r-value.previous-completion
+          .col-sm-4.text-center
+            .cycle-label
+              .r-label Total Rooms
+              .r-value.room-count= Maintenance::Room.count
+              .r-label Remaining Rooms
+              .r-value.room-missed
+            .year-label.hide
+              .r-label
+                span Current&nbsp;
+                span.report-type
+                span  Completion %:
+              .r-value.current-completion
+          .col-sm-4.text-center
+            .r-label Printed On:
+            .r-value= Date.today.strftime('%d/%m/%Y')
+            .r-label Printed By:
+            .r-value= current_user.name
+        table#analysis-report-data.room-table.table.no-bottom-border.table-hover.table-bordered
+          tr
+            th Room
+            th
+            th Room
+            th
+            th Room
+            th
+
+        #loading.indicator
+          span.spinner
+
+css:
+
+javascript:
+  maxYear       = parseInt("#{Maintenance::Cycle.maximum :year}");
+  minYear       = parseInt("#{Maintenance::Cycle.minimum :year}");
+  cycleCount    = #{Maintenance::Cycle.by_cycle_type(:room).count};
+  cycleOffset   = cycleCount - 1;
+  currentCycle  = ''
+  if (#{current_cycle(:room).present?})
+    currentCycle  = "C#{current_cycle(:room).ordinality_number} (#{current_cycle(:room).period})";
+  cycleTerm     = 'Cycle';
+
+coffee:
+  $(document).ready =>
+    reportType      = 'cyclely' # 'cyclely', 'yearly'
+    reportIndicator = $('#report-indicator')
+    $table          = $('#analysis-report-data')
+    loading         = $('#loading')
+    offsetCycle     = cycleOffset
+    offsetYear      = moment().year()
+    sortType        = 'name'
+    results         = []
+    cycleInfo       = {}
+
+    c2q = (cycle) ->
+      "C#{cycle}"
+
+    renderRoomStatus = (record) ->
+      detail = ''
+      status = ''
+      if record.status == 'completed' && $('#filter-option-2:checked').length != 0
+        status = " <span class='ico-info2 text-primary pr5'></span>"
+      if record.status == '_remaining'
+        status += "<span class='ico-remove-sign text-danger'></span>"
+      else
+        status += "<span class='ico-checkmark text-success'></span>"
+        if record.count_of_pm > 1
+          status += "<span>&nbsp;(#{record.count_of_pm} <b class='text-default'>PMs)</b></span>"
+
+      if record.fixed > 0
+        detail += "<br>#{record.fixed} <b class='text-default'>fixes</b>"
+      if record.issues > 0
+        detail += "<br>#{record.issues} <b class='text-default'>WOs</b>"
+      "<td class='value'>#{status}#{detail}</td>"
+
+    refreshQuarterTable = ->
+      $table.html('')
+      data = results
+      $('.room-missed').text(_.filter(data, {status: '_remaining'}).length)
+      room_count = data.length
+      $('.room-count').text(room_count)
+
+      if $('#filter-option-1:checked').length > 0
+        data = _.filter(results, {status: '_remaining'})
+        $('#filter-option-2').attr('disabled', true)
+        $('#filter-option-2').parent().css('color', '#ccc')
+      else
+        $('#filter-option-2').attr('disabled', false)
+        $('#filter-option-2').parent().css('color', 'black')
+
+      if $("input[name='sort_type']:checked").val() == 'room_no'
+        data = _.sortByAll(data, ['floor', 'room_no'])
+      else
+        data = _.sortBy(data, 'status')
+
+      rows = Math.ceil( data.length / 3)
+      $table.append("<tr class='text-center'><td>Room</td><td class='detail'></td><td>Room</td><td class='detail'></td><td>Room</td><td class='detail'></td>")
+      i = 0
+      while i < rows
+        column = "<tr class='text-center'>"
+        column += "<td>#{data[i].room_no}</td>#{renderRoomStatus(data[i])}"
+        column += "<td>#{data[rows + i].room_no}</td>#{renderRoomStatus(data[rows + i])}"
+        column += "<td>#{data[rows + rows + i].room_no}</td>#{renderRoomStatus(data[rows + rows + i])}" if (rows + rows + i) < data.length
+        column += "</tr>"
+        i++
+        $table.append(column)
+
+    refreshYearTable = ->
+      $table.html('')
+      cycle_data = results
+      cycle_count = cycle_data.length
+      missed_rooms = 0
+      _.times(cycle_data.length, (i) ->
+        cycle_data[i].data = _.sortByAll(cycle_data[i].data, ['floor', 'room_no'])
+      )
+
+      room_count = cycle_data[0].data.length
+      $('.room-count').text(room_count)
+      # Calculate current quarter completion %
+      currentMissingRooms = _.filter(cycle_data[cycle_count- 1].data, {status: '_remaining'}).length
+      currentQuarterCompletion = Math.round(100 * (1 -  currentMissingRooms / room_count))
+      $('.current-completion').text("#{currentQuarterCompletion}%")
+
+      # Calculate previous cycle's completion %
+      prevMissingRooms = 0
+      prevTotalRooms = 0
+      if cycle_count > 1
+        prevMissingRooms = _.filter(cycle_data[cycle_count - 2].data, {status: '_remaining'}).length
+        prevQuartersCompletion = Math.round(100 * (1 - prevMissingRooms / room_count))
+        $('.previous-completion').text("#{prevQuartersCompletion}%")
+      else
+        $('.previous-completion').text("No Maintenance Data")
+
+      rows = Math.ceil(room_count / 2)
+      thead = '<tr class="text-center">'
+      thead += _.times(2, ->
+        info = ''
+        info += _.times(cycle_count, (cycle) ->
+          ordinality_number = cycle_data[cycle].ordinality_number
+          "<td>#{c2q(ordinality_number)}#{if ordinality_number == cycleInfo.number && offsetYear == cycleInfo.year then '<br>(Current)' else ''}</td>"
+        )
+        "<td>Room</td>" + info
+      )
+      thead += '</tr>'
+      $table.append(thead)
+
+      i = 0
+      while i < rows
+        column = "<tr class='text-center'>"
+        column += "<td>#{cycle_data[0].data[i].room_no}</td>"
+        column += _.times(cycle_count, (cycle) -> "#{renderRoomStatus(cycle_data[cycle].data[i])}")
+
+        if (rows + i) < room_count
+          column += "<td>#{cycle_data[0].data[i + rows].room_no}</td>"
+          column += _.times(cycle_count, (cycle) -> "#{renderRoomStatus(cycle_data[cycle].data[i + rows])}")
+        column += "</tr>"
+        i++
+        $table.append(column)
+
+    refreshTable = ->
+      if reportType == 'yearly'
+        $("#filters input[type='checkbox']").attr('disabled', true)
+        refreshYearTable()
+        $('#analysis-report-data').addClass('year')
+        $('#analysis-report-data').removeClass('cycle')
+        $('#sort-options').addClass('hide')
+      else if reportType == 'cyclely'
+        $("#filters input[type='checkbox']").attr('disabled', false)
+        refreshQuarterTable()
+        $('#analysis-report-data').addClass('cycle')
+        $('#analysis-report-data').removeClass('year')
+        $('#sort-options').removeClass('hide')
+
+    loadData = (propertySwitched = null) ->
+      loading.show()
+      $.ajax({
+        dataType: 'json'
+        type: "GET"
+        url: Routes.report_path("render/guest_room_pm_analysis")
+        data:
+          report_type: reportType
+          year: offsetYear
+          cycle: offsetCycle
+          property_id: $('#property_id').val()
+          property_switched: propertySwitched
+        success: (data, status, xhr) =>
+          results = data.result
+          cycleInfo = data.cycle
+          if propertySwitched
+            @minYear = parseInt(xhr.getResponseHeader('min_year'))
+            @maxYear = parseInt(xhr.getResponseHeader('max_year'))
+            @cycleCount = parseInt(xhr.getResponseHeader('cycle_count'))
+            @cycleOffset = parseInt(xhr.getResponseHeader('cycle_offset'))
+            @currentCycle = xhr.getResponseHeader('current_cycle')
+            offsetCycle = @cycleOffset
+            offsetYear = @maxYear
+          if reportType == 'yearly'
+            $('.reported-cycle').text(offsetYear)
+          else
+            $('.current-cycle').text(currentCycle)
+            $('.reported-cycle').text("#{c2q(cycleInfo.number)} (#{cycleInfo.period})")
+            $('.report-type').text("#{cycleTerm}: ")
+            $("a[data-value='cyclely']").text(cycleTerm)
+          refreshTable()
+        error: (data, status, xhr) ->
+          $.gritter.add(text: data.responseText, class_name: "alert alert-danger")
+          $('#analysis-report-data').html('')
+        complete: ->
+          loading.hide()
+      })
+
+    $("input[type='checkbox'], input[type='radio']").on 'click', (e) ->
+      refreshTable()
+
+    loadData(true)
+
+    $("#report-type > a").on 'click', ->
+      $('#report-type > a').removeClass('active')
+      reportType = $(this).data('value')
+      $('.reported-cycle').text("...")
+      if reportType == 'yearly'
+        $('.report-type').text("Year: ")
+        $('.cycle-label').addClass('hide')
+        $('.year-label').removeClass('hide')
+      else
+        $('.cycle-label').removeClass('hide')
+        $('.year-label').addClass('hide')
+        $('.report-type').text("#{cycleTerm}: ")
+
+      $(this).addClass('active')
+      loadData()
+
+    $('#property_id').on 'change', ->
+      loadData(true)
+
+    $('#offset-minus').on 'click', ->
+      switch reportType
+        when "cyclely"
+          return if offsetCycle == 0
+          offsetCycle -= 1
+        when "yearly"
+          return if offsetYear == minYear
+          offsetYear -= 1
+      $('.reported-cycle').text("...")
+      loadData()
+
+    $('#offset-plus').on 'click', ->
+      switch reportType
+        when "cyclely"
+          return if offsetCycle == cycleCount - 1
+          offsetCycle += 1
+        when "yearly"
+          return if offsetYear == maxYear
+          offsetYear += 1
+      $('.reported-cycle').text("...")
+      loadData()
+
+    @printPDF = ->
+      if $("input[name='sort_type']:checked").val() == 'status'
+        sort_by = 'status'
+      params = "cycle=#{offsetCycle}&report_type=#{reportType}&year=#{offsetYear}&sort_by=#{sort_by}"
+      if $('#property_id').length > 0
+        params += "&property_id=#{$('#property_id').val()}"
+      url = "/reports/render/guest_room_pm_analysis.pdf?#{params}"
+      window.open(url, '_blank')

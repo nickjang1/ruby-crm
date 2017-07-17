@@ -1,0 +1,20 @@
+- content_for :page_heading do
+  Reset your Lodgistics Admin password
+
+= simple_form_for resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: 'panel', name: 'form-login' } do |f|
+  .panel-body
+    = render 'layouts/alerts', locals: {flash: flash}
+    %p
+      Update your password to access your account.
+    .form-group
+      .form-stack.has-icon.pull-left
+        = f.hidden_field :reset_password_token
+        .form-stack.has-icon.pull-left
+          = f.password_field :password, :placeholder => "New Password", :class => 'form-control input-lg', :data => { :'parsley-required' => "", :'parsley-error-message' => 'Please enter a password', :'parsley-errors-container' => "#error-container" }
+          %i.ico-lock2.form-control-icon
+        .form-stack.has-icon.pull-left
+          = f.password_field :password_confirmation, :placeholder => "Confirm New Password", :class => 'form-control input-lg', :data => { :'parsley-required' => "", :'parsley-error-message' => 'Please retype your password', :'parsley-errors-container' => "#error-container" }
+          %i.ico-lock2.form-control-icon
+        #error-container.mb15
+        .form-group.nm
+          = f.submit 'Update Password & Login', :class => "btn btn-block btn-success"

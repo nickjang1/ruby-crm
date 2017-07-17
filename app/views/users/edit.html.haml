@@ -1,0 +1,6 @@
+= render partial: 'nav' 
+.col-lg-9
+  = simple_form_for @user, html: { autocomplete: "off", class: 'user-profile jsvalidate panel form-horizontal form-bordered multi-submit'} do |f|
+    .tab-content
+      = render partial: 'profile_form', locals: {:f => f}
+

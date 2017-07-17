@@ -1,0 +1,29 @@
+.col-xs-12.col-sm-6.col-md-4.shuffle.vendor data-id=(f.object.id)
+  .widget.panel
+    .panel-body
+      .row.mb10
+        label.control-label.col-md-4=raw t('.vendor')
+        = f.association :vendor, label: false, wrapper_html: { class: 'col-md-7' }, input_html: { required: true, class: 'form-control input-sm' }
+        = f.input_field :id, as: :hidden, class: 'id_hidden_field'
+      .row
+        .col-md-8
+          .row.mb10
+            label.control-label.col-md-5=t('.sku')
+            = f.input :sku, label: false, wrapper_html: { class: 'col-md-7' }, input_html: { class: 'form-control input-sm sku_input' }
+          .row
+            label.control-label.col-md-5=t('.vendor_price')
+            = f.input :price, label: false, wrapper_html: { class: 'col-md-7' } do
+              .input-group
+                span.input-group-addon $
+                = f.input_field :price, as: :string, class: 'form-control currency-input input-sm price_input', value: currency_format(f.object.price)
+        .col-md-4.text-center
+          span.control-label= t('.preferred')
+          /= f.input_field :preferred, label: false, id: "checkbox-"
+          span.checkbox.custom-checkbox
+            - id = SecureRandom.uuid
+            = f.check_box :preferred, {id: "checkbox-#{ id }"}, true
+            /input type="checkbox" name="item[vendor_items_attributes][][preferred]" id="checkbox-#{ id }"
+            label for="checkbox-#{ id }"
+      - if can? :change, @item
+        = link_to 'javascript:void(0)', data: {confirm: "Sure?"}, class: 'btn btn-danger activate-inactivate remove_btn', rel: 'tooltip', title: 'Remove this vendor' do
+          i.ico-trash

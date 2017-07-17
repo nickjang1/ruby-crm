@@ -1,0 +1,112 @@
+- body_class 'room-setup-page'
+
+.row
+  .col-md-12
+    .panel.panel-default
+      .panel-body
+        h4
+          p SET FREQUENCY
+          p.ml15
+            span Start month
+            = select_tag :start_month, options_for_select((1..(@current_cycle ? 12 : Date.today.month)).collect { |month| [Date::MONTHNAMES[month], month] }, selected: @current_cycle.try(:pm_start_month)),
+                         prompt: 'Select', class: 'form-control start-month-select', id: 'start-month', disabled: @current_cycle
+          p.ml15
+            span ONCE every
+            = select_tag :room_frequency,
+                         options_for_select(Maintenance::Cycle::FREQUENCIES, @current_cycle.try(:frequency_months)),
+                         prompt: 'Select',
+                         class: 'form-control frequency-select',
+                         disabled: true
+            | months
+          - if can? :settings, Property
+            p
+              span Target Inspection Percent
+              = number_field_tag :target_inspection_percent, current_property.target_inspection_percent, class: 'form-control target-inspection-percent', min: 1, max: 100, id: 'target-inspection-field', data: {property: current_property.id}
+              | %
+.row
+  .col-md-6
+    .panel.panel-default
+      .panel-body
+        .indicator#saving-rooms-indicator
+          span.spinner
+        h4.clearfix
+          span.panel-body-title Setup the Guest Rooms in the hotel
+          = link_to t('.save_guest_rooms'), 'javascript:void(0)', id: 'save-rooms-btn', class: 'btn btn-primary pull-right', disabled: true
+        table.table#floors-data
+          thead
+            tr
+              th Floor #
+              th Guest Rooms
+              th Total Guest Rooms on floor
+          tbody.floors-rows
+          tbody
+            tr.service-row
+              td colspan=3
+                a.btn.btn-block.btn-default.add-floor + Add floor
+            tr.service-row
+              td.text-right colspan=2
+                | Total Guest Rooms
+              td#total-room-count Total
+  .col-md-6
+    .panel.panel-default
+      .panel-body
+        h4 Setup the maintenance checklist by category
+        #checklist-items
+          .panel-group.items-listing
+          a.btn.btn-block.btn-default.add-item data-loading-text="saving category..."
+            span.ico-plus-sign
+            | Add category
+
+script#room-floor-template type="x-tmpl-mustache"
+  tr data-floor="{{floor}}"
+    td
+      | {{floor}}
+    td
+      input.form-control.selectized-control
+    td.total-rooms
+      | {{room_count}}
+
+script#checklist-area-item-template type="x-tmpl-mustache"
+  .panel data-id="{{id}}" data-type="area"
+    .panel-heading.btn-default
+      h4.panel-title
+        i.area-sort-handle.ico-sort.mr5
+        a.text-primary.collapsed data-toggle="collapse" href="#collapse-{{id}}"
+          span.plus.mr5
+        a.x-editable data-title=("Edit category") data-type="text" data-url="/maintenance/checklist_items/{{id}}" data-send="always"
+          | {{name}}
+        a.x-deleteable.pull-right data-title=("Delete checklist item") data-type="text" data-checklist-id="{{id}}" data-heading="Confirm Room Maintenance Category Deletion." data-message="Do you want to delete the category? All checklist items under the category will be deleted"
+          i.ico-trash.text-danger.cursor-pointer
+    div.panel-collapse.collapse id="collapse-{{id}}"
+      .panel-body
+        .panel-group.items-listing
+          | {{#subcategories}}
+          | {{>subcategory}}
+          | {{/subcategories}}
+        a.btn.btn-block.btn-default.add-item data-area-id="{{id}}" data-loading-text="saving item..."
+          span.ico-plus-sign
+          | Add item
+
+
+script#checklist-subcategory-template type="x-tmpl-mustache"
+  .panel data-id="{{id}}" data-type="item"
+    .panel-heading
+      h5
+        i.area-sort-handle.ico-sort.mr5
+        a.x-editable data-title=("Edit checklist item") data-type="text" data-url="/maintenance/checklist_items/{{id}}" data-send="always"
+          | {{name}}
+        a.x-deleteable.pull-right data-send="always" data-title=("Delete checklist item") data-type="text" data-checklist-id="{{id}}" data-heading="Confirm Room Maintenanance Checklist Item Deletion" data-message="Do you want to delete the checklist item?"
+          i.ico-trash.text-danger.cursor-pointer
+
+
+#ChecklistconfirmationDialog.modal aria-hidden="true" role="dialog" tabindex="-1" 
+  .modal-dialog
+    .modal-content
+      .modal-header
+        a.close data-dismiss="modal"  ×
+        h4.checklist_heading 
+      .modal-body
+        p.checklist_message
+      .modal-footer
+        button.btn.modal-close aria-hidden="true"  NO! this was a terrible idea.
+        a.btn.btn-danger.confirm data-dismiss="modal"  YES I'm sure!

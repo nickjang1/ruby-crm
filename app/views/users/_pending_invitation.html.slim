@@ -1,0 +1,28 @@
+- user = pending_invitation.invitee
+- unless user.deleted?
+  .col-sm-6.col-md-4.shuffle
+    .panel.widget
+      .table-layout.nm
+        .col-xs-4.text-center.relative
+          img src=user.avatar.url(:medium) width="100%" /
+          .overlay
+          .overlay-text
+            span.ico-warning.text-danger
+            br
+            span.text-danger=t('.pending_invite')
+        .col-xs-7.valign-middle
+          .panel-body
+            h5.search-target.semibold.mt0.mb5
+              p.text-danger=t('.invitation_sent')
+              = user.name
+            h5.search-target.semibold.mt0.mb5.text-muted
+              =pending_invitation.params["user"]["current_property_user_role_attributes"]["title"] rescue ''
+            p.ellipsis.text-muted.mb5.listing-email
+              i.ico-envelop.mr5
+              = mail_to user.email, :body => "Hi #{user.name},", :rel => 'tooltip', :title => 'Click here to send email' do
+                = user.email
+        .col-xs-1.valign-top
+          .listing-actions
+            - if can? :delete, User
+              = link_to join_invitation_path(pending_invitation), method: :delete, data: {confirm: "Cancel the invitation of user #{user.name}"}, :class => 'activate-inactivate btn btn-danger', :rel => 'tooltip', :title => 'Cancel Invitation' do
+                i.ico-cancel

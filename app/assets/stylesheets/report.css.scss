@@ -1,0 +1,210 @@
+.fc-center {
+  display: inline-block;
+}
+
+#report-content {
+  .fc-button {
+    &.fc-state-active, &.active {
+      background-color: #8ac448;
+      border-color: #82c03e;
+      color: white;
+      text-shadow: none;
+    }
+  }
+}
+
+.report-body {
+  .r-label { font-size: 12px; font-weight: bold; }
+  .r-value { font-size: 14px; }
+  .pull { padding-top: 10px; padding-bottom: 10px; }
+}
+
+#analysis-report-data {
+  [class^="ico-"], [class*=" ico-"],
+  [class^="fa-"], [class*=" fa-"] {
+    font-size: 20px;
+  }
+  &.small {
+    [class^="ico-"], [class*=" ico-"],
+    [class^="fa-"], [class*=" fa-"] {
+      font-size: 14px;
+    }
+    span, div {
+      font-size: 11px;
+    }
+    .pm-count {
+      display: block;
+    }
+  }
+}
+#analysis-report-data {
+  &.room-table {
+    .cycle td:nth-child(3),
+    &.cycle td:nth-child(4) {
+      background-color: #f1f1f1;
+    }
+    &.cycle td:nth-child(2),
+    &.cycle td:nth-child(4),
+    &.cycle td:nth-child(6) {
+      width: 100px;
+    }
+  }
+
+  &.public-area-table {
+
+    table.detail {
+      background-color: transparent;
+      border: none;
+      margin-bottom: 0;
+      > tbody > tr > td {
+        border: none;
+        padding: 0;
+      }
+
+      .status {
+        width: 120px;
+      }
+      .maintenance-records {
+        & .maintenance-record:not(:first-child) {
+          border-top: 1px solid #ccc;
+        }
+        & .maintenance-record {
+          border-left: 1px solid #ccc;
+          padding: 10px;
+        }
+      }
+    }
+    .semibold {
+      font-size: 12px;
+    }
+    .detail{
+      b {
+        font-size: 12px;
+      }
+      font-size: 11px;
+    }
+    .sub-title {
+      border-bottom: 1px solid #ccc;
+      font-weight: bold;
+      line-height: 30px;
+      padding-left: 15px;
+      margin-bottom: 5px;
+      font-size: 12px;
+    }
+  }
+
+  &.year .value { background: #f1f1f1; }
+
+  .value {
+    width: 90px;
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+  tr > td {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #777;
+  }
+
+
+  > tbody > tr:nth-child(1) td {
+    background-color: #6bccb4 !important;
+    padding: 5px 2px;
+    color: white;
+  }
+}
+
+.print #main { background-color: #fff }
+.fc-toolbar{ margin-bottom: 0 }
+
+#report-content {
+  .indicator {
+    .spinner {
+      top: 150px;
+    }
+  }
+  #property_id {
+    border-color: #00a5d2;
+  }
+}
+
+.equipment-data-table {
+  [class^="ico-"], [class*=" ico-"],
+  [class^="fa-"], [class*=" fa-"] {
+    font-size: 20px;
+  }
+
+  .equipment-type-info {
+    font-size: 11px;
+  }
+
+  th {
+    background-color: #6bccb4 !important;
+    padding: 5px 2px;
+    color: white !important;
+  }
+
+  .record-info {
+    &:first-child {
+      hr {
+        display: none;
+      }
+    }
+
+    span.checklist-group-info {
+      font-size: 11px;
+    }
+  }
+}
+
+#active-work-orders, #closed-work-orders, #fixed-checklists {
+  thead {
+    display: none;
+  }
+  td {
+    vertical-align: top;
+    padding: 7px;
+  }
+  .text-muted {
+    font-size: 9px;
+
+    &.text-small {
+      font-size: 11px;
+    }
+  }
+
+  > tbody > tr > td:first-child {
+    .text-small {
+      font-size: 10px;
+    }
+  }
+
+  tr.details {
+    td {
+      padding: 0;
+      border: none;
+    }
+
+    > td {
+      padding: 0 7px 7px 7px;
+    }
+
+    table {
+      border: none;
+    }
+  }
+}
+
+.text-small {
+  font-size: 11px;
+}
+
+.report-sidebar.work-order-listing-report {
+  .panel-body {
+    padding: 10px;
+  }
+  
+  label {
+    margin-bottom: 0;
+  }
+}

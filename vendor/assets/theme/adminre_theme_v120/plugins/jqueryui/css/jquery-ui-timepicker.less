@@ -1,0 +1,54 @@
+// less variable
+@import "./../../../stylesheet/variables.less";
+@import "./../../../stylesheet/mixin.less";
+
+.ui-timepicker-div {
+    dl {
+        margin: 0;
+        padding: 8px 10px;
+    }
+    dt,
+    dd {
+        font-size: 13px;
+        line-height: 24px;
+    }
+    dt {
+        color: darken(@gray, 50%);
+        font-weight: 600;
+        float: left;
+        width: 90px;
+        overflow: hidden;
+        clear: both;
+        text-align: left;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    dd {
+        margin-left: 110px;
+
+        // macro clearfix
+        &:before,
+        &:after {
+            display: table;
+            content: " ";
+        }
+
+        &:after {
+            clear: both;
+        }
+
+        > .ui-slider {
+            margin-top: 9px;
+        }
+    }
+
+    .ui-widget-header {
+        position: relative;
+        padding: 8px 0;
+        background-image: none;
+        background-color: lighten(@gray, 3%) !important;
+        border-radius: 0px;
+        border-width: 0px;
+        border-bottom: 1px solid @border-color;
+    }
+}

@@ -1,0 +1,19 @@
+aside.sidebar.sidebar-left.sidebar-menu
+  section.content.slimscroll
+    h5.heading ADMIN MENU
+    ul.topmenu.topmenu-responsive data-toggle="menu"
+      li class=("#{'active' if current_page?(admin_root_path)}")
+        = link_to admin_root_path do
+          span.figure
+            i.ico-dashboard
+          span.text Dashboard
+        li class=("#{'active open' if current_page?(new_admin_customer_path)}")
+          a href=new_admin_customer_path
+            span.figure
+              i.ico-chart
+            span.text Customers
+        li
+          a href="/admin/intelligence"
+            span.figure
+              i.ico-brain
+            span.text Intelligence

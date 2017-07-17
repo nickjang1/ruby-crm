@@ -1,0 +1,17 @@
+/* ----------------------------
+ *
+ * Infobar
+ *
+ * --------------------------- */
+.infobar {
+    position: relative;
+    z-index: 1035;
+    height: @infobar-height;
+    background-color: @dark;
+
+    // Fix header reposition
+    // -----------------------------------
+    + .navbar-fixed-top {
+        top: @infobar-height;
+    }
+}

@@ -1,0 +1,88 @@
+= simple_form_for @purchase_order do |f|
+  .row
+    .large-12.columns
+      .menubar
+
+        %h1
+          = "Purchase Order #{@purchase_order.number}"
+          = "(#{@purchase_order.vendor.try :name})"
+        .right
+          .split-btn
+            = link_to_with_icon 'icon-print', 'Download PDF', purchase_order_path(@purchase_order, format: :pdf), class: 'btn btn-primary'
+            - if @purchase_order.sent?
+              = link_to 'Mark as Unsent', purchase_order_path(@purchase_order, {purchase_order: {sent: 0}}), method: :put, class: 'btn btn-danger pull-right'
+            - else
+              = link_to 'Mark as Sent', purchase_order_path(@purchase_order, {purchase_order: {sent: 1}}), method: :put, class: 'btn btn-success pull-right'
+              %a{ href: '#', data: {'reveal-id' => 'faxModal'} } Send Fax
+              %a{ href: '#', data: {'reveal-id' => 'emailModal'} } Send Email
+
+  .row.hide
+    .large-6.columns.ship
+      %p= @purchase_order.property.name
+      %ul
+        %li= @purchase_order.property.street_address
+        %li= (@purchase_order.property.city || '') + ' ' + (@purchase_order.property.zip_code || '')
+        %li= 'Phone: ' + @purchase_order.property.phone if @purchase_order.property.phone.present?
+        %li= 'Fax: ' + @purchase_order.property.fax if @purchase_order.property.fax.present?
+    .large-6.columns.ship
+      %h2 Purchase Order
+      %table.responsive
+        %tr
+          %td Date:
+          %td= @purchase_order.created_at
+        %tr
+          %td P.O. #:
+          %td= @purchase_order.number
+        %tr
+          %td Customer ID:
+          %td= @purchase_order.vendor.id
+
+  .row.address.hide
+    .large-12.columns
+      .large-2.columns.printleft
+        %h3 Vendor:
+      .large-4.columns.printleft
+        %ul
+          %li= @purchase_order.vendor.contact_name
+          %li= @purchase_order.vendor.name
+          %li= @purchase_order.vendor.street_address
+          %li= (@purchase_order.vendor.city || '') + ' ' + (@purchase_order.vendor.zip_code || '')
+      .large-2.columns.printleft
+        %h3 Ship To:
+      .large-4.columns.printleft
+        %ul
+          %li= @purchase_order.property.contact_name
+          %li= @purchase_order.property.name
+          %li= @purchase_order.property.street_address
+          %li= (@purchase_order.property.city || ' ') + ' ' + (@purchase_order.property.zip_code || '')
+          %li= 'Phone: ' + @purchase_order.property.phone if @purchase_order.property.phone.present?
+
+  .row.hide
+    .large-12.columns
+      %table.shipping.responsive
+        %tr
+          %th Shipping Method
+          %th Shipping Terms
+          %tr
+            %td= @purchase_order.vendor.shipping_method
+            %td= @purchase_order.vendor.shipping_terms
+
+  .row.hide
+    .large-12.columns
+      - if @purchase_order.sent?
+        .box
+          Order sent at
+          = @purchase_order.sent_at
+      .box.with_table
+        %table.table.responsive
+          %tr
+            %th Quantity
+            %th Item #
+            %th Unit Price
+            %th Line Total
+          - @purchase_order.item_orders.each do |item_order|
+            %tr
+              %td{ colspan: '1' }= item_order.quantity
+              %td{ colspan: '1' }= item_order.item.try :name
+              %td{ colspan: '1' }= item_order.price
+              %td{ colspan: '1' }= item_order.quantity * item_order.price

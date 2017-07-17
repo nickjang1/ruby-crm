@@ -1,0 +1,88 @@
+- body_class 'public-area-inspection-page'
+
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold= t('.header')
+- if current_cycle(:public_area)
+  .row
+    .col-md-4
+      .table-layout.animation.delay.animating.fadeInDown
+        .col-xs-4.panel.bgcolor-info.text-center
+          .ico-users3.fsize24
+        .col-xs-8.panel
+          .panel-body.text-center
+            h3.semibold.text-muted.nm= current_cycle(:public_area).ordinality_number.ordinalize
+            p.semibold.text-primary.mb0.mt5.ellipsis= raw t('.current_cycle')
+    .col-md-4
+      .table-layout.animation.delay.animating.fadeInDown
+        .col-xs-4.panel.bgcolor-primary.text-center
+          .ico-bed.fsize24
+        .col-xs-8.panel
+          .panel-body.text-center
+            h3.semibold.text-muted.nm
+              span= current_cycle(:public_area).public_areas_inspected.count
+              span.small= " / #{Maintenance::PublicArea.count}"
+            p.semibold.text-primary.mb0.mt5.ellipsis= raw t('.public_areas_inspected')
+    .col-md-4
+      .table-layout.animation.delay.animating.fadeInDown
+        .col-xs-4.panel.bgcolor-warning.text-center
+          .ico-calendar5.fsize24
+        .col-xs-8.panel
+          .panel-body.text-center
+            h3.semibold.text-muted.nm= current_cycle(:public_area).days_to_finish
+            p.semibold.text-primary.mb0.mt5.ellipsis= raw t('.days_remaining')
+
+.row
+  .col-sm-12.col-md-12
+    table.table.table-bordered.table-hover#public-area-inspection-table
+      thead
+        tr
+          th= t('.panel_title')
+      tbody
+    .indicator.inline
+      span.spinner
+
+script#public-area-template type="x-tmpl-mustache"
+  .public-area-detail.clearfix
+    .public-area-name
+      span= '{{name}}'
+      dl.dl-horizontal.room-inspection-info.no-wrapping
+        dt Completed By:
+        dd= '{{completed_by}}'
+      dl.dl-horizontal.room-inspection-info.no-wrapping
+        dt Completed On:
+        dd= '{{completed_on}}'
+      dl.dl-horizontal.room-inspection-info.no-wrapping
+        dt Fixes:
+        dd= '{{fixed}}'
+      dl.dl-horizontal.room-inspection-info.no-wrapping
+        dt Work Orders:
+        dd= '{{work_orders}}'
+    .public-area-inspection-actions
+      | {{^completed}}
+      | {{^in_inspection}}
+      = link_to t('.start'), '{{public_area_inspect_path}}', class: 'start-maintenance btn btn-primary btn-outline'
+      | {{/in_inspection}}
+      | {{#in_inspection}}
+      = link_to t('.continue'), '{{public_area_inspect_path}}', class: 'start-maintenance btn btn-primary btn-outline'
+      | {{/in_inspection}}
+      | {{/completed}}
+      | {{#completed}}
+      .text-right
+        span.label.label-success Inspected
+      | {{/completed}}
+      .room-inspection-info.text-left
+        div
+          b Last Inspection:
+        | {{#ever_inspected}}
+        div
+          | {{last_inspected_on}}
+        div
+          b By
+          |  {{last_inspected_by}}
+        div Inspected {{inspected_count}} times
+        div in {{cycles_count}} previous cycles
+        | {{/ever_inspected}}
+        | {{^ever_inspected}}
+        div.small No Inspection Done
+        | {{/ever_inspected}}

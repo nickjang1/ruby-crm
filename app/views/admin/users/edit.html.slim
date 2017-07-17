@@ -1,0 +1,27 @@
+= simple_form_for @admin, url: admin_user_path(@admin), html: { autocomplete: "off", class: 'jsvalidate panel form-horizontal form-bordered'} do |f|
+  .tab-pane.active#password
+    .panel-body.pt0.pb0
+      .form-group.header.bgcolor-default
+        .col-md-12
+          span.pull-left
+            h4.semibold.text-primary.mt0 Password
+          span.pull-right
+            = f.submit class: 'btn btn-success', value: 'Update Password'
+            '
+            = link_to 'Cancel', admin_root_path, class: 'btn btn-default'
+      .form-group
+        label.col-sm-3.control-label
+          | New password
+          span.text-danger *
+        .col-sm-6
+          .form-stack.has-icon.pull-left
+            = f.password_field :password, :placeholder => "Password", :class => 'form-control input-lg', :data => { :'parsley-required' => ""}
+            i.ico-lock2.form-control-icon
+      .form-group
+        label.col-sm-3.control-label
+          | Confirm new password
+          span.text-danger *
+        .col-sm-6
+          .form-stack.has-icon.pull-left
+            = f.password_field :password_confirmation, :placeholder => "Confirm Password", :class => 'form-control input-lg', :data => { :'parsley-required' => ""}
+            i.ico-lock2.form-control-icon

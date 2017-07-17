@@ -1,0 +1,16 @@
+connection: &connection
+  adapter: postgresql
+  encoding: unicode
+  host: localhost
+  pool: 5
+  username: hugo 
+  password: 
+
+development:
+  <<: *connection
+  database: lodgistics_development
+
+test:
+  <<: *connection
+  database: lodgistics_test
+

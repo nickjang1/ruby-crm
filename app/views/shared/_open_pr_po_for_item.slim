@@ -1,0 +1,30 @@
+- item_orders   = item.item_orders.joins(:purchase_order).where('purchase_orders.state <> ?', :closed)
+- item_requests = item.item_requests.joins(:purchase_request).where('purchase_requests.state NOT IN (?)', [:ordered, :inventory_finished])
+.open-requests-count-wrapper.dropdown.custom
+  - if item_orders.any? || item_requests.any?
+    a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown"
+      span.label.label-danger= t('.badge', orders_count: item_orders.count, requests_count: item_requests.count)
+
+    .dropdown-menu role="menu" 
+      .dropdown-header
+        span.title= t('.widget_title')
+      .dropdown-body.slimscroll
+        .media-list
+          - for ir_io in (item_requests + item_orders).sort_by(&:created_at)
+            - pr_po       = ir_io.is_a?(ItemRequest) ? ir_io.purchase_request : ir_io.purchase_order
+            - badge_class = ir_io.is_a?(ItemRequest) ? PurchaseRequest::BADGE_CLASS[pr_po.state.to_sym] : PurchaseOrderDecorator.decorate(pr_po).badge_class
+            - link_path   = ir_io.is_a?(ItemRequest) ? edit_purchase_request_path(pr_po) : purchase_order_path(pr_po)
+            - link_condition  = ir_io.is_a?(ItemRequest) ? can?(:edit, pr_po) : can?(:show, pr_po)
+            - translation_key = ir_io.is_a?(ItemRequest) ? ".line_pr" : ".line_po"
+            - state_label     = ir_io.is_a?(ItemRequest) ? t("purchase_requests.purchase_request.statuses.#{ pr_po.state }") : PurchaseOrderDecorator.decorate(pr_po).state_label
+            - label = raw t(translation_key, state: content_tag(:div, state_label, class: "badge #{ badge_class }"),
+                      number: pr_po.number, unit_count: ir_io.quantity || t('.no_quantity'), unit_name: ir_io.quantity && ir_io.item.unit)
+           
+            - if link_condition
+              a.media.read.border-dotted target="_blank" href=link_path
+                span.media-body
+                  span.media-text= label
+            - else
+              .media.read.border-dotted
+                span.media-body
+                  span.media-text= label

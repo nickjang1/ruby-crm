@@ -1,0 +1,169 @@
+header#header.navbar.navbar-fixed-top
+  .navbar-header
+    a.navbar-brand href="javascript:void(0);"
+      span.logo-figure
+      span.logo-text
+  .navbar-toolbar.clearfix
+    ul.nav.navbar-nav.pull-left
+      li.hidden-xs.hidden-sm
+        a.sidebar-minimize data-toggle="minimize" href="javascript:void(0);" title=("Minimize sidebar")
+          span.meta
+            span.icon
+      li.navbar-main.hidden-lg.hidden-md.hidden-sm
+        a data-direction="ltr" data-toggle="sidebar" href="javascript:void(0);" rel="tooltip" title=("Menu sidebar")
+          span.meta
+            span.icon
+              i.ico-paragraph-justify3
+    ul.nav.navbar-nav.navbar-right
+      li#header-notifications.dropdown.custom
+        a.dropdown-toggle data-toggle="dropdown" href="javascript:void(0);"
+          span.meta
+            span#notification-icon-image class="icon #{current_user.notifications.unread.count > 0 ? 'text-danger' : ''}"
+              i.ico-bell
+        script#notification-mustache-template type="x-tmpl-mustache"
+          | {{#notifications}}
+          = link_to '{{link}}',
+                    class: "media border-dotted new notification-item {{#read}}read{{/read}}",
+                    method: "{{method}}",
+                    data: {id: "{{id}}", link: "{{link}}", method: "{{method}}"} do
+            span.media-object.pull-left
+              i class="{{icon}}"
+            span.media-body
+              span.media-text
+                | {{message}}
+              span.media-meta.pull-right
+                | {{created_at}} ago
+          | {{/notifications}}
+        .dropdown-menu role="menu" id="notification-menu"
+          .dropdown-header
+            span.title
+              | Notification
+              span.count
+            span.option.text-right
+              a.clear-notifications href="#"  Clear all
+          .dropdown-body.slimscroll
+            .indicator.inline
+              span.spinner
+            .media-list
+      - if Property.current
+        li.property-time
+          a#property-time href="javascript:void(0)" data-timezone=(Property.current_time_zone.tzinfo.identifier)
+            = l(Property.current_time, format: :engage_time)
+      li.dropdown
+        - if current_user.corporate_id?
+          - if (accessible_properties = current_user.all_properties).count > 0
+            a.dropdown-toggle data-toggle="dropdown" href="javascript:void(0);"
+              span.meta
+                span.text.hotel-name
+                  = current_property ? current_property.name : current_user.corporate.name
+                span.caret
+            ul.dropdown-menu role="menu"
+              - if Property.current
+                li
+                  = link_to current_user.corporate.name, user_switch_current_property_path(new_property_id: 'corporate'), method: :put
+                li.divider
+              - accessible_properties.each do |property|
+                li
+                  - if current_property && property.id == current_property.id
+                    a
+                      i.ico-asterisk
+                      '
+                      = property.name
+                  - else
+                    = link_to property.name, user_switch_current_property_path(new_property_id: property.id), method: :put
+          - else
+            a href="javascript:void(0);"
+              span.meta
+                span.text.hotel-name= current_user.corporate.name
+        - else
+          - if (accessible_properties = current_user.all_properties).count > 1
+            a.hotel-name.dropdown-toggle data-toggle="dropdown" href="javascript:void(0);"
+              span.meta
+                span.text.hotel-name= current_property.name
+                span.caret
+            ul.dropdown-menu role="menu"
+              - accessible_properties.each do |property|
+                li
+                  - if property.id == current_property.id
+                    a
+                      i.ico-asterisk
+                      '
+                      = property.name
+                  - else
+                    = link_to property.name, user_switch_current_property_path(new_property_id: property.id), method: :put
+          - else
+            a href="javascript:void(0);"
+              span.meta
+                span.text.hotel-name= current_property.name
+      li.dropdown.profile
+        a.dropdown-toggle data-toggle="dropdown" href="javascript:void(0);"
+          span.meta
+            span.avatar
+              img.img-circle alt="" src="#{current_user.avatar.url(:thumb)}"
+            span.text.hidden-xs.hidden-sm.user-name.ml5
+              = current_user.name
+            span.caret
+        ul.dropdown-menu.dropdown-menu-right role="menu"
+          - if policy(:access).settings?
+            li
+              = link_to property_settings_path do
+                span.icon
+                  i.ico-wrench
+                = t('.property_settings')
+          - if can? :access_corporate_app, User
+            li
+              = link_to corporate_settings_path do
+                span.icon
+                  i.ico-wrench
+                = t('.corporate_settings')
+          li
+            - if can? :edit, current_user
+              = link_to edit_user_path(current_user) do
+                span.icon
+                  i.ico-user-plus2
+                = t('.my_profile')
+          li.divider
+          li
+            = link_to destroy_user_session_path do
+              span.icon
+                i.ico-exit
+              = t('.sign_out')
+    ul.breadcrumbs.nav.navbar-nav.pull-left.hidden-xs
+      .breadcrumb.text-muted.pull-left
+        = render_breadcrumbs :tag => :li, :separator => ''
+
+    ul.nav.navbar-nav.pull-left.global-messages-wrapper
+      li.global-messages-icon.dropdown.custom
+        a.dropdown-toggle data-toggle="dropdown" href="javascript:void(0)"
+          i.ico-bullhorn.broadcast-icon
+          '
+          span.text-muted#global-message-detail
+        script#global-messages-mustache-template type="x-tmpl-mustache"
+          | {{#messages}}
+          = link_to 'javascript:void(0)', class: "media border-dotted new" do
+            span.media-object.pull-left
+              img src="{{created_by_avatar}}"
+            .media-body
+              span.media-text
+                | {{{body}}}
+              span.media-meta.pull-right.text-center
+                span.semibold
+                  | {{created_at_date}}
+                  '
+                  | {{created_at}}
+                br
+                span.media-meta.pull-right
+                  | {{created_by}}
+          | {{/messages}}
+        .dropdown-menu role="menu" id="global-messages-menu"
+          .dropdown-header
+            span.title
+              | Broadcast List
+              '
+              span.count
+          .dropdown-body.slimscroll
+            .indicator.inline
+              span.spinner
+            .media-list
+      li
+        a.global-messages.text-danger data-messages=(Engage::Message.broadcast_messages.to_json)

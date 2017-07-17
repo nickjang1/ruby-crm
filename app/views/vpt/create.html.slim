@@ -1,0 +1,14 @@
+.row
+  .col-sm-12
+    h1 An error occurred during VPT Ordering
+
+    h3 Request Id : #{@error['RequestID']}
+    h3 Error :
+    h4 ID : #{@error['Error']['ID']}
+    h4 Code : #{@error['Error']['Code']}
+    h4 Type : #{@error['Error']['Type']}
+    h4 Text : #{@error['Error']['Text']}
+
+  .col-sm-12
+    h2 XML Request
+    p= @xml

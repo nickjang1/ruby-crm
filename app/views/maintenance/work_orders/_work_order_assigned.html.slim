@@ -1,0 +1,12 @@
+- if work_order.assigned_to_id == Maintenance::WorkOrder::THIRD_PARTY
+  span.text-muted= t('.assigned_to')
+  br
+  = t('.third_party')
+- elsif work_order.assigned_to_id == Maintenance::WorkOrder::UNASSIGNED
+  span.text-muted= t('.assigned_to')
+  br
+  span= t('.unassigned')
+- elsif work_order.assigned_to
+  span.text-muted= t('.assigned_to')
+  br
+  = link_to work_order.assigned_to.name, edit_user_path(work_order.assigned_to)

@@ -1,0 +1,18 @@
+tr
+  td.text-center= purchase_order.number
+  td.text-center
+    = purchase_order.user.try(:name)
+    br
+    = purchase_order.request_user
+  td.text-center= purchase_order.delivery_date
+  td.text-center= purchase_order.vendor.name 
+  td.text-center
+    span.text-muted.bold= humanized_currency_format purchase_order.total_cost
+    br
+    = purchase_order.item_counts
+  
+  td.text-center
+    .badge class="has-tip #{purchase_order.badge_class}" data={tooltip: 'true'} title="#{purchase_order.tooltip}"
+      = purchase_order.state_label
+  td.text-center
+    = render partial: 'purchase_order_actions', locals: {po: purchase_order}

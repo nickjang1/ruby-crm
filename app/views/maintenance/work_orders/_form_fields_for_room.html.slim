@@ -1,0 +1,10 @@
+.form-group.hidden data-location-type="Maintenance::Room"
+  .row.mb10
+    label.control-label.col-md-4= raw t('.room')
+    .col-md-8
+      = f.input_field :maintainable_id, as: :select, collection: Maintenance::Room.all, prompt: "Select room", class: 'form-control input-sm locked-for-editing', required: true
+
+  .row
+    label.control-label.col-md-4= t('.checklist_item')
+    .col-md-8
+      = f.grouped_collection_select :checklist_item_maintenance_id, Maintenance::ChecklistItem.room_areas, :checklist_items, :name, :id, :name, {prompt: "Select checklist item"}, class: 'form-control input-sm'

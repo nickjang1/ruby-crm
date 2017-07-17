@@ -1,0 +1,11 @@
+= simple_form_for resource, as: resource_name, url: registration_path(resource_name), html: { method: :post, class: 'form-horizontal', autocomplete: 'off' } do |f|
+  %fieldset
+    %legend Sign up
+    = f.input :name, autofocus: true
+    = f.input :email, required: true
+    = f.input :password, required: true, hint: '8 characters minimum'
+    = f.input :password_confirmation, required: true
+    .form-actions
+      = f.submit 'Sign up', class: 'btn btn-primary'
+
+= render 'users/shared/links'

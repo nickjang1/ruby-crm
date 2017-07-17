@@ -1,0 +1,63 @@
+
+.row
+  .large-12.columns
+    .menubar
+      %h1= "All #{params[:controller].capitalize}"
+      .left.full
+        .split-btn
+          = link_to 'Order Selected', '#', id: 'order_selected', class: 'full', data: {controller: params[:controller]}
+          = link_to 'Delete Selected', '#', id: 'delete_selected', data: {controller: params[:controller]}
+        = link_to url_for(controller: params[:controller], action: :new), class: 'btn full' do
+          %i.icon-plus
+          = "New #{params[:controller].singularize}"
+      .right.full
+        = search_form_for @q, builder: SimpleForm::FormBuilder do |f|
+          .btn-field.full
+            = f.text_field :name_cont, placeholder: 'Name'
+            = link_to_submit class: 'btn search' do
+              %i.icon-search
+.row
+  .large-12.columns
+    =# sort_link @q, :name, 'Name', {}, class: 'btn'
+    .box.with_table
+      %table.with_actions.checkablerows.responsive
+        %thead
+          %tr
+            %th Name
+            %th.actions Actions
+        %tbody
+          - @tags.roots_and_descendants_preordered.each do |tag|
+            %tr{ data: {id: tag.id, name: tag.name, url: tag_path(tag)} }
+              %td
+                %span{ class: "offset#{tag.depth}" }
+                = check_box_tag :selected, tag.id, false, {id: ''}
+                = tag.name
+              %td{nowrap: true}
+                .split-btn
+                  = link_to_with_icon 'icon-eye-open ', 'Show', url_for(tag)
+                  = link_to_with_icon 'icon-pencil', 'Edit', url_for([:edit, tag])
+                  = link_to_with_icon 'icon-remove-sign', 'Delete', url_for(tag), method: :delete, data: {confirm: 'Are you sure?'}
+                  = link_to_with_icon 'icon-align-left', 'Rearrange', '#', class: 'rearrange', data: {url: url_for(tag), name: tag.name}
+                  = link_to_with_icon 'icon-plus', 'Add child', url_for(controller: params[:controller], action: :new, operation: 'nest_under', other_id: tag.id)
+#rearrange_tag_modal.reveal-modal.small.box
+  = form_tag(nil, method: :put, class: 'custom') do
+    .head
+      = link_to "#", class: 'close-reveal-modal close' do
+        %i.icon-remove
+      %h1 Rearrange
+    .body
+      = hidden_field_tag 'tag[operation]', nil, id: 'tag_operation'
+      .row
+        - Tag.operations.each do |operation|
+          .small-4.columns
+            %button.btn{ type: 'button', class: 'operation_toggle', style: 'width: 100%', data: {value: operation} }
+              %i.icon-reorder
+              = operation.humanize
+      %br
+      %br
+      .row
+        .small-12
+          = select_tag 'tag[other_id]', options_from_collection_for_select(@tags.roots_and_descendants_preordered, 'id', 'plain_text_node'), class: 'custom select', id: 'tag_other_id'
+    .actions
+      = link_to 'Close', '#', class: 'btn close'
+      = submit_tag 'Save changes', class: 'btn'

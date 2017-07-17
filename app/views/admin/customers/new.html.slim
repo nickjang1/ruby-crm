@@ -1,0 +1,51 @@
+- body_class 'admin-new-customer-page'
+
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold Setup New Customer
+
+= simple_form_for :corporate, url: admin_customers_path, html: { class: 'panel panel-default', id: 'new-customer-form' } do |f|
+  .panel-heading
+    h3.panel-title New Customer
+    .panel-toolbar.text-right
+      = f.submit 'Create Customer', class: 'btn btn-success', data: {confirm: 'Do you want to create corporate?'}, id: 'create-customer'
+  .panel-body
+    .row
+      .col-sm-6
+        .panel.panel-default
+          .panel-heading
+            h3.panel-title Corporate Setup
+          .panel-body
+            .form-group
+              = f.text_field :name, class: 'form-control', placeholder: 'Corporate Name'
+            .form-group.mb0
+              .row.mb5
+                .col-sm-6.pr5
+                  = f.text_field :username, class: 'form-control', placeholder: 'Full Name'
+                .col-sm-6.pl5
+                  = f.email_field :useremail, class: 'form-control', placeholder: 'User Email'
+      .col-sm-6
+        .panel.panel-default
+          .panel-body
+            .links.mb15
+              = link_to 'javascript:void(0)', class: 'btn btn-primary add-new-property btn-block' do
+                span.ico-plus-sign
+                '
+                | Add Property
+            .panel-group.mb0#corporate-properties
+    #create-spinner.indicator
+      span.spinner.spinner3
+
+script#property-template type="x-tmpl-mustache"
+  .panel.panel-default.property-panel
+    .panel-body
+      .form-group
+        = text_field_tag 'corporate[properties][{{index}}][name]', nil, class: 'form-control property-name', placeholder: 'Property Name'
+      .form-group.mb0
+        .row.mb5
+          .col-sm-6.pr5
+            = text_field_tag 'corporate[properties][{{index}}][username]', nil, class: 'form-control', placeholder: 'Full Name'
+          .col-sm-6.pl5
+            = email_field_tag 'corporate[properties][{{index}}][useremail]', nil, class: 'form-control property-email', placeholder: 'User Email'
+          .col-sm-12.mt5
+            = select_tag 'corporate[properties][{{index}}][time_zone]', time_zone_options_for_select(nil, ActiveSupport::TimeZone.us_zones), prompt: "Select Timezone", class: "form-control timezone-selector"

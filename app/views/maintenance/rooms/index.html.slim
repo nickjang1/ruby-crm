@@ -1,0 +1,91 @@
+- body_class 'room-selection-page'
+
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold= t('.header')
+- if current_cycle(:room)
+  .row
+    .col-sm-12.col-md-12
+      .row
+        .col-md-4
+          .table-layout.animation.delay.animating.fadeInDown
+            .col-xs-4.panel.bgcolor-info.text-center
+              .ico-loop2.fsize24
+            .col-xs-8.panel
+              .panel-body.text-center
+                h3.semibold.nm= current_cycle(:room).ordinality_number.ordinalize
+                p.semibold.text-muted.mb0.mt5.ellipsis= raw t('.current_cycle')
+
+        .col-md-4
+          .table-layout.animation.delay.animating.fadeInDown
+            .col-xs-4.panel.bgcolor-primary.text-center
+              .ico-bed.fsize24
+            .col-xs-8.panel
+              .panel-body.text-center
+                h3.semibold.nm= current_cycle(:room).rooms_remaining.count
+                p.semibold.text-muted.mb0.mt5.ellipsis= raw t('.num_rooms_remaining')
+
+        .col-md-4
+          .table-layout.animation.delay.animating.fadeInDown
+            .col-xs-4.panel.bgcolor-warning.text-center
+              .ico-calendar5.fsize24
+            .col-xs-8.panel
+              .panel-body.text-center
+                h3.semibold.nm= current_cycle(:room).days_to_finish
+                p.semibold.text-muted.mb0.mt5.ellipsis= raw t('.days_remaining')
+  .row
+    .col-sm-12.col-md-12
+      .panel.panel-default
+        .panel-heading
+          h3.panel-title= t('.choose_room_from_list')
+        .panel-body
+          .row
+            .col-sm-12
+              .btn-group.pull-right.btn-group-responsive
+                = link_to t('.rooms_remaining'), 'javascript:void(0)', class: 'btn btn-primary', data: { filter_type: 'remaining' }
+                - if Maintenance::Room.any_missed_rooms?
+                  = link_to t('.missed_rooms'), 'javascript:void(0)', class: 'btn btn-default', data: { filter_type: 'missed' }
+                - if Maintenance::Cycle.current.rooms_in_progress.any?
+                  = link_to t('.in_progress'), 'javascript:void(0)', class: 'btn btn-default', data: { filter_type: 'in_progress' }
+                - if Maintenance::Cycle.current.rooms_completed.any?
+                  = link_to t('.completed'), 'javascript:void(0)', class: 'btn btn-default', data: {filter_type: 'completed'}
+          br
+          .row
+            .col-sm-12
+              table.table.table-bordered.table-hover#room-selection-table
+                thead
+                  tr
+                    th.text-center
+                      span Floors &
+                      br.splitter
+                      '
+                      span Guest Rooms
+                    th.rooms-remaining
+                      span Guest Rooms
+                      br.splitter
+                      '
+                      span Remaining
+                tbody
+          .indicator.inline
+            span.spinner
+
+script#rooms-floor-template type="x-tmpl-mustache"
+  table.table-condensed.table-bordered.nm.floor-detail-table
+    | {{#rooms}}
+    tr
+      td
+        | Guest Room &#35;{{room_number}}
+        | {{#maintenance_in_progress}} 
+        br
+        span.badge.badge-danger
+          | {{ done_percentage }}% done
+        | {{/maintenance_in_progress}} 
+      td.text-center.selection-actions
+        | {{#maintenance_in_progress}} 
+        = link_to 'Continue PM', '/maintenance/rooms/floor{{floor}}-room{{room_number}}', class: 'btn btn-success btn-outline start-maintenance'
+        | {{/maintenance_in_progress}} 
+        | {{^maintenance_in_progress}} 
+        = link_to 'Start PM', '/maintenance/rooms/floor{{floor}}-room{{room_number}}', class: 'btn btn-success btn-outline start-maintenance'
+        | {{/maintenance_in_progress}} 
+    | {{/rooms}}
+

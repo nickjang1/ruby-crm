@@ -1,0 +1,75 @@
+.engage
+  h3.text-center
+    | Front Desk Log - #{l(@date, format: :mini)}
+    br
+    small Printed by: #{current_user.name} at #{l(Time.current, format: :date_and_am_pm)}
+
+  br
+  hr
+  h4  Wake Up Call List for #{l(@date, format: :mini)} (#{@alarms.count})
+  table.table.engage-table
+    tbody
+      - @alarms.each do |alarm|
+        tr
+          td.text-center
+            span.ft-14.text-muted= alarm[:due_time]
+            br
+          	span.ft-12.semibold.text-muted class=(alarm[:due_date_today] ? 'text-danger' : (alarm[:due_date_tomorrow] ? 'text-warning' : ''))
+              = alarm[:due_date_str]
+          td
+            span.room-badge Room ##{alarm[:room_number]}
+          td=alarm[:body]
+          td.text-center.text-success
+            - if alarm[:completed_at]
+              span.ft-10 Done
+              div.ft-10.semibold= alarm[:completed_by]
+              div.ft-10= alarm[:completed_at]
+  hr
+  h4 Follow Ups for #{l(@date, format: :mini)} (#{@follow_ups.count})
+  - @follow_ups.each do |log|
+    .panel.nm
+      .panel-body
+        ul.list-table.border-bottom
+          li.text-center style="width: 100px;"
+            - if log[:created_by_avatar].include?('/assets')
+              = image_tag "file:///#{Rails.root.join('vendor', 'assets', 'theme')}#{log[:created_by_avatar].gsub('/assets', '')}", class: 'img-circle'
+            - else
+              = image_tag "file:///#{Rails.root.join('public')}#{log[:created_by_avatar]}", class: 'img-circle'
+            div.ft-10.semibold.text-muted= log[:created_by]
+            div.ft-10.text-muted= "#{log[:created_at_date]}, #{log[:created_at]}"
+          li.text-left= raw log[:body]
+        - log[:replies].each do |reply|
+          ul.list-table
+            li.text-right= raw reply[:body]
+            li.text-center style="width: 100px;"
+              - if reply[:created_by_avatar].include?('/assets')
+                = image_tag "file:///#{Rails.root.join('vendor', 'assets', 'theme')}#{reply[:created_by_avatar].gsub('/assets', '')}", class: 'img-circle'
+              - else
+                = image_tag "file:///#{Rails.root.join('public')}#{reply[:created_by_avatar]}", class: 'img-circle'
+              div.ft-10.semibold.text-muted= reply[:created_by]
+              div.ft-10.text-muted= "#{reply[:created_at_date]}, #{reply[:created_at]}"
+
+  hr
+  h4 Messages for #{l(@date, format: :mini)} (#{@messages.count})
+  - @messages.each do |log|
+    .panel.nm
+      .panel-body
+        ul.list-table.border-bottom
+          li.text-center style="width: 100px;"
+            - if log[:created_by_avatar].include?('/assets')
+              = image_tag "file:///#{Rails.root.join('vendor', 'assets', 'theme')}#{log[:created_by_avatar].gsub('/assets', '')}", class: 'img-circle'
+            - else
+              = image_tag "file:///#{Rails.root.join('public')}#{log[:created_by_avatar]}", class: 'img-circle'
+            div.ft-10.text-muted.semibold= log[:created_by]
+            div.ft-10.text-muted= log[:created_at]
+          li.text-left= raw log[:body]
+        - log[:replies].each do |reply|
+          ul.list-table.pt5
+            li.text-right= raw reply[:body]
+            li.text-center style="width: 100px; vertical-align: top;"
+              - if reply[:created_by_avatar].include?('/assets')
+                = image_tag "file:///#{Rails.root.join('vendor', 'assets', 'theme')}#{reply[:created_by_avatar].gsub('/assets', '')}", class: 'img-circle'
+              - else
+                = image_tag "file:///#{Rails.root.join('public')}#{reply[:created_by_avatar]}", class: 'img-circle'
+              div.ft-10.semibold.text-muted= reply[:created_by]
+              div.ft-10.text-muted= "#{reply[:created_at_date]}, #{reply[:created_at]}"

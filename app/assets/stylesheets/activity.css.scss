@@ -1,0 +1,96 @@
+.ui-datepicker {
+  z-index: 1051 !important;
+}
+#activities {
+  /* primary */
+  .bgcolor-primary {
+    background: #ecf0f1 !important;
+    color: #00b1e1 !important;
+    border: 1px solid #00a5d2 !important;
+  }
+  /* info */
+  .bgcolor-info {
+    background: #ecf0f1 !important;
+    color: #63d3e9 !important;
+    border: 1px solid #4dcde6 !important;
+  }
+  /* success */
+  .bgcolor-success {
+    background: #ecf0f1 !important;
+    color: #91c854 !important;
+    border: 1px solid #87c345 !important;
+  }
+  /* warning */
+  .bgcolor-warning {
+    background: #ecf0f1 !important;
+    color: #ffd66a !important;
+    border: 1px solid #ffd056 !important;
+  }
+  /* danger */
+  .bgcolor-danger {
+    background-color: transparent !important;
+    color: #ed5466 !important;
+    border: 1px solid #eb4255 !important;
+  }
+}
+.timeline .events > .wrapper:nth-of-type(even) {
+  margin-top: 40px;
+  .panel {
+    margin-bottom: 0;
+  }
+}
+.timeline .events>.wrapper:nth-of-type(odd)>.panel {
+  margin-bottom: 30px;
+}
+
+.sidebar .content {
+  overflow: hidden;
+}
+
+// limit the activity log height only in dashboard
+.media-list-feed .limit-line-3 {
+  line-height: 16px;
+  max-height: 55px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.media-list-feed > .media > .media-body > .media-text {
+  font-size: 11px;
+}
+
+.media-list-feed > .media > .media-body > .media-heading {
+  font-size: 13px;
+}
+
+#activities .list-table > li:first-child {
+  vertical-align: top;
+}
+
+#activities .list-table > li {
+  word-wrap: break-word;
+
+}
+#activities.timeline {
+  .limit-line-3 {
+    margin-top: -10px;
+    &:before {
+      margin-left: -6px;
+      font-family: "iconfont";
+      font-size: 14px;
+      content: "\e19f";
+      color: #eeeeee;
+    }
+    &:after {
+      display: block;
+      text-align: right;
+      font-family: "iconfont";
+      font-size: 14px;
+      content: "\e1a0";
+      color: #eeeeee;
+    }
+  }
+}

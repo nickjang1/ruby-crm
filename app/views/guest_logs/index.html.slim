@@ -1,0 +1,142 @@
+- body_class 'guest-logs-page'
+
+.page-header.page-header-block
+  .page-header-section
+    .toolbar.clearfix.nm
+      .pull-right
+        button#btn-print.btn.btn-default.mr10 type="button"
+          span.ico-print2
+          span.hidden-xs  Print PDF
+        button#btn-cancel.btn.btn-danger.mr10.hide type="button"
+          span.ico-close2
+          span.hidden-xs  Cancel
+        button#btn-new-log.btn.btn-primary data-target="#form-log" data-toggle="collapse"
+          span.ico-plus-circle2
+          span.hidden-xs  New Comment
+      .pull-right.search-container.mr10
+        .has-icon
+          input#input-query.form-control placeholder="Search Comment" type="text"
+          i.ico-search.form-control-icon
+  form.mt10.collapse id="form-log" data-parsley-validate=""
+    .summernote
+.guest-logs-container
+  .panel.fullcalendar
+    .fc.fc-ltr.fc-unthemed#calendar-control
+      .fc-toolbar
+        .fc-left
+          a.fc-button.fc-state-default#offset-minus <
+        .fc-right
+          a.fc-button.fc-state-default#offset-plus >
+        .fc-center
+          input.label-datepicker.semibold.text-primary.text-center readonly="" type="text" value="Today"
+  .guest-logs-wrapper
+    .alarms.hide
+      .panel
+        .panel-heading
+          h3.panel-title
+            span.ico-alarm2.mr10
+            span.selected-date Today
+            | 's Wake Up call list
+        .panel-body.np
+          table.table.nm
+
+    .guest-logs
+    #loading.indicator
+      span.spinner
+
+#alarmConfirmationDialog.modal aria-hidden="true" role="dialog" tabindex="-1"
+  .modal-dialog
+    .modal-content
+      .modal-header.pa10
+        a.close data-dismiss="modal" &times;
+        h4
+          i.ico-alarm2.mr10
+          | Review Wake Up call
+      .modal-body.pa10
+        p Confirm the wake up call information below.
+        br
+        p
+          span.text-muted Message: &nbsp;
+          span#message
+        p
+          span.text-muted Wake Up Time: &nbsp;
+          span#alarm_at
+      .modal-footer
+        button.btn.modal-close data-dismiss="modal" aria-hidden="true"  Cancel
+        a.btn.btn-success.confirm data-dismiss="modal"  Save
+script.mustache-template.alarm-mustache-template type="x-tmpl-mustache"
+  tr data-id="{{alarm.id}}"
+    td
+      div
+        | {{{alarm.body}}}
+      div style="font-size: 11px"
+        | {{alarm.user_name}}
+        span.text-muted  created on
+        |  {{alarm.created_at}}
+    td.semibold.alarm-time
+      | {{alarm.alarm_at}}
+    | {{#alarm.is_checked}}
+    td
+      span.text-success Done
+      div style="font-size: 11px"
+        span.text-muted Completed By:
+        |  {{alarm.checked_by}}
+      div style="font-size: 11px"
+        span.text-muted On:
+        |  {{alarm.checked_on}}
+    | {{/alarm.is_checked}}
+    | {{^alarm.is_checked}}
+    td
+      a.check-alarm.mr10 href="javascript:void(0)" Mark as done
+      a.text-danger.remove-alarm href="javascript:void(0)"
+        i.ico-trash
+    | {{/alarm.is_checked}}
+script.mustache-template.likes-mustache-template type="x-tmpl-mustache"
+  .clearfix
+    .img-group.img-group-stack.pull-left
+      | {{#log.likes}}
+      img.img-circle alt="{{user_name}}" src="{{user_avatar}}" data-toggle="tooltip" data-placement="top" title="{{user_name}}"
+      | {{/log.likes}}
+    p.nm.pa10.pull-left
+      span.semibold
+        | {{log.likes_count}} people
+      |  like this
+
+script.mustache-template.guest-log-mustache-template type="x-tmpl-mustache"
+  .widget.panel
+    | {{#log.is_liked}}
+    a.panel-ribbon.pull-right.liked data-id="{{log.id}}" href="javascript:void(0);"
+      i.ico-heart4
+      i.ico-heart3
+    | {{/log.is_liked}}
+    | {{^log.is_liked}}
+    a.panel-ribbon.pull-right data-id="{{log.id}}" href="javascript:void(0);"
+      i.ico-heart4
+      i.ico-heart3
+    | {{/log.is_liked}}
+    .panel-body
+      .log-body
+        .ico-quotes-left.text-muted
+        .pl15
+          | {{{log.body}}}
+        .ico-quotes-right.text-muted.text-right
+      .log-footer.clearfix
+        .pull-left
+          .img-group.img-group-stack.pull-left
+            img.img-circle alt="{{log.user_name}}" src="{{log.user_avatar}}"
+          .pl5.pull-left
+            div
+              span.semibold href="javascript:void(0);"  {{log.user_name}}
+            |  created at {{log.created_at_time}}
+        .pull-right#likes
+          | {{#log.has_likes}}
+          .clearfix
+            .pl5.pt5.pull-right
+              span.semibold
+                | {{log.likes_count}} people
+              |  like this
+            .img-group.img-group-stack.pull-right
+              | {{#log.likes}}
+              img.img-circle alt="{{user_name}}" src="{{user_avatar}}" data-toggle="tooltip" data-placement="top" title="{{user_name}}"
+              | {{/log.likes}}
+          | {{/log.has_likes}}

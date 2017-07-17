@@ -1,0 +1,14 @@
+tr class="test-item-#{item.id}"
+  td
+    .hidden
+      input checked=("checked" unless show_add) name="tag[item_ids][]" type="checkbox" value=item.id 
+    = item.name
+  td.text-center= item.categories.first.try(:name)
+  td.text-center
+    - if show_add
+      = link_to 'javascript:void(0)', class: "btn btn-success add_btn", rel: 'tooltip', title: 'Add to This Category' do
+        i.ico-plus-circle2
+
+    -  else
+      = link_to 'javascript:void(0)', class: "btn btn-danger remove_btn", rel: 'tooltip', title: 'Remove from This Category' do
+        i.ico-trash

@@ -1,0 +1,65 @@
+- body_class 'public-area-selection-page'
+
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold= t('.header')
+- if current_cycle(:public_area)
+  .row
+    .col-sm-12.col-md-12
+      .row
+        .col-md-4
+          .table-layout.animation.delay.animating.fadeInDown
+            .col-xs-4.panel.bgcolor-info.text-center
+              .ico-loop2.fsize24
+            .col-xs-8.panel
+              .panel-body.text-center
+                h3.semibold.nm= current_cycle(:public_area).ordinality_number.ordinalize
+                p.semibold.text-muted.mb0.mt5.ellipsis= raw t('.current_cycle')
+
+        .col-md-4
+          .table-layout.animation.delay.animating.fadeInDown
+            .col-xs-4.panel.bgcolor-primary.text-center
+              .ico-office.fsize24
+            .col-xs-8.panel
+              .panel-body.text-center
+                h3.semibold.nm= current_cycle(:public_area).public_areas_remaining.count
+                p.semibold.text-muted.mb0.mt5.ellipsis= raw t('.num_public_areas_remaining')
+
+        .col-md-4
+          .table-layout.animation.delay.animating.fadeInDown
+            .col-xs-4.panel.bgcolor-warning.text-center
+              .ico-calendar5.fsize24
+            .col-xs-8.panel
+              .panel-body.text-center
+                h3.semibold.nm= current_cycle(:public_area).days_to_finish
+                p.semibold.text-muted.mb0.mt5.ellipsis= raw t('.days_remaining')
+  .row
+    .col-sm-12.col-md-12
+      .panel.panel-default
+        .panel-heading
+          h3.panel-title= t('.choose_public_area_from_list')
+        .panel-body
+          .row
+            .col-sm-12
+              .btn-group.pull-right.btn-group-responsive
+                = link_to t('.public_areas_remaining'), 'javascript:void(0)', class: 'btn btn-primary', data: { filter_type: 'remaining' }
+                - if previous_cycle(:public_area)
+                  = link_to t('.missed_public_areas'), 'javascript:void(0)', class: 'btn btn-default', data: { filter_type: 'missed' }
+                - if Maintenance::Cycle.current(:public_area).public_areas_in_progress.any?
+                  = link_to t('.in_progress'), 'javascript:void(0)', class: 'btn btn-default', data: {filter_type: 'in_progress'}
+                - if Maintenance::Cycle.current(:public_area).public_areas_completed.any?
+                  = link_to t('.completed'), 'javascript:void(0)', class: 'btn btn-default', data: {filter_type: 'completed'}
+          br
+          .row
+            .col-sm-12
+              table.table.table-bordered.table-hover#public-area-selection-table
+                thead
+                  tr
+                    th= t('.public_areas')
+                    th
+
+                tbody
+          .indicator.inline
+            span.spinner
+
+      

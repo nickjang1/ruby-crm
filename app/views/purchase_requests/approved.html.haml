@@ -1,0 +1,24 @@
+
+.row
+  .large-12.columns
+    .menubar
+      %h1 Step 4: Approved
+      .right
+        = link_to 'Create Orders', purchase_orders_path(purchase_request_id: @purchase_request), class: 'btn', method: :post
+.row
+  .large-12.columns
+    .box.with_table
+      %table.responsive
+        %thead
+          %tr
+            %th Item
+            %th Count
+            %th Unboxed Items
+            %th Quantity
+        %tbody
+          - @purchase_request.item_requests.each do |item_request|
+            %tr
+              %td= item_request.item.name
+              %td= item_request.count
+              %td= item_request.part_count
+              %td= item_request.quantity

@@ -1,0 +1,266 @@
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold= t('.header')
+.row
+  .col-md-12
+    .panel.panel-default
+      .panel-body
+        h4
+          p SET FREQUENCY
+          p.ml15
+            | Start month
+            = select_tag :start_month, options_for_select((1..(@current_cycle ? 12 : Date.today.month)).collect { |month| [Date::MONTHNAMES[month], month] }, selected: @current_cycle.try(:pm_start_month)),
+                         prompt: 'Select', class: 'form-control start-month-select', id: 'start-month', disabled: @current_cycle
+          p.ml15
+            | ONCE every
+            = select_tag :public_area_frequency,
+                         options_for_select(Maintenance::Cycle::FREQUENCIES, @current_cycle.try(:frequency_months)),
+                         prompt: 'Select',
+                         class: 'form-control frequency-select',
+                         disabled: true
+            | months
+.row
+  .col-md-12
+    .panel.panel-default
+      .panel-body
+        h4 Setup the maintenance public areas
+        #public_areas
+          .panel-group.public-areas-listing
+          a.btn.btn-block.btn-default.add-area data-loading-text="saving public area..."
+            span.ico-plus-sign
+            = " Add Public Area"
+
+
+script#public-area-template type="x-tmpl-mustache"
+  .panel data-id="{{id}}" data-type="public-area"
+    .panel-heading.btn-default
+      h4.panel-title
+        i.area-sort-handle.ico-sort.mr5
+        a.text-primary.collapsed data-toggle="collapse" href="#collapse-{{id}}"
+          span.plus.mr5
+        a.x-editable.area-item data-title=("Edit public area") data-type="text" data-url="/maintenance/public_areas/{{id}}" data-send="always"
+          | {{name}}
+        a.area-deleteable.pull-right data-title=("Delete public area") data-type="text" data-area-id="{{id}}" data-heading="Confirm Public Area Deletion." data-message="Do you want to delete the public area? All checklist items under the public area will be deleted"
+          i.ico-trash.text-danger.cursor-pointer
+          
+    div.panel-collapse.collapse id="collapse-{{id}}"
+      .panel-body.checklist-items
+        .panel-group.items-listing
+          | {{#subcategories}}
+          | {{>subcategory}}
+          | {{/subcategories}}
+        a.btn.btn-block.btn-default.add-item data-area-id="{{id}}" data-loading-text="saving item..."
+          span.ico-plus-sign
+          = " Add item"
+
+script#checklist-subcategory-template type="x-tmpl-mustache"
+  .panel data-id="{{id}}" data-type="item"
+    .panel-heading
+      h5
+        i.area-sort-handle.ico-sort.mr5
+        a.x-editable.checklist-item data-title=("Edit checklist item") data-type="text" data-url="/maintenance/checklist_items/{{id}}" data-send="always"
+          | {{name}}
+        a.x-deleteable.pull-right data-send="always" data-title=("Delete checklist item") data-type="text" data-checklist-id="{{id}}" data-heading="Confirm Public Area Maintenanance Checklist Item Deletion" data-message="Do you want to delete the checklist item?"
+          i.ico-trash.text-danger.cursor-pointer
+          
+
+
+- content_for :js do
+  coffee:
+    delete_link = ''
+    delete_area_link = ''
+    public_areas = $('#public_areas')
+    public_area_tmpl = $('#public-area-template').html() 
+    checklist_subitem_tmpl = $('#checklist-subcategory-template').html()
+    xeditable_area_options =
+      params: (params)->
+        {public_area: {name: params.value}}
+      validate: (val)->
+        return 'This field is required' if $.trim(val) is ''
+    
+    xeditable_options =
+      params: (params)->
+        {checklist_item: {name: params.value}}
+      validate: (val)->
+        return 'This field is required' if $.trim(val) is ''
+
+    $.ajax(Routes.maintenance_public_areas_path(), { dataType: 'json' }).done (areas)->
+      $(areas).each ->
+        rendered_area = $(Mustache.render(public_area_tmpl, @, {subcategory: checklist_subitem_tmpl}))
+        rendered_area.appendTo(public_areas.find('> .panel-group'))
+      
+      #ranking public areas
+      public_areas.find('.public-areas-listing').sortable
+        axis: "y"
+        handle: '.area-sort-handle'
+        cursor: "ns-resize"
+        update: (event, ui) ->
+          item_id = ui.item.data('id')
+          item_type = ui.item.data('type')
+          public_area_data = {}
+          public_area_data["row_order_position"] = ui.item.index()
+          $.ajax
+            type: 'PATCH'
+            url: Routes.maintenance_public_area_path(item_id)
+            dataType: 'json'
+            data: {public_area: public_area_data}
+    
+      #ranking checklist items
+      public_areas.find('.items-listing').sortable
+        axis: "y"
+        handle: '.area-sort-handle'
+        cursor: "ns-resize"
+        update: (event, ui) ->
+          item_id = ui.item.data('id')
+          item_type = ui.item.data('type')
+          checklist_item_data = {}
+          checklist_item_data["public_area_row_order_position"] = ui.item.index()
+          $.ajax
+            type: 'PATCH'
+            url: Routes.maintenance_checklist_item_path(item_id)
+            dataType: 'json'
+            data: {checklist_item: checklist_item_data}  
+
+      public_areas.find('a.x-editable.area-item').editable(xeditable_area_options)
+      public_areas.find('a.x-editable.checklist-item').editable(xeditable_options)
+       
+    
+    # add a new public area item:
+    public_areas.on 'click', '.add-area', ->
+      link = $(@)
+      link_html = link.html()
+      link.html(link.data('loading-text')).attr('disabled', true)
+      new_area_params = {name: 'New public area'}
+
+      $.ajax Routes.maintenance_public_areas_path(),
+        type: 'POST', data: {public_area: new_area_params}
+      .done (data) ->
+        template = public_area_tmpl
+        
+        link.siblings('.panel-group').append(Mustache.render(template, data)).find('a.x-editable.area-item').editable(xeditable_area_options)
+      .always -> link.html(link_html).attr('disabled', false)
+    
+    # add new checklist item
+    public_areas.on 'click', '.add-item', ->
+      link = $(@)
+      link_html = link.html()
+      link.html(link.data('loading-text')).attr('disabled', true)
+      new_item_params =
+        name: 'New Item'
+        maintenance_type: 'public areas'
+        public_area_id: link.data('area-id')
+        public_area_row_order_position: link.parent().find('.ui-sortable .panel').length
+
+      $.ajax Routes.maintenance_checklist_items_path(),
+        type: 'POST', data: {checklist_item: new_item_params}
+      .done (data)->
+        template = checklist_subitem_tmpl
+        link.siblings('.panel-group').append(Mustache.render(template, data))
+        link.siblings('.panel-group').find(':last-child a.x-editable').editable(xeditable_options)
+      .always -> link.html(link_html).attr('disabled', false)    
+     
+    # delete public area:
+    public_areas.on 'click', '.area-deleteable', ->
+      delete_area_link = $(@)
+      
+      $('#ChecklistconfirmationDialog .checklist_heading').html(delete_area_link.data('heading'))
+      $('#ChecklistconfirmationDialog .checklist_message').html(delete_area_link.data('message'))
+      $('#ChecklistconfirmationDialog').modal('show')
+
+    $('#ChecklistconfirmationDialog .confirm').on 'click', ->
+      $.ajax Routes.maintenance_public_area_path({id: delete_area_link.data('area-id')}),
+        type: 'DELETE',
+      .done (data)->  
+        delete_area_link.parent().parent().parent().remove();
+
+    $('#ChecklistconfirmationDialog .modal-close').on 'click', ->
+      $('#ChecklistconfirmationDialog').modal('hide')
+
+
+    # delete checklist item:
+    public_areas.on 'click', '.x-deleteable', ->
+      delete_link = $(@)
+
+      $('#ChecklistconfirmationDialog2 .checklist_heading').html(delete_link.data('heading'))
+      $('#ChecklistconfirmationDialog2 .checklist_message').html(delete_link.data('message'))
+      $('#ChecklistconfirmationDialog2').modal('show')
+
+    $('#ChecklistconfirmationDialog2 .confirm').on 'click', ->
+      $.ajax Routes.maintenance_checklist_item_path({id: delete_link.data('checklist-id')}),
+        type: 'DELETE',
+      .done (data)->  
+        delete_link.parent().parent().parent().remove()
+
+    $('#ChecklistconfirmationDialog2 .modal-close').on 'click', ->
+      $('#ChecklistconfirmationDialog2').modal('hide')
+    
+    
+    #
+    #  Cycles:
+    #
+    $start_month = $('#start-month')
+    $frequency = $('#public_area_frequency')
+    create_cycle = () ->
+      start_month = $start_month.val()
+      frequency = $frequency.val()
+      return unless !!start_month && !!frequency
+      $.ajax(
+        url: Routes.maintenance_cycles_path()
+        type: 'POST'
+        dataType: 'json'
+        data:
+          start_month: start_month || 1
+          frequency: frequency
+          cycle_type: 'public_area'
+      ).done((data) ->
+        $.gritter.add
+          time: 5000
+          text: data.message
+          class_name: "alert alert-success"
+        $frequency.val(data.cycle.frequency_months)
+        $start_month.attr('disabled', 'disabled')
+        $frequency.attr('disabled', 'disabled')
+      ).fail((xhr) ->
+        response = $.parseJSON(xhr.responseText).error
+        $.gritter.add
+          time: 5000
+          text: response
+          class_name: "alert alert-danger"
+      )
+
+    $start_month.on 'change', (e) ->
+      unless $start_month.val()
+        $frequency.attr('disabled', 'disabled')
+      else
+        $frequency.removeAttr('disabled')
+
+    $frequency.on 'change', (e) ->
+      create_cycle()
+
+#ChecklistconfirmationDialog.modal aria-hidden="true" role="dialog" tabindex="-1" 
+  .modal-dialog
+    .modal-content
+      .modal-header
+        a.close data-dismiss="modal"  ×
+        h4.checklist_heading 
+      .modal-body
+        p.checklist_message
+      .modal-footer
+        button.btn.modal-close aria-hidden="true"  NO! this was a terrible idea.
+        a.btn.btn-danger.confirm data-dismiss="modal"  YES I'm sure! 
+
+#ChecklistconfirmationDialog2.modal aria-hidden="true" role="dialog" tabindex="-1" 
+  .modal-dialog
+    .modal-content
+      .modal-header
+        a.close data-dismiss="modal"  ×
+        h4.checklist_heading 
+      .modal-body
+        p.checklist_message
+      .modal-footer
+        button.btn.modal-close aria-hidden="true"  NO! this was a terrible idea.
+        a.btn.btn-danger.confirm data-dismiss="modal"  YES I'm sure!
+    
+
+
+    

@@ -1,0 +1,403 @@
+.page-header.page-header-block
+  .page-header-section
+    h4.nm.pull-left
+      | Work Order Listing Report
+    .pull-right
+      .pull-right
+        = link_to 'Print PDF', '#', onclick: 'printPDF()', class: 'btn btn-default'
+      - if @prev_property_id.nil? # if corporate user is running the report
+        .pull-right
+          = select_tag :property_id, options_for_select(current_corporate.properties.pluck(:name, :id)), class: "form-control"
+.report-sidebar.work-order-listing-report
+  .panel.panel-default
+    .panel-body
+      h5.mt0.mb5 Filters:
+      .row
+        .col-sm-4
+          label for="filter-option-1" &nbsp; Status
+          select#status-filter.form-control multiple="multiple"
+            option value=""  Select Status
+            = options_for_select Maintenance::WorkOrder::STATUSES.map { |s| work_order_status_labels[s] }
+        .col-sm-4
+          label for="filter-option-1" &nbsp; Priority
+          select#priority-filter.form-control multiple="multiple"
+            option value=""  Select Priority
+            = options_for_select Maintenance::WorkOrder::PRIORITIES.map{ |mt| [mt.titleize, mt[0]] }
+        .col-sm-4
+          label for="filter-option-1" &nbsp; Location
+          select#location-filter.form-control
+            option value=""  Select Location
+            = options_for_select Maintenance::WorkOrder::MAINTEINABLE_TYPES.map{ |mt| [mt.demodulize.titleize.humanize, mt] } + ["Other"]
+        #checklist-item-filters
+          .col-sm-12.hidden data-location-type="Maintenance::Room"
+            label  Room Checklist Items
+            = grouped_collection_select :checklist_item, :room, Maintenance::ChecklistItem.room_areas,
+                                        :checklist_items, :name, :name, :name, { },
+                                        { multiple: 'multiple', class: 'form-control checklist-item-filter', placeholder: 'Select Checklist Item' }
+
+          .col-sm-12.hidden data-location-type="Maintenance::PublicArea"
+            label  Public Area Name
+            select.form-control.checklist-item-filter multiple="multiple"
+              option value=""  Select Public Area
+              = options_for_select Maintenance::PublicArea.pluck(:name)
+          .col-sm-12.hidden data-location-type="Maintenance::Equipment"
+            label  Equipment Type
+            select.form-control.checklist-item-filter multiple="multiple"
+              option value=""  Select Equipment Type
+              = options_for_select Maintenance::EquipmentType.pluck(:name)
+.report-body
+  .panel
+    .panel-heading.black
+      .fc.fc-ltr.fc-unthemed#calendar-control
+        .fc-toolbar
+          .fc-left
+            .fc-button-group
+              a.fc-button.fc-state-default.fc-corner-left#offset-minus <
+              a.fc-button.fc-state-default.fc-corner-right#offset-plus >
+          .fc-right
+            .fc-button-group.date-range-type.week-month-year-all
+              a.fc-button.fc-state-default.fc-corner-left data-value="week" Week
+              a.fc-button.fc-state-default data-value="month" Month
+              a.fc-button.fc-state-default data-value="year" Year
+              a.fc-button.fc-state-default.fc-corner-right data-value="" All
+          .fc-center
+            h2.text-center#date-range-indicator ...
+
+
+    .panel-collapse.pull.out
+      h4.pl15.bold
+        | Active Work Orders
+        '
+        span.text-muted.active-wos-count
+      table.table.no-bottom-border#active-work-orders
+
+      h4.pl15.bold
+        | Closed Work Orders
+        '
+        span.text-muted.closed-wos-count
+      table.table.no-bottom-border#closed-work-orders
+
+      #loading.indicator
+        span.spinner
+
+script.mustache-template.active-wos-mustache-template type="x-tmpl-mustache"
+  tbody
+    | {{#wos}}
+    tr.hidden data-status="{{status}}" data-priority="{{priority_value}}" data-type="{{type}}"
+      td width="80px"
+        span.semibold.text-default
+          | #
+          | {{id}}
+        br
+        span.text-small
+          | {{{priority}}}
+        br
+        span.text-small
+          | {{status}}
+      td
+        | {{description}}
+      td.semibold.text-default.location-name width="150px"
+        | {{location_name}}
+      td width="120px"
+        | {{^is_unassigned}}
+        span.text-muted Assigned To:
+        br
+        | {{/is_unassigned}}
+        span.text-small
+          |  {{assigned_to_name}}
+        br
+        | {{#due_to_date}}
+        span.text-muted Due by:
+        span.text-small
+          |  {{due_to_date}}
+        br
+        | {{/due_to_date}}
+      td width="120px"
+        span.text-muted Created By:
+        br
+        span.text-small
+          |  {{opened_by_name}}
+        br
+        span.text-muted Open for:
+        span.text-small
+          |  {{days_opened}} days
+    | {{#materials_exists}}
+    tr.details
+      td width="80px"
+      td colspan="4"
+        table
+          tbody
+            tr
+              td width="70px"
+                span.text-muted Material Cost:
+              td
+                span.text-primary
+                  |  {{materials_cost}}
+            tr
+              td
+                span.text-muted Materials Used:
+              td.text-small
+                table
+                  tbody
+                    | {{#material_items}}
+                    tr
+                      td width="60px"
+                        | [{{quantity}}
+                        span.text-muted.text-small
+                          |  {{unit}}
+                        | ]
+                      td
+                        | {{name}}
+                    | {{/material_items}}
+    | {{/materials_exists}}
+    | {{/wos}}
+script.mustache-template.closed-wos-mustache-template type="x-tmpl-mustache"
+  tbody
+    | {{#wos}}
+    tr.hidden data-status="{{status}}" data-priority="{{priority_value}}" data-type="{{type}}"
+      td width="80px"
+        span.semibold.text-default
+          | #
+          | {{id}}
+        br
+        span.text-small
+          | {{{priority}}}
+        br
+        span.text-small
+          | {{status}}
+      td
+        | {{description}}
+      td.semibold.text-default.location-name width="150px"
+        | {{location_name}}
+      td width="120px"
+        span.text-muted Closed On:
+        br
+        span.text-small
+          |  {{closed_on}}
+        br
+        | {{#closed_same_day}}
+        span.text-small Closed Same Day
+        | {{/closed_same_day}}
+        | {{^closed_same_day}}
+        span.text-muted Time to resolve:
+        span.text-small
+          |  {{days_elapsed}} days
+        | {{/closed_same_day}}
+      td width="120px"
+        | {{^is_unassigned}}
+        span.text-muted Assigned To:
+        br
+        | {{/is_unassigned}}
+        span.text-small
+          |  {{assigned_to_name}}
+        div
+          span.text-muted Closed By:
+        span.text-small
+          |  {{closed_by_name}}
+    | {{#detail_exists}}
+    tr.details
+      td width="80px"
+      td colspan="4"
+        table
+          tbody
+            | {{#closing_comment}}
+            tr
+              td width="80px"
+                span.text-muted Closing comment:
+              td
+                span.text-small
+                  | {{closing_comment}}
+            | {{/closing_comment}}
+            | {{#duration}}
+            tr
+              td
+                span.text-muted Time to complete:
+              td
+                span.text-small
+                  | {{duration}}
+            | {{/duration}}
+            | {{#materials_exists}}
+            tr
+              td
+                span.text-muted Material Cost:
+              td
+                span.text-primary
+                  |  {{materials_cost}}
+            tr
+              td
+                span.text-muted Materials Used:
+              td.text-small
+                table
+                  tbody
+                    | {{#material_items}}
+                    tr
+                      td width="60px"
+                        | [{{quantity}}
+                        span.text-muted.text-small
+                          |  {{unit}}
+                        | ]
+                      td
+                        | {{name}}
+                    | {{/material_items}}
+            | {{/materials_exists}}
+    | {{/detail_exists}}
+    | {{/wos}}
+
+coffee:
+  $(document).ready ->
+    offset = 0
+    dateRangeIndicator = $('#date-range-indicator')
+    dateRange          = new DateRange('month')
+
+    loading            = $('#loading')
+    $active_table = $("table#active-work-orders")
+    $closed_table = $("table#closed-work-orders")
+    noWorkOrdersHtml = "<div class='pa10'>There's no related closed work orders</div>"
+
+    selectizeFilters = [
+      {name: 'priority', selector: '#priority-filter'}
+      {name: 'status', selector: '#status-filter'}
+      {name: 'location', selector: '#location-filter'}
+      {name: 'checklist', selector: '.checklist-item-filter'}
+    ]
+
+    resetFilters = ->
+      $active_table.find('> tbody > tr').removeClass('hidden')
+      $closed_table.find('> tbody > tr').removeClass('hidden')
+
+    loadData = ->
+      dateRangeIndicator.text(dateRange)
+      loading.show()
+
+      params =
+        offset: dateRange.offset
+        date_range: dateRange.type
+        from: dateRange.from4rails()
+        to: dateRange.to4rails()
+      params.property_id = $('#property_id').val() if $('#property_id').length > 0
+      $.debounce(1000, ->
+        $.ajax({
+          dataType: 'json'
+          type: "GET"
+          url: Routes.report_path("render/maintenance_work_orders")
+          data: params
+          success: (data)->
+            active_work_orders = _.filter(data, (e) -> e.status != 'Closed')
+            closed_work_orders = _.filter(data, (e) -> e.status == 'Closed')
+
+            if active_work_orders.length > 0
+              rendered = Mustache.render($('.active-wos-mustache-template').html(), wos: active_work_orders)
+              $active_table.html(rendered)
+            else
+              $active_table.html(noWorkOrdersHtml)
+
+            if closed_work_orders.length > 0
+              rendered = Mustache.render($('.closed-wos-mustache-template').html(), wos: closed_work_orders)
+              $closed_table.html(rendered)
+            else
+              $closed_table.html(noWorkOrdersHtml);
+
+            applyFilter()
+
+          complete: -> loading.hide()
+        })
+      )()
+
+    # loading data after page render complete:
+    loadData()
+
+    applyFilter = ->
+      statusFilter = $('#status-filter').val() || []
+      priorityFilter = $('#priority-filter').val() || []
+      locationFilter = $('#location-filter').val() || ""
+      checklistFilter = []
+      if !!locationFilter
+        checklistFilter = $("#checklist-item-filters div[data-location-type=\"#{locationFilter}\"] .checklist-item-filter").val() || []
+      if statusFilter.length == 0 && priorityFilter.length == 0 && !locationFilter && checklistFilter.length == 0
+        resetFilters()
+      else
+        $active_table.find('> tbody > tr').addClass('hidden')
+        $closed_table.find('> tbody > tr').addClass('hidden')
+        statusReg = new RegExp(statusFilter.join('|'))
+        priorityReg = new RegExp(priorityFilter.join('|'))
+        checklistReg = new RegExp(checklistFilter.join('|'))
+        _.each($active_table.find('tbody tr'), (row) ->
+          if statusReg.test($(row).data('status')) && priorityReg.test($(row).data('priority')) &&
+                  (!locationFilter || $(row).data('type') == locationFilter) &&
+                  checklistReg.test($(row).find('td.location-name').text())
+            $(row).removeClass('hidden')
+            $(row).next().removeClass('hidden') if $(row).next().hasClass('details')
+        )
+        _.each($closed_table.find('tbody tr'), (row) ->
+          if statusReg.test($(row).data('status')) && priorityReg.test($(row).data('priority')) &&
+                  (!locationFilter || $(row).data('type') == locationFilter) &&
+                  checklistReg.test($(row).find('td.location-name').text())
+            $(row).removeClass('hidden')
+            $(row).next().removeClass('hidden') if $(row).next().hasClass('details')
+        )
+
+      activeWOs = $active_table.find('> tbody > tr').not('.hidden').not('.details')
+      activeWorkingWOs = $active_table.find("> tbody > tr[data-status=\"Working\"]")
+      closedWOs = $closed_table.find('> tbody > tr').not('.hidden').not('.details').length
+      openCount = activeWOs.length - activeWorkingWOs.length
+      if activeWOs.length > 0
+        str = []
+        str.push "#{openCount} open" if openCount > 0
+        str.push "#{activeWorkingWOs.length} in progress" if activeWorkingWOs.length > 0
+        $('.active-wos-count').html("(#{str.join(', ')})")
+        $active_table.find('> tbody > .pa10').remove()
+      else
+        $('.active-wos-count').html("")
+        $active_table.find('> tbody').append(noWorkOrdersHtml)
+
+      if closedWOs > 0
+        $('.closed-wos-count').html("(#{closedWOs} closed)")
+        $closed_table.find('> tbody > .pa10').remove()
+      else
+        $('.closed-wos-count').html("")
+        $closed_table.find('> tbody').append(noWorkOrdersHtml)
+
+    $.each(selectizeFilters, (i, filter)->
+      selectElem = $(filter.selector).selectize(
+        onChange: ()->
+          if filter.name == 'location'
+            $('#checklist-item-filters > div').addClass('hidden')
+            $("#checklist-item-filters div[data-location-type='#{$('#location-filter').val()}'").removeClass('hidden')
+          applyFilter()
+      )
+    )
+
+    resetFilters()
+    $('#property_id').on 'change', ->
+      loadData()
+
+    # events handlers:
+    $('.date-range-type > a').on('click', ->
+      $(this).parent().find('a').removeClass('fc-state-active')
+      $(this).addClass 'fc-state-active'
+      if dateRange.type isnt $(this).data('value') # reset all offsets if changed $range type
+        dateRange.setType($(this).data('value'))
+        loadData()
+    )
+
+    $(".date-range-type > a[data-value='#{ dateRange.type }']").trigger('click')
+
+    # date $range navigation buttons
+    $('#offset-minus').on 'click', -> dateRange.backward(); loadData()
+    $('#offset-plus').on 'click', -> dateRange.forward(); loadData()
+
+    @printPDF = ->
+      params =
+        status: $('#status-filter').val()
+        priority: $('#priority-filter').val()
+        location: $('#location-filter').val()
+        checklist: $("#checklist-item-filters div[data-location-type='#{$('#location-filter').val()}'] .checklist-item-filter").val()
+        offset: dateRange.offset
+        date_range: dateRange.type
+        from: dateRange.from4rails()
+        to: dateRange.to4rails()
+      console.log params
+      if $('#property_id').length > 0
+        params.property_id = $('#property_id').val()
+      url = "/reports/render/maintenance_work_orders.pdf?#{$.param(params)}"
+      window.open(url, '_blank')

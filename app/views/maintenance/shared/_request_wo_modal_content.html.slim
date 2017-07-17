@@ -1,0 +1,37 @@
+.modal-header
+  .cell.text-center
+    button.close data-dismiss="modal" type="button"  ×
+    h4.semibold.text-primary.modal-title.fixed-title.hidden= t('.fixed_header')
+    h4.semibold.text-primary.modal-title.work-order-title.hidden= t('.work_order_header')
+.modal-body
+  .form-group
+    textarea class="form-control" rows=5 data-fixed-placeholder=(t('.fixed_placeholder')) data-work-order-placeholder=(t('.work_order_placeholder')) id="maintenance-comment" required=true data-parsley-maxlength=500
+    = render partial: 'maintenance/shared/magic_tags', locals: { tags: MagicTag.all, comment_area_id: 'maintenance-comment' }
+  .row.wo-attachments
+    .col-xs-6
+      .wo-image.empty
+        .image-container
+          img.img-responsive.img-file src="/assets/default_image.png"
+          .attachment-hidden
+            input.comment-attachment type="file" name="maintenance_work_order[attachments_attributes][0][file]" accept='image/*' capture='camera'
+          .add-image.text-center
+            p.ico-camera3.text-primary
+            span Attach Photo
+
+        button.btn.btn-danger.center-block type="button"
+          i.ico-trash
+    .col-xs-6
+      .wo-image.empty
+        .image-container
+          img.img-responsive.img-file src="/assets/default_image.png"
+          .attachment-hidden
+            input.comment-attachment type="file" name="maintenance_work_order[attachments_attributes][1][file]" accept='image/*' capture='camera'
+          .add-image.text-center
+            p.ico-camera3.text-primary
+            span Attach Photo
+
+        button.btn.btn-danger.center-block type="button"
+          i.ico-trash
+.modal-footer
+  button.btn.btn-default data-dismiss="modal" type="button"= t('.cancel_form')
+  button.btn.btn-primary type="submit" id="maintenance-comment-form-submit" data-fixed-label=(t('.fixed_submit')) data-work-order-label=(t('.work_order_submit'))

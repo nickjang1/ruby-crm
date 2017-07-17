@@ -1,0 +1,58 @@
+= simple_form_for @vendor, html: { 'data-parsley-validate'=> true } do |f|
+  .page-header.page-header-block
+    .page-header-section
+      %h4.nm
+        = @vendor.name
+        .pull-right
+          /= f.submit class: 'btn btn-success enabled-on-changes' do
+          %button.btn.btn-success.enabled-on-changes
+            %i.ico-save
+            Save
+          - unless @vendor.new_record?
+            = link_to(@vendor, method: :delete, confirm: t('.confirm_inactivate', vendor_name: @vendor.name), class: 'btn btn-danger', rel: 'tooltip', title: 'Inactivate') do
+              %i.ico-trash
+              = t('.delete')
+          = link_to :vendors, class: 'btn btn-default' do
+            %i.ico-cancel
+            = t('.cancel')
+
+  .panel.panel-default
+
+    .panel-body
+      .form-group
+        .row
+          .col-md-6
+            %label.control-label= raw t('.name')
+            = f.input :name, label: false, input_html: { class: 'form-control', required: true }
+      %hr
+      .form-group
+        .row
+          .col-md-6
+            %label.control-label= t('.address')
+            .row.mb10
+              .col-md-12= f.input_field :street_address, placeholder: t('.street_placeholder'), class: 'form-control'
+            .row
+              .col-md-6= f.input_field :city, placeholder: t('.city_placeholder'), class: 'form-control mb10'
+              .col-md-6= f.input_field :zip_code, placeholder: t('.zip_placeholder'), class: 'form-control'
+          .col-md-6
+            %label.control-label= t('.contact')
+            .row.mb10
+              .col-md-12= f.input_field :contact_name, placeholder: t('.contact_name_placeholder'), class: 'form-control'
+            .row
+              .col-md-12= f.input_field :email, placeholder: t('.email_placeholder'), class: 'form-control'
+            .row.mb10
+              .col-md-6
+                %label.control-label= t('.phone')
+                = f.input_field :phone, placeholder: t('.phone_placeholder'), class: 'form-control'
+              .col-md-6
+                %label.control-label= t('.fax')
+                = f.input_field :fax, placeholder: t('.fax_placeholder'), class: 'form-control'
+      %hr
+      .form-group
+        .row
+          .col-md-6
+            %label.control-label= t('.order_info')
+            .row.mb10
+              .col-md-12= f.input_field :shipping_method, placeholder: t('.shipping_method_placeholder'), class: 'form-control'
+            .row.mb10
+              .col-md-12= f.input_field :shipping_terms, placeholder: t('.shipping_terms_placeholder'), class: 'form-control'

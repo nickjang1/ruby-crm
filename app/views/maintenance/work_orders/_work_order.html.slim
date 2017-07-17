@@ -1,0 +1,88 @@
+- priority_order = 'hml'
+.col-lg-4.col-md-6.col-sm-6.col-xs-12.work-order[
+    data-started-at=(work_order.opened_at.to_date)
+    data-description=(work_order.description)
+    data-wo-id=work_order.id
+    data-groups=([t(".priorities.#{work_order.priority}"), work_order.status.titleize, work_order.pm_work_order? ? 'PM WOs' : 'Normal WOs', work_order.assigned_to_id, work_order.opened_by_user_id].to_json)
+    data-priority=(priority_order.index(work_order.priority))
+    data-property-id=(work_order.property_id)
+  ]
+  .widget.panel.panel-default
+    .panel-heading
+      ul.list-table
+        li.work-order-snap style="width: 31px"
+          .inline-block.text-center
+            span="##{work_order.id}"
+            br
+            span class=("work-order-priority #{work_order_priority_label_class(work_order.priority)}")
+              = t(".priorities.#{ work_order.priority }")
+
+        li.work-order-snap.text-center
+          - if work_order.closed?
+            span
+              - if work_order.days_elapsed == 1
+                = t('.closed_same_day')
+              - else
+                = t('.days_elapsed', days: work_order.days_opened).html_safe
+            - if work_order.closed_at
+              br
+              span= t('.closed_at', date: l(work_order.closed_at, format: :short)).html_safe
+          - else
+            span
+              - if work_order.days_opened == 1
+                = t('.opened_today')
+              - else
+                = t('.days_open', days: work_order.days_opened).html_safe
+            - if work_order.due_to_date
+              br
+              span= t('.due_to', date: l(work_order.due_to_date, format: :short)).html_safe
+
+        li.work-order-snap.clearfix style="width: 31px"
+          .message-dropdown-toggle.pull-right
+            ul.nav.navbar-nav
+              li.dropdown.custom.messages-dropdown data-model-id=(work_order.id) data-model-number=(work_order.id) data-user-avatar=(current_user.avatar.url) data-user-name=(current_user.name) data-message-ids='' data-model-type=(work_order.class.name)
+                a.dropdown-toggle data-toggle="dropdown" href="javascript:void(0);" class='test-messages-chat-icon'
+                  span.meta id="messages-icon" class=('text-primary' if work_order.messages_count > 0)
+                    span.icon
+                      i.ico-bubbles3
+
+    .panel-body.pt10.pb5
+      .row.mb5
+        .col-xs-12
+          span.text-muted= t('.location')
+          span.location-name= work_order.location_name
+      .row.mb5
+        .col-xs-12
+          span.text-muted= "(#{work_order.status.titleize}) #{t('.request')}"
+          span.description= work_order.description
+      - if work_order.closed?
+        - if work_order.closing_comment.present?
+          .row.mb5
+            .col-xs-12
+              span.text-muted= t('.closing_comment')
+              span= work_order.closing_comment
+        - if work_order.duration.to_f > 0
+          .row.mb5
+            .col-xs-12
+              span.text-muted= t('.duration')
+              span= minutes_to_hours(work_order.duration)
+
+    .panel-footer
+      ul.list-table
+        li.work-order-snap
+          - if work_order.closed?
+            = render partial: 'work_order_assigned', locals: {work_order: work_order}
+          - else
+            span.text-muted= t('.created_by')
+            br
+            = link_to work_order.opened_by.name, edit_user_path(work_order.opened_by)
+        li.work-order-snap.text-right
+          - if work_order.closed?
+            - if work_order.closed_by
+              span.text-muted= t('.closed_by')
+              br
+              = link_to work_order.closed_by.name, edit_user_path(work_order.closed_by)
+          - else
+            = render partial: 'work_order_assigned', locals: {work_order: work_order}
+  .indicator
+    span.spinner

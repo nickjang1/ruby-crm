@@ -1,0 +1,27 @@
+/*
+ *
+ * Main stylesheet for Switchery.
+ * http://abpetkov.github.io/switchery/
+ *
+ */
+.switchery {
+  background-color: #ffffff;
+  border: 1px solid #dfdfdf;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-block;
+  height: 22px;
+  position: relative;
+  vertical-align: middle;
+  width: 38px;
+}
+.switchery > small {
+  background-color: #f7f7f7;
+  border-radius: 3px;
+  -webkit-box-shadow: 0px 0px 0px 1px #dfdfdf;
+  box-shadow: 0px 0px 0px 1px #dfdfdf;
+  height: 20px;
+  width: 20px;
+  position: absolute;
+  top: 0px;
+}

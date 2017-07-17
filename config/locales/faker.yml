@@ -1,0 +1,6 @@
+en:
+  faker:
+    vendor:
+      suffix: [Shipping Co., Delivery LLC., Supplies LLC., Stuff and Misc Co.]
+      name:
+        - "#{Name.last_name} #{suffix}"

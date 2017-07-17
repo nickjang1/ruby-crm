@@ -1,0 +1,233 @@
+// less variable
+@import "./../../../stylesheet/variables.less";
+@import "./../../../stylesheet/mixin.less";
+
+/* ----------------------------
+ *
+ * Core Owl Carousel CSS File
+ * v1.3.2
+ *
+ * --------------------------- */
+.owl-carousel {
+    display: none;
+    position: relative;
+    width: 100%;
+    -ms-touch-action: pan-y;
+
+    .owl-wrapper {
+        display: none;
+        position: relative;
+        .translate3d(0, 0, 0);
+
+        // clearfix
+        // -----------------------------------
+        &:after {
+            content: ".";
+            display: block;
+            clear: both;
+            visibility: hidden;
+            line-height: 0;
+            height: 0;
+        }
+    }
+
+    .owl-wrapper-outer {
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+
+        &.autoHeight {
+            .transition(height 500ms ease-in-out);
+        }
+    }
+
+    .owl-item {
+        float: left;
+
+        .item {
+            margin-top: 0px;
+            margin-left: 5px;
+            margin-right: 5px;
+            margin-bottom: 0px;
+        }
+    }
+
+    .owl-page,
+    .owl-buttons div {
+        cursor: pointer;
+    }
+
+    .owl-wrapper,
+    .owl-item {
+        -webkit-backface-visibility: hidden;
+        -moz-backface-visibility:    hidden;
+        -ms-backface-visibility:     hidden;
+        .translate3d(0, 0, 0);
+    }
+}
+.owl-controls {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+.grabbing { 
+    cursor:url("image/grabbing.png") 8 8, move;
+}
+
+
+
+/* ----------------------------
+ *
+ * Owl Carousel Owl Demo Theme 
+ * v1.3.2
+ *
+ * --------------------------- */
+.owl-theme {
+    .owl-controls {
+        text-align: center;
+
+        .owl-buttons {
+            position: absolute;
+            left: 15px;
+            right: 15px;
+            top: 50%;
+            min-height: 40px;
+            margin-top: -20px;
+
+            .owl-prev,
+            .owl-next {
+                position: absolute;
+                display: inline-block;
+                zoom: 1;
+                font-size: 0px;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: @default;
+                color: lighten(@dark, 30%);
+                opacity: 0.5;
+                .transition(opacity 0.3s ease);
+
+                &:before {
+                    font-family: "iconfont";
+                    font-size: 14px;
+                    line-height: 40px;
+                }
+
+                &:hover,
+                &:active,
+                &:focus {
+                    color: lighten(@dark, 20%);
+                    opacity: 1;
+                    .transition(opacity 0.3s ease);
+                }
+            }
+            .owl-prev {
+                left: 0px;
+
+                &:before {
+                    content: "\e6e8";
+                }
+            }
+            .owl-next {
+                right: 0px;
+
+                &:before {
+                    content: "\e6e9";
+                }
+            }
+        }
+
+        .owl-pagination {
+            margin-top: 10px;
+
+            .owl-page {
+                display: inline-block;
+                height: 12px;
+
+                + .owl-page {
+                    margin-left: 8px;
+                }
+
+                span {
+                    display: block;
+                    width: 6px;
+                    height: 6px;
+                    opacity: 0.5;
+                    margin-top: 3px;
+                    border-radius: 50%;
+                    background-color: darken(@gray, 40%);
+
+                    &.owl-numbers {
+                        height: auto;
+                        width: auto;
+                        color: #FFF;
+                        padding: 2px 10px;
+                        font-size: 12px;
+                        -webkit-border-radius: 30px;
+                        -moz-border-radius: 30px;
+                        border-radius: 30px;
+                    }
+                }
+
+                &.active {
+                    span {
+                        width: 12px;
+                        height: 12px;
+                        margin-top: 0px;
+                        background-color: transparent;
+                        border: 2px solid darken(@gray, 50%);
+                        opacity: 1;
+                    }
+                }
+            }
+        }
+    }
+
+    &.clickable {
+        .owl-buttons {
+            div {
+                &:hover {
+                    opacity: 1;
+                    text-decoration: none;
+                }
+            }
+        }
+
+        .owl-page {
+            &:hover {
+                span {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+}
+.owl-item.loading{
+    min-height: 150px;
+    background: url("image/AjaxLoader.gif") no-repeat center center
+}
+
+/* Jumbotron reset */
+.jumbotron {
+    .owl-theme {
+        .owl-controls {
+            .owl-pagination {
+                .owl-page {
+                    span {
+                        background-color: darken(@white, 10%);
+                    }
+
+                    &.active {
+                        span {
+                            border: 2px solid @white;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,6 @@
+<% if @room.errors.present? %>
+  $('#new_room_type_modal').html("<%= j render('room_types/new') %>")
+<% else %>
+  $('#new_room_type_modal').foundation('reveal', 'close');
+  Turbolinks.visit(window.location.href);
+<% end %>

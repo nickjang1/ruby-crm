@@ -1,0 +1,15 @@
+.form-wizard
+  .steps.clearfix
+    ul role="tablist" 
+      li role="tab" class="#{ if(step >= 0); step == 0 ? 'current' : 'done'; end  }"
+        a#wizard-t-0 aria-controls="wizard-p-0"
+          span.number 1.
+          span.title= t('.send_invite')
+      li role="tab"  class="#{ if(step >= 1); step == 1 ? 'current' : 'done'; end  }"
+        a#wizard-t-1 aria-controls="wizard-p-1"
+          span.number 2.
+          span.title= t('.wait_for_verification')
+      li role="tab"  class="#{ 'current' if step == 2 }"
+        a#wizard-t-2 aria-controls="wizard-p-2"
+          span.number 3.
+          span.title= t('.confirm_corporate_link')

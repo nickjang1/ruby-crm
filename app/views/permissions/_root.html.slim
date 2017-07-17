@@ -1,0 +1,10 @@
+.form-group.expandable
+  label.control-label.inline-block for=("permissions_#{item_id(root)}")
+    = root.name
+  .inline-block.ml10
+    span.checkbox.custom-checkbox
+      = check_box_tag "permissions#{item_name(root)}", root.id, permission_value(@permission_values, root)
+      label for=("permissions_#{item_id(root)}")
+- if root.items.count > 0
+  div class=("panel-group #{permission_value(@permission_values, root) ? '' : 'hidden'} detail-items") id=("#{item_id(root)}-items")
+    = render partial: 'permission', collection: root.items, as: :item, locals: {root: root, f: f}

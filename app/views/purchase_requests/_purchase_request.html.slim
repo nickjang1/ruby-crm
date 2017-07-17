@@ -1,0 +1,26 @@
+tr
+  td.text-center= purchase_request.number
+  td= purchase_request.user.try(:name)
+  td= l(purchase_request.created_at, format: :short)
+  td
+    - if((vendors_count = purchase_request.vendors.count) == 1)
+      = purchase_request.vendors.first.name 
+    - else
+      = pluralize(purchase_request.preferred_vendors.count, 'vendor') 
+  td.text-center
+    span.text-muted.bold= humanized_currency_format purchase_request.total_price
+    br
+    = pluralize( purchase_request.item_requests.count, 'item')
+  
+  td
+    .badge class=(PurchaseRequest::BADGE_CLASS[purchase_request.state.to_sym])
+      span data-toggle="tooltip" title=(purchase_request.order_numbers if purchase_request.ordered?)
+        - unless purchase_request.ordered?
+          = t(".statuses.#{ purchase_request.state }")
+        - else
+          = pluralize(purchase_request.order_count, 'PO')
+  td
+      = link_to edit_purchase_request_path(purchase_request), class: 'btn-block btn '+ PurchaseRequest::BTN_CLASS[purchase_request.state.to_sym] do
+        i class=PurchaseRequest::BTN_ICON[purchase_request.state.to_sym]
+        '
+        = t(".button_labels.#{ purchase_request.state }")

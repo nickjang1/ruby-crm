@@ -1,0 +1,89 @@
+- body_class 'budgets-page'
+
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold= t('.budgets')
+  .page-header-section.text-right
+    button.btn.btn-primary id="btn-add-budget"
+      i.ico-plus-circle2
+      '
+      | #{t('.add_budget')}
+
+.row
+  .col-md-12
+    .panel.panel-inverse#budgets-panel
+      .panel-toolbar-wrapper
+        .panel-toolbar.text-center
+          .pull-left
+            = form_for :scope, url: budgets_path(format: :json), remote: true, method: :get, html: {id: 'budget-scope-form'} do |f|
+              = f.hidden_field :year, name: :year, value: @year
+              = f.hidden_field :first_half, name: :first_half, value: @first_half
+            = link_to '<', 'javascript:void(0)', class: 'btn btn-default btn-budgets-scope', data: {scope: 'prev'}
+            = link_to '>', 'javascript:void(0)', class: 'btn btn-default btn-budgets-scope', data: {scope: 'next'}
+          span.toolbar-title.semibold= range_title(@first_half, @year)
+      .panel-body
+        table.table-bordered#budgets-table data-year=(@year)
+          thead
+            tr
+              td 
+              - 6.times do |i|
+                td= month_name(@first_half * 6 + 1 + i)
+          tbody
+            tr.total-row
+              td Total Budget
+              - 6.times do |i|
+                - month = @first_half * 6 + i + 1
+                td.month-total class=(month == Date.today.month ? 'highlight' : '') data-month=(month) data-total=(@total[month] || "0.0")
+                  = humanized_currency_format(@total[month]) unless @total[month].nil?
+            - Category.all.each do |c|
+              tr data-category-id=(c.id)
+                td= c.name
+                - 6.times do |i|
+                  - month = @first_half * 6 + i + 1
+                  - budget = @budgets.where(category_id: c.id, month: month).first
+                  td data-month=(month) class=(month == Date.today.month ? 'highlight' : '') data-amount=(budget.amount unless budget.nil?)
+                    - unless budget.nil?
+                      .budget-item data-budget-id=(budget.id)
+                        .budget-item-inner
+                          span= humanized_currency_format(budget.amount)
+        #loading.indicator
+          span.spinner
+
+script.mustache-template.budget-item-template type="x-tmpl-mustache"
+  .budget-item data-budget-id="{{budget.id}}"
+    .budget-item-inner
+      span.budget-amount= "${{budget.amount}}"
+
+#add-budget-modal.modal.fade
+  .modal-dialog
+    = form_for :budget, url: budgets_path, method: :post, remote: true, html: {class: 'modal-content parsley', id: 'budget-form'} do |f|
+      .modal-header
+        .cell.text-center
+          button.close data-dismiss="modal" type="button"  ×
+          h4.semibold.text-primary.modal-title Add Budget Item
+      .modal-body
+        .form-group
+          label.control-label
+            | Amount
+            span.text-danger *
+          .input-group
+            span.input-group-addon $
+            = f.text_field :amount, as: :string, class: 'form-control currency-input'
+        .form-group
+          .row
+            .col-sm-12
+              label.control-label
+                | Year & Month
+                span.text-danger *
+            .col-sm-6
+              = select_year(Date.today, {:field_name => 'year', :prefix => 'budget', start_year: Date.today.year - 1, end_year: Date.today.year + 1}, class: 'form-control')
+            .col-sm-6
+              = select_month(Date.today, {:field_name => 'month', :prefix => 'budget'}, class: 'form-control')
+        .form-group
+          label.control-label
+            | Categories
+          = f.select :categories, Category.all.map { |c| [c.name, c.id] }, {}, multiple: true, class: 'form-control selectize-categories'
+      .modal-footer
+        button.btn.btn-default data-dismiss="modal" type="button"  Cancel
+        = link_to 'Delete Budget', 'javascript:void(0)', type: "button", class: 'btn btn-danger', id: 'btn-delete-budget', remote: true, method: :delete
+        button.btn.btn-success type="submit"  Save Budget

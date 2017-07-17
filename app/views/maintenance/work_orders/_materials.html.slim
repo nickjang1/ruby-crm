@@ -1,0 +1,34 @@
+= form_for Maintenance::Material.new, remote: true, html: {class: 'new-material-form', 'parsley-validate' => true} do |f|
+  h6.pl5.mb5 Add Item used for WO:
+  = f.hidden_field :work_order_id, value: model.id
+  = f.hidden_field :price
+  = f.select :item_id, [], {}, class: 'form-control material-selector mr5'
+  .inline-top.mr5.text-center
+    = f.text_field :quantity, class: 'form-control material-quantity mr0', required: true, placeholder: 'Qty'
+    span.text-muted.material-unit.text-center
+  span.inline-top.mr5.text-center.price-control.hidden
+    span.material-price
+    br
+    span.text-muted per
+    '
+    span.text-muted.material-unit
+  span.inline-top.material-live-cost.bold.text-primary.ml5
+  = f.button type: 'submit', class: 'btn btn-default btn-block add-material' do
+    span.ico-plus-sign
+    '
+    | Add Material
+
+hr.mt10.mb10
+h6.pl5.mb5 Materials Used:
+
+table.table.material-list.table-hover
+  tbody
+    tr.no-materials class=('hidden' if model.materials.count > 0)
+      td.text-center
+        p.text-muted No materials have been added to work order.
+    = render partial: 'maintenance/materials/material', collection: model.materials, as: :m
+ul.list-table.materials-total class=('hidden' if model.materials.count == 0)
+  li.text-left
+    h5.semibold.nm.text-uppercase TOTAL MATERIAL COST
+  li.text-right.total-value
+    h3.semibold.nm.text-success.value= humanized_currency_format(model.material_total)

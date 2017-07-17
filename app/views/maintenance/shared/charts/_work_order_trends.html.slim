@@ -1,0 +1,154 @@
+.panel.panel-default
+  .panel-heading
+    h3.panel-title= t('maintenance.pages.work_order_trends.trending')
+    .panel-toolbar.text-right.clearfix
+      - if defined?(is_corporate).present? && is_corporate
+        .btn-group#property-dropdown
+          - property = Property.find_by(id: params[:property_id])
+          button.btn.btn-sm.btn-default.dropdown-toggle[
+            type="button" data-id="#{ property ? property.id : current_corporate.properties.first.try(:id) }"
+            data-toggle="dropdown"]= property ? property.name : current_corporate.properties.first.try(:name)
+          button.btn.btn-sm.btn-default.dropdown-toggle data-toggle="dropdown" type="button"
+            span.caret
+          ul#property-list.dropdown-menu.dropdown-menu-right
+            - current_corporate.properties.each do |property|
+              li= link_to property.name, 'javascript:void(0)', class: 'scope-property', data: {id: "#{property.id}"}
+      - if defined?(cloudReport).present? && cloudReport
+        .form-control.pull-right#trending-date-range
+          i.ico-calendar
+          '
+          span#range-value
+          '
+          span
+            b.caret
+      - else
+        .btn-group
+          button.btn.btn-default.btn-sm#trending-filter-label Duration
+          button.btn.btn-sm.btn-default.dropdown-toggle data-toggle="dropdown" aria-expanded="false"
+            span.caret
+          ul.dropdown-menu.dropdown-menu-right
+            li.dropdown-header Select duration:
+            li= link_to 'Last 1 month', '#', class: 'trending-filter', data: {filter: 'last-1'}
+            li= link_to 'Last 3 months', '#', class: 'trending-filter', data: {filter: 'last-3'}
+            li= link_to 'Last 6 months', '#', class: 'trending-filter', data: {filter: 'last-6'}
+  .panel-body
+    .chart#maintenance-trending
+    .indicator#trending-spinner
+      span.spinner
+- content_for :trends_js do
+  javascript:
+    cloudReport = #{defined?(cloudReport).present? && cloudReport};
+    activeWord = "#{defined?(activeWord).present? && activeWord}";
+    from = "#{defined?(from).present? && from}";
+    to = "#{defined?(to).present? && to}";
+  coffee:
+    $ ->
+      filter = ''
+      maintenance_trending = $ ('#maintenance-trending')
+      dateRange = new DateRange('custom')
+      dataWords = []
+
+      renderTrends = ->
+        maintenance_trending.css("width", "100%")
+        maintenance_trending.empty()
+        maintenance_trending.jQCloud(dataWords,
+          height: 200
+          removeOverflowing: false
+          autoResize: true
+        )
+
+      loadTrends = ->
+        $('#trending-spinner').show()
+        if cloudReport
+          dateRange.from = $('#trending-date-range').data('daterangepicker').startDate
+          dateRange.to = $('#trending-date-range').data('daterangepicker').endDate
+        else
+          if filter == 'last-1'
+            dateRange.from = moment().subtract(1, 'months')
+          else if filter == 'last-6'
+            dateRange.from = moment().subtract(6, 'months')
+          else
+            dateRange.from = moment().subtract(3, 'months')
+          dateRange.from = dateRange.from.startOf('day')
+          dateRange.to = moment().endOf('day')
+
+        params =
+          from: dateRange.from4rails()
+          to: dateRange.to4rails()
+        propertyId = $('#property-dropdown > button:first-child').data('id')
+        params['property_id'] = propertyId if propertyId
+        $.ajax(
+          dataType: 'json'
+          type: 'GET'
+          url: Routes.trending_cloud_reports_path(params)
+        ).done (data) ->
+          dataWords = _.map(data, (e) ->
+            e.html = {class: 'trending-word', 'data-ids': JSON.stringify(e.ids), 'data-location': e.location_trend}
+            e.handlers =
+              click: (e) ->
+                $('.trending-word').removeClass('active')
+                $(@).addClass('active')
+                window.activeWord = $(@).text()
+                if cloudReport
+                  $(@).trigger('trending.clicked')
+                else
+                  url =
+                    Routes.report_path('work_order_trendings', {
+                            active_word: window.activeWord,
+                            property_id: $('#property-dropdown > button:first-child').data('id')
+                            from: dateRange.from4rails(),
+                            to: dateRange.to4rails() }
+                    )
+                  window.location = url
+            e.afterWordRender = (e) ->
+              if activeWord != 'false' && $(@).text() == activeWord
+                $(@).addClass('active')
+                $(@).trigger('click')
+            e
+          )
+          renderTrends()
+        .complete ->
+          $('#trending-spinner').hide()
+
+      showTrendingDate = (start, end) ->
+        $('#trending-date-range #range-value').html(start.format('MMM DD, YYYY') + ' - ' + end.format('MMM DD, YYYY'))
+
+      $('#trending-date-range').daterangepicker(
+        ranges:
+          'Last 1 month': [moment().subtract(1, 'months').startOf('day'), moment().endOf('day')]
+          'Last 3 month': [moment().subtract(3, 'months').startOf('day'), moment().endOf('day')]
+          'Last 6 month': [moment().subtract(6, 'months').startOf('day'), moment().endOf('day')]
+        startDate: moment(from) || moment().subtract(3, 'months')
+        autoApply: false
+        linkedCalendars: false
+        opens: 'left'
+      , showTrendingDate)
+
+      $('#trending-date-range').on 'apply.daterangepicker', (e, picker) ->
+        maintenance_trending.trigger('trending.clear')
+        loadTrends()
+
+      $('.trending-filter').on 'click', (e) ->
+        e.preventDefault()
+        return false if filter == $(@).data('filter')
+        filter = $(@).data('filter')
+        $('#trending-filter-label').text($(@).text())
+        loadTrends()
+
+      if cloudReport
+        showTrendingDate(moment(from) || moment().subtract(3, 'months'), moment(to) || moment())
+        loadTrends()
+      else
+        $('.trending-filter[data-filter="last-3"]').trigger('click')
+
+      $('#property-list > li a').on 'click', (e) ->
+        $('#property-dropdown > button:first-child').text($(this).text())
+        $('#property-dropdown > button:first-child').data('id', $(this).data('id'))
+        maintenance_trending.trigger('trending.clear')
+        loadTrends()
+
+- if defined?(cloudReport).present? && cloudReport
+  = yield(:trends_js)
+- else
+  - content_for :js do
+    = yield(:trends_js)

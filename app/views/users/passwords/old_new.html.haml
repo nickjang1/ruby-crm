@@ -1,0 +1,10 @@
+= simple_form_for resource, as: resource_name, url: password_path(resource_name), html: { method: :post } do |f|
+  .box
+    .head
+      %h1 Sign in
+    .body
+      = render 'layouts/alerts', locals: {flash: flash}
+      = f.input :email, autofocus: true
+    .actions
+      = f.submit 'Send me reset password instructions', class: 'btn btn-primary'
+      

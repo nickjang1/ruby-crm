@@ -1,0 +1,10 @@
+.col-lg-3
+  %ul.list-group.list-group-tabs
+    %li.list-group-item.active
+      = link_to '#' do
+        %i.ico-user2.mr5
+        Profile
+.col-lg-9
+  = simple_form_for @user, html: {id: 'users-form', autocomplete: "off", class: 'user-profile jsvalidate panel form-horizontal form-bordered'}, data: {"parsley-excluded" => "[disabled]"} do |f|
+    .tab-content
+      = render partial: 'profile_form', locals: {:f => f}

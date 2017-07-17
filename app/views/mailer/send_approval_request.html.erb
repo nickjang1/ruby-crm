@@ -1,0 +1,9 @@
+<% content_for :header do %>
+  <p style="margin: 0; text-align: justify;">
+    You have a new request <%=@request.number%> for approval from <%=@request.user.name%>.
+  </p>
+<% end %>
+
+<% content_for :action do %>
+  <a class="kmButton " title="" href="<%= edit_purchase_request_url(@request) %>" target="_self" style="word-wrap: break-word; font-weight: normal; letter-spacing: -0.5px; line-height: 100%; text-align: center; text-decoration: underline; color: #0000cd; font-family: Helvetica, Arial; font-size: 16px; text-decoration:initial;color:#FFFFFF;font-weight:bold;font-size:16px;font-family:Helvetica, Arial;padding-top:0;padding-bottom:0;">Review Request</a>
+<% end %>

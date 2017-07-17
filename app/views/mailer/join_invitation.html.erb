@@ -1,0 +1,10 @@
+<% content_for :header do %>
+    <p style="margin: 0; text-align: justify;">
+      <%= @invitation.sender.try(:name) || 'Lodgistics' %> has invited you to join <%=@invitation.targetable.name%>.
+      You will be able to access the new <%= @invitation.target_type %> with your existing credentials after accepting this invitation.
+    </p>
+<% end %>
+
+<% content_for :action do %>
+    <a class="kmButton " title="" href="<%= accept_join_invitation_url(@invitation) %>" target="_self" style="word-wrap: break-word; font-weight: normal; letter-spacing: -0.5px; line-height: 100%; text-align: center; text-decoration: underline; color: #0000cd; font-family: Helvetica, Arial; font-size: 16px; text-decoration:initial;color:#FFFFFF;font-weight:bold;font-size:16px;font-family:Helvetica, Arial;padding-top:0;padding-bottom:0;">Accept Invitation</a>
+<% end %>

@@ -1,0 +1,38 @@
+
+section#main role="main" 
+  .container-fluid
+    .row
+      .col-md-7
+        .panel.panel-default
+          .panel-heading
+            h3.panel-title= t('.connections')
+            .panel-toolbar.text-right
+          .panel-body#property-connections
+
+            table.table.table-hover.table-bordered.text-center
+              tbody
+                - for connection in current_corporate.connections
+                  - unless connection.active?
+                    tr
+                      td
+                        = connection.property.name
+                        br
+                        = l(connection.created_at, format: :short_date_and_time)
+                      td.col-xs-2
+                        - if connection.corporate_rejected?
+                          span.label.label-danger= t('.rejected_corporate')
+                        - elsif connection.property_rejected?
+                          span.label.label-danger= t('.rejected_property')
+                        - else
+                          = link_to t('.review'), corporate_property_connection_path(connection), class: 'btn btn-block btn-success mb5'
+                  - else
+                    tr
+                      td
+                        .row
+                          .col-md-5
+                            h4= connection.property.name
+                            h5.text-muted= connection.property.street_address
+                          .col-md-5
+                            h4= connection.created_by.name
+                      td
+                        span.label.label-success= t('.confirmed')

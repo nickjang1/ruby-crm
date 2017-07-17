@@ -1,0 +1,61 @@
+- body_class 'public-area-inspect-page'
+
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold= t('.header', name: @public_area.name)
+
+  .page-header-section.clearfix
+    .actions.pull-right
+      = link_to_with_icon 'ico-stack-checkmark', t('.complete_inspection'),
+                          complete_inspection_maintenance_record_path(@record, maintenance_maintenance_record: {status: Maintenance::MaintenanceRecord::STATUS_COMPLETED}),
+                          class: 'btn btn-primary', data: {confirm: t('.complete_inspection_confirm')}, method: :post
+      = link_to_with_icon 'ico-clock', t('.continue_later'), inspection_maintenance_public_areas_path, class: 'btn btn-primary', data: {confirm: t('.complete_inspection_confirm')}, method: :get
+      = link_to_with_icon 'ico-close2', t('.cancel_inspection'), cancel_inspection_maintenance_record_path(@record), class: 'btn btn-danger', data: {confirm: t('.complete_inspection_confirm')}, method: :post
+
+.row
+  .col-sm-12
+    table.table#public-area-checklist-table data-public-area-id=(@public_area.id) data-cycle-id=(current_cycle(:public_area).id) data-record-id=(@record.id)
+      thead.hidden
+        tr
+          th
+      tbody
+    .indicator.inline
+      span.spinner
+
+#public-area-inspection-work-order-modal.modal.fade
+  .modal-dialog
+    form.modal-content id="public-area-work-order-form" data-parsley-validate=true
+      .modal-header
+        .cell.text-center
+          button.close data-dismiss="modal" type="button" ×
+          h4.semibold.text-primary.modal-title.work-order-title= t('.work_order_header')
+      .modal-body
+        .form-group
+          textarea class="form-control" rows=5 placeholder=(t('.work_order_placeholder')) id="work-order-comment" required=true data-parsley-maxlength=500
+      .modal-footer
+        button.btn.btn-default data-dismiss="modal" type="button"= t('.cancel_form')
+        button.btn.btn-primary type="submit" id="work-order-form-submit"= t('.work_order_submit')
+
+script#public-area-checklist-item-template type="x-tmpl-mustache"
+  td
+    .checklist-item-detail.clearfix
+      .maintenance-status
+        | {{#no_issues}}
+        = link_to 'javascript:void(0)', class: 'maintenance-status-icon no-issues' do
+          i.ico-ok.fa-fw
+        | {{/no_issues}}
+        | {{#fixed}}
+        = link_to 'javascript:void(0)', class: 'maintenance-status-icon fixed' do
+          i.ico-wand.fa-fw
+        | {{/fixed}}
+        | {{#issues}}
+        = link_to 'javascript:void(0)', class: 'maintenance-status-icon work-order' do
+          i.ico-tools.fa-fw
+        | {{/issues}}
+      .checklist-item-name
+        span= '{{name}}'
+      .checklist-item-actions.pull-right
+        = link_to '{{cancel_path}}',
+                  class: 'room-checklist-action spot-check {{^inspected}}inactive{{/inspected}} {{#inspected}}active{{/inspected}}', method: :delete,
+                  data: {status: Maintenance::ChecklistItemMaintenance::STATUS_NO_ISSUES, confirm: t('.inspect_item_confirm'), remote: true} do
+          i.ico-tools.fa-fw

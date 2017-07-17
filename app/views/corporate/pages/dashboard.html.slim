@@ -1,0 +1,91 @@
+.container-fluid#corporate-dashboard
+  - if current_user.corporate.properties.present?
+    = render partial: 'maintenance/shared/charts/work_order_trends', locals: { is_corporate: true }
+  = render 'hotel_wo_comparison'
+  /.row
+  /  .col-md-12
+  /    .panel.panel-default
+  /      .panel-heading
+  /        h3.panel-title
+  /          - if @may_or_later
+  /            = t('.hotel_spending_comparison_for', year: Time.now.year)
+  /          - else
+  /            = t('.hotel_spending_comparison')
+  /        .panel-toolbar.text-right
+  /      .panel-body
+  /        #spend_by_hotel style="height: 300px;" data-array=(@spend_by_hotel_data.to_json)
+  /      .panel-footer
+  /        .row
+  /          .col-md-6
+  /            ul.nav.nav-section.nav-justified
+  /              - for total in @hotel_totals_columns[0] || []
+  /                .li.mb10.text-center
+  /                  .section
+  /                    h4.nm= total[:name]
+  /                    span.text-muted= "#{ t('currency') }#{ total[:total] }"
+  /          .col-md-6
+  /            ul.nav.nav-section.nav-justified
+  /              - for total in @hotel_totals_columns[1] || []
+  /                .li.mb10.text-center
+  /                  .section
+  /                    h4.nm= total[:name]
+  /                    span.text-muted= "#{ t('currency') }#{ total[:total] }"
+  /= render 'spend_budget_by_hotel'
+
+  /.row
+  /  .col-md-12
+  /    .panel.panel-default
+  /      .panel-heading
+  /        h3.panel-title= t('.approvals')
+  /      .panel-body
+  /        #approvals-list.panel-group.panel-group-compact
+  /          - for requests_for_property in @requests_for_properties
+  /            - prop = requests_for_property[:prop].switch!
+  /            - uniq_id = SecureRandom.uuid
+  /            .panel.panel-default class="approvals_for_#{ prop.id }"
+  /              .panel-heading
+  /                h4.panel-title
+  /                  a data-toggle="collapse" data-parent="#approvals-list" href="#collapse-prop-#{ prop.id }" class="collapsed"
+  /                    span.plus.mr5
+  /                    = prop.name
+  /              .panel-collapse.collapse id="collapse-prop-#{ prop.id }"
+  /                .panel-body
+  /                  table.table
+  /                    - for purchase_request in requests_for_property[:requests]
+  /                      tr class="pr_approval_request_#{ purchase_request.id }"
+  /                        td
+  /                          = purchase_request.number
+  /                        td
+  /                          = l(purchase_request.created_at, format: :short)
+  /                          br
+  /                          = purchase_request.user.name
+  /                        td= pluralize(purchase_request.preferred_vendors.count, 'vendor')
+  /                        td
+  /                          = humanized_money_with_symbol(purchase_request.total_price)
+  /                          br
+  /                          = pluralize( purchase_request.item_requests.count, 'item')
+  /                        td.col-xs-2
+  /                          = link_to edit_corporate_purchase_request_path(purchase_request, property_id: prop.id), class: 'btn btn-block mb5 btn-success' do
+  /                            i.ico-cart-checkout
+  /                            = t('.approve')
+  /          - Property.current_id = nil
+
+- content_for :js do
+  coffee:
+    $(document).ready ->
+      ###
+      chart = $('#spend_by_hotel')
+
+      options =
+        colors: ["#ed1556", "#00acdc", '#4572A7', '#AA4643', '#89A54E', '#80699B', '#3D96AE', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1']
+        chart: { type: "areaspline" }
+        title: { text: "" }
+        legend: { layout: "vertical", align: "left", verticalAlign: "top", x: 50, y: 5, floating: true, borderWidth: 1 }
+        xAxis: { categories: chart.data('array').categories }
+        yAxis: { labels: { format: '${value}' }, title: { text: "" } }
+        tooltip: { shared: true, valuePrefix: "$", valueDecimals: $priceFormatDecimalsCount }
+        credits: { enabled: false }
+        plotOptions: { areaspline: { fillOpacity: 0.5 } }
+        series: chart.data('array').series
+      chart.highcharts(options)
+      ###

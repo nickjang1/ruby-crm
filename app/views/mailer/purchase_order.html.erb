@@ -1,0 +1,8 @@
+<% content_for :header do %>
+  <p>
+    <%= @purchase_order.user.name %> has sent you a Purchase Order (with <%= @purchase_order.item_orders.count %> item(s)) for <%= @purchase_order.property.name %>. Please find attached, PO <%= @purchase_order.number %> in PDF format.<p>
+  </p>
+  <p>  
+    Please contact <%= @purchase_order.property.name %> with any questions.
+  </p>
+<% end %>

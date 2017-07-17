@@ -1,0 +1,12 @@
+//= require sinon
+
+<% central = ActiveSupport::TimeZone['Central Time (US & Canada)'] %>
+<% today = central.parse('8:30am').to_i * 1000 %>
+
+$('html').Core({
+  loader: false
+});
+
+window.clock = sinon.useFakeTimers(<%= today %>, 'Date')
+
+$.fx.off = true;

@@ -1,0 +1,13 @@
+.panel.panel-default
+  .panel-heading
+    h4.panel-title= t('.connect')
+  = render 'steps_indicator', step: 1
+  .panel-body
+    strong.text-primary= t('.verification_required')
+    br
+    strong.text-muted= t('.corporate_needs_to_verify_connection')
+    hr
+    h4.text-center= t('.waiting_for_verification')
+
+  .panel-footer
+    a.pull-left.btn.btn-default disabled="dis"= t('.previous')

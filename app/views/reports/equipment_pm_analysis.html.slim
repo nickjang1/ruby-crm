@@ -1,0 +1,267 @@
+.page-header.page-header-block
+  .page-header-section
+    h4.pull-left
+      | Equipment PM Analysis
+      .pull-right#table-actions
+    .pull-right
+      .pull-right
+        = link_to 'Print PDF', '#', onclick: 'printPDF()', class: 'btn btn-default'
+      - if @prev_property_id.nil? && current_corporate.properties.count > 0 # if corporate user is running the report
+        .pull-right.mr10
+          = select_tag :property_id, options_for_select(current_corporate.properties.pluck(:name, :id)), class: 'form-control'
+
+- if @prev_property_id.nil? && current_corporate.properties.count == 0
+  h4.text-center Corporate doesn't have any properties yet.
+- else
+  .row
+    .report-sidebar.col-md-4
+      #filters.panel.panel-default
+        .panel-body
+          .row.mb10
+            .col-md-12.mb10
+              label Filter report by Equipment
+              select.form-control#equipment-type-selector multiple="multiple"
+                option value=""  Select Equipment Types
+                = options_from_collection_for_select Maintenance::EquipmentType.active.includes(:equipments).merge(Maintenance::Equipment.active), :id, :name_with_units
+            .col-md-12.hidden#checklists-filter
+              label Checklists
+              select#checklist-selector multiple=true
+
+    .report-body.col-md-8
+      .panel.panel-inverse
+        .panel-heading
+          .fc.fc-ltr.fc-unthemed#calendar-control
+            .fc-toolbar
+              .fc-left
+                .fc-button-group
+                  a.fc-button.fc-state-default.fc-corner-left#offset-minus <
+                  a.fc-button.fc-state-default.fc-corner-right#offset-plus >
+              .fc-right
+                .fc-button-group.date-range-type#report-type
+                  a.fc-button.fc-state-default.fc-corner-left.fc-state-active data-value="Quarter" Quarter
+                  a.fc-button.fc-state-default.fc-corner-right data-value="Month" Month
+              .fc-center
+                h2.text-center
+                  span#range-indicator
+
+        .panel-collapse.pull.out
+          .clearfix
+            .col-sm-6.text-center
+              .r-label Hotel Name
+              .r-value= Property.current.name
+              .r-label Equipment PM Analysis
+              .r-value#range-type-value= "#{@filter_range}ly"
+              .filter-data.hidden
+                .r-label Filtered By
+                .r-value#filter-data
+            .col-sm-6.text-center
+              .r-label Printed On:
+              .r-value= Date.today.strftime('%d/%m/%Y')
+              .r-label Printed By:
+              .r-value= current_user.name
+          .table-responsive
+            table.equipment-data-table.table.no-bottom-border.table-hover.table-bordered
+              thead
+                tr
+                  th.text-center rowspan="2" width="250" Equipment
+                  th.text-center#range-type colspan="3"= @filter_range == 'Quarter' ? 'Months' : 'Weeks'
+                tr#ranges
+              tbody#report-data
+
+            #loading.indicator
+              span.spinner
+
+  script#equipment-status-template type="x-tmpl-mustache"
+    td.status.text-center
+      | {{#records}}
+      .record-info data-group-id="{{checklist_group_id}}"
+        hr
+        | {{#inspected}}
+        span.ico-info2.text-primary.pr5
+        | {{/inspected}}
+        span.ico-checkmark.text-success
+        br
+        span.checklist-group-info
+          | {{checklist_group_name}} - {{checklist_group_frequency}}
+        br
+        b.text-default
+          | {{fixes}} fixes
+        br
+        b.text-default
+          | {{issues}} WOs
+      | {{/records}}
+      span.ico-remove-sign.text-danger
+
+  javascript:
+    checklist_groups = #{raw Maintenance::EquipmentChecklistItem.checklist_groups.select([:equipment_type_id, :id, :name]).map(&:serializable_hash).to_json};
+    equipment_types = #{raw Maintenance::EquipmentType.select([:id, :name]).map(&:serializable_hash).to_json};
+
+  coffee:
+    $(document).ready ->
+      groups              = checklist_groups
+      types               = equipment_types
+      selectedTypes       = []
+      selectedGroups      = []
+      dateRange           = new DateRange('Quarter')
+      $currentRange       = $('#range-indicator')
+      steps               = []
+      $recordTemplate     = $('#equipment-status-template').html()
+
+      checklist_selectizer = $('#checklist-selector').selectize()[0].selectize
+      types_selectizer = $('#equipment-type-selector').selectize()[0].selectize
+
+      updateTypes = ->
+        selectedTypes = []
+        selectedGroups = []
+        types_selectizer.clearOptions()
+        for type in types
+          types_selectizer.addOption(
+            text: type.name
+            value: type.id
+          )
+
+      filterChecklists = ->
+        selectedTypes = _.map($('#equipment-type-selector').val(), Number)
+        $('#checklist-selector').selectize('destroy')
+        if selectedTypes && selectedTypes.length > 0
+          $('#checklists-filter').removeClass('hidden')
+          $('.filter-data').removeClass('hidden')
+        else
+          $('#checklists-filter').addClass('hidden')
+          $('.filter-data').addClass('hidden')
+
+        checklist_selectizer.clearOptions()
+        for type in _.findByValues(types, 'id', selectedTypes)
+          checklist_selectizer.addOptionGroup(type.id, {label: type.name})
+        for group in _.findByValues(groups, 'equipment_type_id', selectedTypes)
+          checklist_selectizer.addOption(
+            text: group.name
+            value: group.id
+            optgroup: group.equipment_type_id
+          )
+        selectedGroups = []
+        applyFilter()
+
+      applyFilter = ->
+        $report_data = $('#report-data')
+        if selectedTypes.length > 0
+          $report_data.find('tr').addClass('hidden')
+        else
+          $report_data.find('tr').removeClass('hidden')
+        for type in selectedTypes
+          $report_data.find("tr[data-type-id=\"#{type}\"]").removeClass('hidden')
+        if selectedGroups.length > 0
+          $report_data.find('.record-info').addClass('hidden')
+        else
+          $report_data.find('.record-info').removeClass('hidden')
+        for group in selectedGroups
+          $report_data.find("td .record-info[data-group-id=\"#{group}\"]").removeClass('hidden')
+        for td in $report_data.find('td.status')
+          hasRecord = _.every($(td).find('.record-info'), (e) -> $(e).hasClass('hidden'))
+          if hasRecord
+            $(td).find('.ico-remove-sign').removeClass('hidden')
+          else
+            $(td).find('.ico-remove-sign').addClass('hidden')
+        if selectedTypes.length > 0
+          text = []
+          grouped = _.groupBy(_.findByValues(groups, 'id', selectedGroups), 'equipment_type_id')
+          for type in _.findByValues(types, 'id', selectedTypes)
+            g = grouped[type.id]
+            text.push if g && g.length > 0 then "#{type.name} (#{_.map(g, 'name').join(', ')})" else "#{type.name}"
+          $('.filter-data #filter-data').text(text.join(', '))
+
+      renderData = (equipments) ->
+        $('#report-data').empty()
+        for equipment in equipments
+          $row = $("<tr data-type-id=\"#{equipment.type_id}\"><td class=\"text-center\">#{equipment.name} (#{equipment.location})<br><div class=\"equipment-type-info text-default\">#{equipment.type_name}</div></td></tr>")
+          for step in steps
+            records = equipment.maintenance_records[step]
+            $td = Mustache.render($recordTemplate, records: records)
+            $row.append($td)
+          $('#report-data').append($row)
+
+      loadData = (propertySwitched = false)->
+        $currentRange.text(dateRange)
+        $('#loading').show()
+        $.ajax(
+          dataType: 'json'
+          type: 'GET'
+          url: Routes.report_path('render/equipment_pm_analysis')
+          data:
+            filter_range: dateRange.type
+            from: dateRange.from4rails()
+            to: dateRange.to4rails()
+            property_id: $('#property_id').val()
+            property_switched: propertySwitched
+        ).always( ->
+          $('#loading').hide()
+        ).done( (data) ->
+          if propertySwitched
+            groups = $.parseJSON(data.groups)
+            types = $.parseJSON(data.types)
+            console.log types
+            data = $.parseJSON(data.data)
+            updateTypes()
+          date = dateRange.from.clone()
+          steps = []
+          while date.isBefore(dateRange.to)
+            step =
+              if dateRange.type == 'Quarter'
+                date.format('MMMM')
+              else
+                "Week #{date.isoWeek() - dateRange.from.isoWeek() + 1}"
+            steps.push step
+            if dateRange.type == 'Quarter'
+              date.add(1, 'M')
+            else
+              date.add(1, 'w')
+          $('#ranges').empty()
+          $('#range-type').attr('colspan', steps.length).text(if dateRange.type == 'Quarter' then 'Months' else 'Weeks')
+          $('#range-type-value').text("#{dateRange.type}ly")
+          $('#ranges').append("<th class='text-center'>#{step}</th>") for step in steps
+          renderData(data)
+          applyFilter()
+        )
+        applyFilter()
+
+      $('#property_id').on 'change', ->
+        loadData(true)
+
+      $('#checklist-selector').on 'change', (e) ->
+        selectedGroups = _.map($(@).val(), Number)
+        applyFilter()
+
+      $('#equipment-type-selector').on 'change', (e) ->
+        filterChecklists()
+
+      $('#report-type > a').on('click', ->
+        $(@).parent().find('a').removeClass('fc-state-active')
+        $(@).addClass 'fc-state-active'
+        if dateRange.type isnt $(this).data('value') # reset all offsets if changed $range type
+          dateRange.setType($(this).data('value'))
+          loadData()
+      )
+
+      $('#offset-minus').on 'click', ->
+        dateRange.backward()
+        loadData()
+
+      $('#offset-plus').on 'click', ->
+        dateRange.forward()
+        loadData()
+
+      loadData()
+
+      @printPDF = ->
+        params = {
+          filter_range: dateRange.type,
+          groups: selectedGroups,
+          types: selectedTypes,
+          from: dateRange.from4rails(),
+          to: dateRange.to4rails()
+        }
+        console.log params
+        if $('#property_id').length > 0
+          params.property_id = $('#property_id').val()
+        url = "/reports/render/equipment_pm_analysis.pdf?#{$.param(params)}"
+        window.open(url, '_blank')

@@ -1,0 +1,5 @@
+ul
+  - for cycle in finished_cycles
+    li=raw I18n.t("controllers.maintenance.base.cycle_is_expired_message.#{cycle.cycle_type}", cycle_number: cycle.ordinality_number)
+
+button.btn.btn-default.btn-xs.create-new-cycle ok

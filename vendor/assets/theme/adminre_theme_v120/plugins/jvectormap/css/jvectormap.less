@@ -1,0 +1,55 @@
+// less variable
+@import "./../../../stylesheet/variables.less";
+@import "./../../../stylesheet/mixin.less";
+/* ----------------------------
+ *
+ * Vector Maps
+ *
+ * --------------------------- */
+.jvectormap-label {
+    font-size: 12px;
+    position: absolute;
+    display: none;
+    border: solid 1px lighten(@dark, 20%);
+    border-radius: @border-radius + 1;
+    background: @dark;
+    color: @white;
+    padding: 3px 5px;
+}
+.jvectormap-zoomin, 
+.jvectormap-zoomout {
+    position: absolute;
+    left: 10px;
+    color: white;
+    width: 24px;
+    height: 24px;
+    font-size: 0px;
+    cursor: pointer;
+
+    &:after {
+        font-family: "iconfont";
+        font-size: 14px;
+        line-height: 24px;
+        color: lighten(@primary, 10%);
+    }
+
+    &:hover {
+        &:after {
+            color: @primary;
+        }
+    }
+}
+.jvectormap-zoomin {
+    top: 10px;
+
+    &:after {
+        content: "\e35f";
+    }
+}
+.jvectormap-zoomout {
+    top: 30px;
+
+    &:after {
+        content: "\e361";
+    }
+}

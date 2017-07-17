@@ -1,0 +1,144 @@
+aside.sidebar.sidebar-left.sidebar-menu
+  section.content.slimscroll
+    h5.heading= t('.main_menu')
+    ul.topmenu.topmenu-responsive data-toggle="menu"
+      - if current_user.corporate?
+        li class=("#{'active' if current_page?(corporate_root_path)}")
+          = link_to :corporate_root do
+            span.figure
+              i.ico-dashboard
+            span.text= t('.dashboard')
+      - else
+        - if policy(:access).maintenance?
+          li class=("#{'active' if current_page?(maintenance_root_path) }")
+            = link_to maintenance_root_path do
+              span.figure
+                i.ico-dashboard
+              span.text= t('.dashboard')
+        - else
+          li class=("#{'active' if current_page?(dashboard_path)}")
+            = link_to :dashboard do
+              span.figure
+                i.ico-dashboard
+              span.text= t('.dashboard')
+      / procurement:
+      - if policy(:access).procurement?
+        li class=("#{'active open' if procurement_active?}")
+          = link_to 'javascript:void(0)', data: {parent: '.top_menu', target: '#procurement', toggle: 'submenu'} do
+            span.figure
+              i.ico-truck
+            span.text= t('.procurement')
+            span.arrow
+          ul#procurement class=("submenu collapse #{'in' if procurement_active?}")
+            - if can? :index, List
+              li class=("#{'active' if lists_active?}")
+                = link_to :lists do
+                  span.figure
+                    i.ico-stack3
+                  span.text= t('.lists')
+            - if can? :index, PurchaseRequest
+              li class=("#{'active' if purchase_requests_active?}")
+                = link_to :purchase_requests do
+                  span.figure
+                    i.ico-basket2
+                  span.text= t('.requests')
+            - if can? :index, PurchaseOrder
+              li class=("#{'active' if purchase_orders_active?}")
+                = link_to :purchase_orders do
+                  span.figure
+                    i.ico-shopping-cart
+                  span.text= t('.orders')
+            li class=("#{'active' if items_active?}")
+              = link_to :items do
+                span.figure
+                  i.ico-apple-fruit
+                span.text= t('.items')
+            li class=("#{'active' if procurement_setup_active?}")
+              = link_to 'javascript:void(0)', data: { target: '#procurement_setup', parent: '#procurement', toggle: 'submenu' } do
+                span.figure
+                  i.ico-cog
+                span.text= t('.setup')
+                span.arrow
+              ul#procurement_setup class=("submenu collapse #{'in' if procurement_setup_active?}")
+                li class=("#{'active' if vendors_active?}")
+                  = link_to :vendors do
+                    span.text= t('.vendors')
+                li class=("#{'active' if categories_active?}")
+                  = link_to :categories do
+                    span.text= t('.categories')
+                li class=("#{'active' if locations_active?}")
+                  = link_to :locations do
+                    span.text= t('.locations')
+                li class=("#{'active' if budgets_active?}")
+                  = link_to :budgets do
+                    span.text= t('.budgets')
+      - if policy(:access).maintenance?
+        li class=("#{'active open' if preventive_maintenance_active?}")
+          = link_to 'javascript:void(0)', data: {parent: '.top_menu', target: '#pm_setup', toggle: 'submenu'} do
+            span.figure
+              i.ico-tools
+            span.text= t('.pm_menu')
+            span.arrow
+          ul#pm_setup class=("submenu collapse #{'in' if params[:controller].starts_with? 'maintenance'}")
+            - if policy(:access).work_order?
+              li class=("#{'active' if current_page?(maintenance_work_orders_path)}")
+                = link_to :maintenance_work_orders do
+                  span.text= t('.pm_work_orders')
+            - if policy(:access).pm?
+              li class=('active' if current_page?(maintenance_rooms_path))
+                = link_to maintenance_rooms_path do
+                  span.text= t('.pm_room_select')
+              li class=('active' if current_page?(maintenance_public_areas_path))
+                = link_to maintenance_public_areas_path do
+                  span.text= t('.pm_public_areas_select')
+              li class=('active' if current_page?(maintenance_equipments_path))
+                = link_to maintenance_equipments_path do
+                  span.text= t('.pm_equipment_select')
+            - if policy(:access).inspection?
+              li class=('active' if current_page?(inspection_maintenance_rooms_path))
+                = link_to inspection_maintenance_rooms_path do
+                  span.text= t('.pm_room_inspection')
+              li class=('active' if current_page?(inspection_maintenance_public_areas_path))
+                = link_to inspection_maintenance_public_areas_path do
+                  span.text= t('.pm_public_areas_inspection')
+            - if policy(:access).pm_setup?
+              li class=("#{'active' if current_page?(maintenance_setup_path)}")
+                = link_to :maintenance_setup do
+                  span.figure
+                    i.ico-cog
+                  span.text= t('.pm_setup')
+      /li class=("#{'active' if current_page?('guest_logs')}")
+        = link_to '/guest_logs' do
+          span.figure
+            i.ico-pen5
+          span.text= t('.guest_logs')
+      li class=('active' if current_page?(engage_dashboard_path))
+        = link_to engage_dashboard_path do
+          span.figure
+            i.ico-pen5
+          span.text= t('.engage')
+          span.number
+            span.label.label-success New
+      - if policy(Report).index?
+        li class=("#{'active open' if reports_active?}")
+          a href=reports_path data-target="#reports-menu" data-toggle="submenu"
+            span.figure
+              i.ico-chart
+            span.text= t('.reports')
+          ul#reports-menu class=("submenu collapse#{'in' if reports_active?}")
+            li class=("#{'active' if favorie_reports_active?}")
+              = link_to favorites_reports_path do
+                span.text= t('.favorites')
+                span class="number"
+                  span#favorite_reports_count class="label label-success #{ 'hidden' if current_user.favorite_reports.for_maintenance.empty? }"= current_user.favorite_reports.for_maintenance.count
+
+      - if policy(User).index?
+        li class=("#{'active' if users_active?}")
+          = link_to users_path, data: {target: '#users-menu', toggle: 'submenu'} do
+            span.figure
+              i.ico-group
+            span.text= t('.team')
+          ul#users-menu class=("submenu collapse #{'in' if users_menu_active?}")
+            li class=("#{'active' if departments_active?}")
+              = link_to :departments do
+                span.text= t('.departments')

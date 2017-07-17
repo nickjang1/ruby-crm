@@ -1,0 +1,200 @@
+.panel.panel-default
+  .panel-heading
+    .panel-title My Tasks
+    .panel-toolbar.text-right
+      .option
+        button.btn.up data-toggle="panelcollapse"
+          i.arrow
+  .panel-collapse.pull.out
+    #wo-accordion.panel-group.nm
+      - if policy(:access).inspection?
+        .panel.panel-default
+          .panel-heading
+            h4.panel-title
+              a.collapsed data-parent="#wo-accordion" data-toggle="collapse" href="#inspection"
+                span.arrow.mr5
+                i.ico-info2.mr5
+                | Inspections
+          #inspection.panel-collapse.collapse
+            .panel-body.row
+              table.table.nm
+                - if current_cycle.present?
+                  tr
+                    td
+                      | You have
+                      b  #{current_cycle.number_of_rooms_to_inspect} room(s)
+                      |  remaining to inspect to achieve the #{Property.current.target_inspection_percent}% Target for the current cycle (#{current_cycle.period})
+                    td.action
+                      a.btn.btn-default.btn-sm href="/maintenance/rooms/inspection"
+                        | Select Room
+                        br.visible-xs
+                        |  to Inspect
+                - if current_cycle(:public_area).present?
+                  tr
+                    td
+                      b #{current_cycle(:public_area).public_areas_completed.count} Public Area(s)
+                      |  PM completed. Catch up on your inspections.
+                      div #{current_cycle(:public_area).days_to_finish} days to go in the current cycle (#{current_cycle(:public_area).period})
+                    td.action
+                      a.btn.btn-default.btn-sm href="/maintenance/public_areas/inspection"
+                        | Select Area
+                        br.visible-xs
+                        |  to Inspect
+      - if policy(Maintenance::WorkOrder).permitted_attributes.include?(:assigned_to_id) && Maintenance::WorkOrder.opened.unassigned.present?
+        .panel.panel-default
+          .panel-heading
+            h4.panel-title
+              a.collapsed data-parent="#wo-accordion" data-toggle="collapse" href="#assign-open-wo"
+                span.arrow.mr5
+                i.ico-tools.mr5
+                | Assign Open WOs
+                |  (
+                span.open-unassigned-wo-count= Maintenance::WorkOrder.opened.unassigned.count
+                |  Unassigned)
+          #assign-open-wo.panel-collapse.collapse
+            .panel-body.np
+              table.table.nm
+                - Maintenance::WorkOrder.opened.unassigned.each do |wo|
+                  tr.work-order data-id="#{wo.id}"
+                    td
+                      i.ico-checkmark.text-success.hidden
+                    td
+                      div
+                        b WO ##{wo.id}
+                        |  (Open)
+                        span.message-dropdown-toggle.pull-right
+                          ul.nav.navbar-nav
+                            li.dropdown.custom.messages-dropdown.no-shuffled data-model-id=(wo.id) data-model-number=(wo.id) data-user-avatar=(current_user.avatar.url) data-user-name=(current_user.name) data-message-ids='' data-model-type=(wo.class.name)
+                              a.dropdown-toggle data-toggle="dropdown" href="javascript:void(0);" class='test-messages-chat-icon'
+                                span.meta id="messages-icon" class=('text-primary' if wo.messages.count > 0)
+                                  span.icon
+                                    i.ico-bubbles3
+                      div= wo.location_name
+                      .text-default= wo.description
+                    td.action
+                      = select_tag :assigned_to, options_for_select(users_in_current_property), prompt: 'Select User', class: 'form-control input-sm'
+                      = text_field_tag :due_date, wo.due_to_date, placeholder: "Add Due Date", class: 'form-control input-sm date-picker', id: "due_date_#{wo.id}", maxlength: 10, value: ( l(wo.due_to_date, format: :short) if wo.due_to_date )
+                      = select_tag :priority, options_for_select(Maintenance::WorkOrder::PRIORITIES.map{ |mt| [mt.titleize, mt.first] }, wo.priority), class: 'form-control input-sm'
+
+      - if  Maintenance::WorkOrder.active.by_assignee(current_user.id).present?
+        .panel.panel-default
+          .panel-heading
+            h4.panel-title
+              a.collapsed data-parent="#wo-accordion" data-toggle="collapse" href="#complete-wo"
+                span.arrow.mr5
+                i.ico-tools.mr5
+                | Complete WOs assigned to you
+                |  (
+                span.incomplete-wo-count= Maintenance::WorkOrder.active.by_assignee(current_user.id).count
+                |  WOs)
+          #complete-wo.panel-collapse.collapse
+            .panel-body.np
+              table.table.nm
+                - Maintenance::WorkOrder.active.by_assignee(current_user.id).each do |wo|
+                  tr.work-order data-id="#{wo.id}"
+                    td
+                      b.mr5 WO ##{wo.id}
+                      span class="#{work_order_priority_label_class(wo.priority)}"= t("maintenance.work_orders.index.priorities.#{ wo.priority }")
+                      span.message-dropdown-toggle.pull-right
+                        ul.nav.navbar-nav
+                          li.dropdown.custom.messages-dropdown.no-shuffled data-model-id=(wo.id) data-model-number=(wo.id) data-user-avatar=(current_user.avatar.url) data-user-name=(current_user.name) data-message-ids='' data-model-type=(wo.class.name)
+                            a.dropdown-toggle data-toggle="dropdown" href="javascript:void(0);" class='test-messages-chat-icon'
+                              span.meta id="messages-icon" class=('text-primary' if wo.messages.count > 0)
+                                span.icon
+                                  i.ico-bubbles3
+
+                      div= wo.location_name
+                      .text-default= wo.description
+                    td.action
+                      .btn-action
+                        - if wo.status == 'open'
+                          .btn-group.mb5
+                            button.btn.btn-default.btn-sm.status data-status="working" type="button" Start Working
+                            button.btn.btn-default.btn-sm.dropdown-toggle data-toggle="dropdown" type="button"
+                              span.caret
+                            - if wo.status == 'open'
+                              ul.dropdown-menu role="menu"
+                                li
+                                  a.status data-status="closed" href="javascript:void(0);" Close WO
+                        - elsif wo.status == 'working'
+                          button.btn.btn-sm.btn-default.status data-status="closed" type="button" Close WO
+                      - if wo.due_to_date.present?
+                        div Due: #{I18n.l(wo.due_to_date, format: :short)}
+                        - if wo.due_to_date? && wo.due_to_date < Date.current
+                          span.text-danger Over Due
+                        - elsif wo.due_to_date? && wo.due_to_date == Date.current
+                          span.text-warning Due Today
+
+css:
+  table tr:first-child td{
+    border-top: none;
+  }
+
+- content_for :js do
+  coffee:
+    $ ->
+      $('.date-picker').datepicker(minDate: new Date())
+
+
+      $('#assign-open-wo select, #assign-open-wo .date-picker').on 'change', (e) ->
+        $row = $(this).parents('tr')
+        $this = $(this)
+        work_order =
+          priority: $row.find('#priority').val()
+          due_to_date: $row.find('.date-picker').val()
+
+        if $row.find('#assigned_to').val().length > 0 && $row.find('#assigned_to').val() != ""
+          work_order.assigned_to_id = $row.find('#assigned_to').val()
+
+        options =
+          method: 'PUT'
+          dataType: 'json'
+          data:
+            maintenance_work_order: work_order
+
+        $.ajax(Routes.maintenance_work_order_path($row.data('id')), options)
+        .done (data) ->
+          $.gritter.add(text: "WO ##{$row.data('id')} updated. #{_.startCase($this.attr('name'))} changed", class_name: "alert alert-success")
+          if $this.attr('id') == 'assigned_to'
+            $row.find('i.ico-checkmark').removeClass('hidden')
+          unassigned_count = $('#assign-open-wo .ico-checkmark.hidden').length
+          $('.open-unassigned-wo-count').text(unassigned_count)
+
+      $('#complete-wo').on 'click', '.status', (e) ->
+        $this = $(this)
+        status = $this.data('status')
+        $row = $this.parents('tr')
+        if status == 'closed'
+          showConfirmationDialog("Do you want to close WO ##{$row.data('id')}", $this)
+          return
+
+        updateStatus($(this))
+
+      $('body').on 'dialog:confirmed', '#complete-wo .status', (e) ->
+        updateStatus($(e.target))
+
+      updateStatus = (e) ->
+        $this = $(e)
+        $row = $this.parents('tr')
+        status = $this.data('status')
+        options =
+          method: 'PUT'
+          dataType: 'json'
+          data:
+            maintenance_work_order:
+              status: status
+
+        $.ajax(Routes.maintenance_work_order_path($row.data('id')), options)
+        .done (data) ->
+          if status == 'working'
+            text = "WO ##{$row.data('id')} is being working on."
+          else
+            text = "WO ##{$row.data('id')} is closed."
+          $.gritter.add(text: text, class_name: "alert alert-success")
+
+          if status == 'working'
+            $this.parents('td.action .btn-action').html("<button class='btn btn-sm btn-default status' data-status='closed' type='button'>Close WO</button>")
+          else
+            $this.parents('td.action').html("<span class='label label-danger'>Closed</span>")
+            completed = parseInt($('.incomplete-wo-count').text())
+            $('.incomplete-wo-count').text(completed - 1) # update count

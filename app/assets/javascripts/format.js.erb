@@ -1,0 +1,14 @@
+$priceFormatDecimalsCount = <%= Settings.formats.decimals_count_for_price %>; // number of digits after "." in all numbers that display price. Global across application
+
+var formatPrice;
+var formatQuantity;
+
+(function(){
+  formatPrice = function(value){
+    return parseFloat(value).toFixed($priceFormatDecimalsCount);
+  };
+
+  formatQuantity = function(value) {
+    return parseFloat(value).toFixed(3);
+  }
+}());

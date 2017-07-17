@@ -1,0 +1,10 @@
+:coffeescript
+  window.setTimeout ->
+    $('.alert-box .close').click()
+  , 5000
+
+- flash.each do |name, message|
+  %div{ class: "alert-box #{alert_class(name)}" }
+    = alert_icon(name)
+    = raw(message)
+    %a.close &#215;

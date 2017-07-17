@@ -1,0 +1,85 @@
+- body_class 'work-orders-page messaging-enabled-form work-orders-comment'
+
+.page-header.page-header-block
+  .page-header-section
+    h4.clearfix.mb5
+      span.title.semibold= t('.work_orders')
+      .pull-right
+        .inline-block
+          - if policy(Maintenance::WorkOrder.new).create?
+            = link_to '#', class: 'btn btn-primary add-work-order' do
+              span.ico-plus-circle2
+              = " #{ t('.new_work_order') }"
+      .index-options
+        .inline-block.mr5
+          .has-icon
+            = text_field_tag :search, '', class: 'form-control', placeholder: 'WO #, Request, Location'
+            i.ico-search.form-control-icon
+        .inline-block.mr5
+          = select_tag :wo_properties, options_for_select(@current_properties.map { |p| [p.name, p.id] }), class: "form-control #{properties_filter_class}", id: 'wo-properties'
+.work-order-container style="position: relative;"
+  #filters
+    #global-filter.mb5
+      .inline-block#status-filter.btn-group.mr5 data-toggle="buttons"
+        label.btn.btn-default.active
+          input autocomplete="off" name="status-filter" type="radio" value="active" Active
+        label.btn.btn-default
+          input autocomplete="off" name="status-filter" type="radio" value="closed" Closed
+      .inline-block= select_tag :wo_grouping_options, options_for_select(t('.grouping_options').invert, selected: current_user.settings['work_order_group_by']), class: 'form-control', id: 'wo-grouping'
+    .row.clearfix#closed-filter
+      .col-sm-6
+        .form-control#filter-date-range
+          i.ico-calendar
+          '
+          span#range-value
+          '
+          span
+            b.caret
+      .col-sm-6
+        = select_tag :wo_type, options_for_select(work_order_types), class: 'form-control'
+  ul#group-options.nav.nav-tabs.custom-tabs
+  .tab-content.panel.nm
+    .tab-pane.pl0.pr0.active
+      .work-orders style="overflow: hidden;"
+        - if current_user.corporate? && current_user.all_properties.count == 0
+          h4.pl15 You have not been added to any of your hotels.
+        - else
+          -#= render @work_orders
+      h4.no-work-orders.text-center.hidden
+  .indicator#wo-listing-spinner
+    span.spinner
+
+#wo-modal.modal.fade
+#closing-confirmation.hidden
+  form data-parsley-validate=true
+    .form-group.mb10
+      -#= text_area_tag :closing_comment, nil, class: 'form-control', placeholder: 'Add closing comment', rows: 4
+      textarea.form-control#closing_comment name="closing_comment" placeholder="Add closing comment" rows=4
+    .form-group.work-order-duration.mb0
+      = text_field_tag :duration, '', class: 'form-control time-input inline-block duration', placeholder: 'Time to complete'
+      -#= select_tag :duration_type, options_for_select(%w(Hours Minutes)), class: 'form-control inline-block duration-type'
+      span.inline-block.duration-desc
+        span.minutes mins
+        | /
+        span.hours hours
+      '
+      label.switch.switch-primary.inline-block
+        input.duration-type type="checkbox"
+
+= render partial: 'shared/messages', locals: { model: Maintenance::WorkOrder.new, add_message: true }
+
+javascript:
+  work_order_id = "#{params[:id]}";
+  wo_types = ['Normal WOs', 'PM WOs'];
+  priorities = "#{t('.priorities').invert.map{|p| p[0]}.join(',')}".split(',');
+  statuses = ['Open', 'Working', 'Closed'];
+  users = #{@users.to_json.html_safe};
+
+- content_for :js do
+  coffee:
+    $ ->
+      $('#status-filter label').on('click', ->
+        $(@).removeClass('btn-default').addClass('btn-success').siblings().removeClass('btn-success').addClass('btn-default')
+      )
+      $('#status-filter label.active').trigger 'click'
+      $('#wo-listing-spinner').show()

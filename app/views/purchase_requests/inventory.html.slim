@@ -1,0 +1,112 @@
+- body_class 'messaging-enabled-form'
+
+= simple_form_for @purchase_request, html: {class: 'purchase_request request-inventory'} do |f|
+  .page-header.page-header-block
+    .page-header-section
+      h4.title.semibold.clearfix
+        span.pull-left= t('.title')
+        = render partial: 'shared/messages', locals: {model: @purchase_request, add_message: true}
+        .pull-right
+          input#commit type='hidden' name='commit'
+          input#print type='hidden' name='print'
+          input#message-ids type='hidden' name='message_ids'
+          = link_to_with_icon 'ico-pencil', t('shared.messages.add_message'), 'javascript:void(0)', class: 'btn btn-info add-message-btn'
+          .btn-group.narrow-dropdown
+            a.btn.btn-primary.test-next-btn data-action="next" 
+              i.ico-next
+              |  #{ t('.next') }
+            a.btn.btn-primary.dropdown-toggle data-toggle="dropdown"  
+              span.caret
+            ul.dropdown-menu role="menu"
+              li
+                = link_to_with_icon 'ico-print', t('.print'), '#', data: {action: 'commit', tooltip: 'true', print: '1'}, title: 'Print for Offlink', class: 'has-tip print'
+              li
+                a href='#' data-action='commit'
+                  i.ico-save
+                  |  #{ t('.save') }
+              li
+                a.with_confirmation href='#' data-action='finish' data-confirm="#{ @purchase_request.new_record? ? t('.finish_confirmation_message_new_record') : t('.finish_confirmation_message', req_number: @purchase_request.number) }"
+                  i.ico-check
+                  |  #{ t('.finish') }
+  
+  .panel.panel-default
+    = render 'requests_steps_indicator', step: PurchaseRequest::STATES.index(@purchase_request.state.to_sym)
+    
+    table.column-filtering.responsive-stacktable.searchable-table.table.mt10.no-initial-sorting.no-stripe-classes.table-striped
+      thead
+        tr
+          td
+            input.form-control name="search_engine" placeholder="#" type="search" /
+          td
+            input.form-control name="search_engine" placeholder=t('.item_name') type="search" /
+          td
+            input.form-control name="search_engine" placeholder=t('.locations') type="search" /
+          td
+            input.form-control name="search_engine" placeholder=t('.on_hand_qty') type="search" /
+          td
+            input.form-control name="search_engine" placeholder=t('.unit') type="search" /
+          td
+
+        tr
+          th= t('.item_number')
+          th= t('.item_name')
+          th.nosort= t('.locations')
+          th.nosort.text-center= t('.on_hand_qty')
+          th= t('.unit')
+          th.nosort.skip-inv-header=t('.skip_inv')
+      tbody
+        - f.object.item_requests.each_with_index do |ir, ii|
+          = f.simple_fields_for :item_requests, ir do |irf|
+            - if irf.object.item.locations.empty?
+              tr class="#{ii % 2 == 0 ? 'odd' : 'even'}"
+                td data-title=t('.item_number') = irf.object.item.number
+                td data-title=t('.item_name')
+                  .hidden-sm.hidden-xs= render 'shared/open_pr_po_for_item', item: irf.object.item
+                  span.item-name= irf.object.item.try :name
+                td data-title=t('.locations')
+                  span.location  data-id='none'   -
+                  = irf.input :item_id, label: false, as: :hidden, autofocus: true
+                  = irf.input :id, as: :hidden
+                td.text-center data-title=t('.on_hand_qty')
+                  = irf.input :count, label: false, as: :string, input_html: { type: "number", min: 0, placeholder: t('.item_count_placeholder'), class: "count-input pull-right width100 numeric-input input-sm form-control text-right" }, wrapper_html: {class: 'clearfix'}
+                  = irf.input_field :skip_inventory, value: nil, as: :hidden, class: "skip_input"
+                td data-title=t('.unit') = humanized_unit_format irf.object.item.inventory_unit
+                td.skip-inv-cell width="140px" data-title=t('.skip_inv')
+                  span.skip.badge.badge-danger.disp-none= t('.skip') 
+            - else
+              - irf.object.item.locations.each_with_index do |location, index|
+                - td_class = index!=0 ? 'no-top-border' : ''
+                tr class="#{ii % 2 == 0 ? 'odd' : 'even'}"
+                  td class="#{td_class} #{ 'hidden-xs' unless index==0 }" data-title=t('.item_number') = irf.object.item.number if index==0
+                  td.vertical-devider-left-sm data-title=t('.item_name') class="#{td_class} #{ 'hidden-xs' unless index==0 }"
+                    - if index==0
+                      .hidden-sm.hidden-xs= render 'shared/open_pr_po_for_item', item: irf.object.item
+                      span.item-name= irf.object.item.try(:name)
+                  td class="#{td_class}" data-title=t('.locations')
+                    = location.name
+                    = irf.input :item_id, label: false, as: :hidden, autofocus: true
+                    = irf.input :id, as: :hidden
+                  td class="#{td_class} text-center" data-title=t('.on_hand_qty')
+                    = irf.input :count, label: false, as: :integer, input_html: { type: "number", min: 0, placeholder: t('.item_count_placeholder'), class: "count-input width100 numeric-input input-sm form-control text-right", name: "purchase_request[item_requests_attributes][#{ii}][count][]" }, wrapper_html: {class: 'clearfix'}
+                    = irf.input_field :skip_inventory, value: nil, as: :hidden, class: "skip_input"
+                  td class="#{td_class}" data-title=t('.unit') = humanized_unit_format irf.object.item.inventory_unit
+                  td class="#{td_class} skip-inv-cell" width="140px" data-title=t('.skip_inv')
+                    span.skip.badge.badge-danger.disp-none= t('.skip') 
+
+
+- content_for :js do
+  coffee:
+    submitForm = (elem)->
+      $('input#commit').val $(elem).data('action')
+      $('input#print').val $(elem).data('print')
+      $('input#message-ids').val $('#messages-dropdown').data('message-ids')
+      $(elem).closest('form').submit()
+
+    $(document).ready ->
+      $('.purchase_request .page-header-section a[data-action]:not(.with_confirmation)').on 'click', ->
+        submitForm(this)
+        false
+
+      $('.purchase_request .page-header-section a[data-action].with_confirmation').on 'dialog.confirmed', ->
+        submitForm(this)
+        false

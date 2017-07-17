@@ -1,0 +1,16 @@
+- if !Rails.env.development? && !Rails.env.test?
+  = javascript_include_tag 'https://cdnjs.cloudflare.com/ajax/libs/airbrake-js/0.5.6/client.min.js'
+
+  javascript:
+    airbrake = new airbrakeJs.Client({
+      projectId: #{Settings.airbrake_project_id},
+      projectKey: "#{Settings.airbrake_api_key}"
+    });
+    window.onerror = airbrake.onerror;
+
+    var notifyAjaxError = function(e, xhr, status, error) {
+      airbrake.notify(error);
+    };
+
+    $(document).on('ajaxError', notifyAjaxError);
+    $(document).on('ajax:error', notifyAjaxError);

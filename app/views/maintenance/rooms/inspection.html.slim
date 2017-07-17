@@ -1,0 +1,88 @@
+- body_class 'room-inspection-page'
+
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold= t('.header')
+- if current_cycle(:room)
+  .row
+    .col-md-4
+      .table-layout.animation.delay.animating.fadeInDown
+        .col-xs-4.panel.bgcolor-info.text-center
+          .ico-users3.fsize24
+        .col-xs-8.panel
+          .panel-body.text-center
+            h3.semibold.text-muted.nm= current_cycle(:room).ordinality_number.ordinalize
+            p.semibold.text-primary.mb0.mt5.ellipsis= raw t('.current_cycle')
+
+    .col-md-4
+      .table-layout.animation.delay.animating.fadeInDown
+        .col-xs-4.panel.bgcolor-primary.text-center
+          .ico-bed.fsize24
+        .col-xs-8.panel
+          .panel-body.text-center
+            h3.semibold.nm.text-muted
+              span= current_cycle(:room).rooms_inspected.count
+              span.small= " / #{current_property.target_inspection_count}"
+            p.semibold.text-primary.mb0.mt5.ellipsis= raw t('.guest_rooms_inspected')
+
+    .col-md-4
+      .table-layout.animation.delay.animating.fadeInDown
+        .col-xs-4.panel.bgcolor-warning.text-center
+          .ico-calendar5.fsize24
+        .col-xs-8.panel
+          .panel-body.text-center
+            h3.semibold.nm.text-muted= current_cycle(:room).days_to_finish
+            p.semibold.text-primary.mb0.mt5.ellipsis= raw t('.days_remaining')
+.row
+  .col-sm-12.col-md-12
+    table.table.table-bordered.table-hover#rooms-inspection-table
+      thead
+        tr
+          th= t('.choose_room_from_list')
+      tbody
+    .indicator.inline
+      span.spinner
+script#room-inspect-template type="x-tmpl-mustache"
+  .room-detail.clearfix
+    .room-name
+      span= 'Guest Room #{{room_number}}'
+      dl.dl-horizontal.room-inspection-info.no-wrapping
+        dt Completed By:
+        dd= '{{completed_by}}'
+      dl.dl-horizontal.room-inspection-info.no-wrapping
+        dt Completed On:
+        dd= '{{completed_on}}'
+      dl.dl-horizontal.room-inspection-info.no-wrapping
+        dt Fixes:
+        dd= '{{fixed}}'
+      dl.dl-horizontal.room-inspection-info.no-wrapping
+        dt Work Orders:
+        dd= '{{work_orders}}'
+    .room-inspection-actions
+      | {{^completed}}
+      | {{^in_inspection}}
+      = link_to 'Inspect', '/maintenance/rooms/floor{{floor}}-room{{room_number}}/inspect', class: 'start-maintenance btn btn-primary btn-outline'
+      | {{/in_inspection}}
+      | {{#in_inspection}}
+      = link_to 'Continue', '/maintenance/rooms/floor{{floor}}-room{{room_number}}/inspect', class: 'start-maintenance btn btn-primary btn-outline'
+      | {{/in_inspection}}
+      | {{/completed}}
+      | {{#completed}}
+      .text-right
+        span.label.label-success Inspected
+      | {{/completed}}
+      .room-inspection-info.text-left
+        div
+          b Last Inspection:
+        | {{#ever_inspected}}
+        div
+          | {{last_inspected_on}}
+        div
+          b By
+          |  {{last_inspected_by}}
+        div Inspected {{inspected_count}} times
+        div in {{cycles_count}} previous cycles
+        | {{/ever_inspected}}
+        | {{^ever_inspected}}
+        div.small No Inspection Done
+        | {{/ever_inspected}}

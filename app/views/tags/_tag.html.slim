@@ -1,0 +1,24 @@
+.col-xs-12.col-sm-6.col-md-4.shuffle
+  .widget.panel
+    .row-fluid
+      .col-xs-11
+        .panel-body
+          .semibold
+            h4.search-target= link_to tag.name, url_for([:edit, tag])
+      .checkbox.custom-checkbox.nm.panel-checkbox
+        input id="customcheckbox#{tag.id}" data-target=".widget" data-toggle="selectrow" data-contextual='selected' type="checkbox" value=tag.id
+        label for="customcheckbox#{tag.id}" 
+      .listing-actions
+        = link_to tag, method: :delete, data: { confirm: t('.confirm_delete', tag_type: tag_type.singularize, tag_name: tag.name) }, class: 'activate-inactivate btn btn-danger', rel: 'tooltip', title: 'Inactivate' do
+          i.ico-trash
+    ul.nav.nav-section.nav-justified.mt15
+      li
+        .section
+          h4.nm= tag.items.count
+          p.nm.text-muted Items
+      li
+        .section
+          = link_to new_purchase_request_path(q:{ tags_id_eq_any: [tag.id]}), :class => 'btn btn-success', id: "tag-order-#{tag.id}" do
+            span.ico-shopping-cart
+            '
+            | Order

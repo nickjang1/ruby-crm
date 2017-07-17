@@ -1,0 +1,12 @@
+<% content_for :header do %>
+  <p style="margin: 0; padding-bottom: 1em">  <span class="cp"><%= @resource.name %>, welcome</span> to Lodgistics!</p>
+  <% if @resource.created_by_user %>
+    <p style="margin: 0; text-align: justify;">
+      <%= @resource.created_by_user.name %> has set up an account for you in '<%= @resource.corporate? ? @resource.corporate.name : Property.current.name %>'</span>.  Activate to start using Lodgistics.
+    </p>
+  <% end %>
+<% end %>
+
+<% content_for :action do %>
+  <a class="kmButton " title="" href="<%= confirmation_url(@resource, confirmation_token: @token) %>" target="_self" style="word-wrap: break-word; font-weight: normal; letter-spacing: -0.5px; line-height: 100%; text-align: center; text-decoration: underline; color: #0000cd; font-family: Helvetica, Arial; font-size: 16px; text-decoration:initial;color:#FFFFFF;font-weight:bold;font-size:16px;font-family:Helvetica, Arial;padding-top:0;padding-bottom:0;">Activate &amp; Set Password</a>
+<% end %>

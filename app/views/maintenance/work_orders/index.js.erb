@@ -1,0 +1,10 @@
+<% work_orders = escape_javascript(render(@work_orders)) %>
+
+var workOrdersShuffle = $('.work-orders').data('shuffle');
+if (workOrdersShuffle) {
+  workOrdersShuffle.destroy();
+}
+
+$('.work-orders').html("<%= work_orders %>");
+workOrdersShuffle.shuffle();
+workOrdersShuffle.appended($("<%= work_orders %>"));

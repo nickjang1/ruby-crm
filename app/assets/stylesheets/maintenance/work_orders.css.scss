@@ -1,0 +1,265 @@
+.work-orders-page {
+  .container-fluid {
+    padding: 10px !important;
+  }
+
+  .page-header {
+    padding: 10px 20px;
+    margin-bottom: 10px;
+  }
+
+  .inline-block {
+    vertical-align: middle;
+  }
+
+  .has-icon .form-control-icon {
+    font-size: 13px;
+  }
+
+  .index-options {
+    float: right;
+  }
+
+  #filters {
+    background-color: #dde4e6;
+    padding: 7px;
+
+    #closed-filter {
+      display: none;
+    }
+  }
+
+  .work-order {
+    .panel-heading {
+      padding-top: 3px;
+      padding-bottom: 3px;
+    }
+
+    .work-order-snap {
+      span, a {
+        font-size: 11px;
+        white-space: nowrap;
+      }
+      
+      > a {
+        color: rgb(51, 51, 51);
+      }
+
+      .work-order-priority {
+        font-size: 9px;
+      }
+
+      .label {
+        font-size: 9px;
+        height: 15px;
+        min-height: 15px;
+      }
+    }
+    
+    .message-dropdown-toggle {
+      margin: 0;
+      padding: 0;
+
+      .nav.navbar-nav {
+        margin: 0;
+
+        > li > a {
+          padding-top: 7px;
+        }
+      }
+    }
+
+    .list-table > li.work-order-snap {
+      line-height: 14px;
+    }
+  }
+
+  .work-order-duration {
+    .duration {
+      width: 131px;
+      margin-right: 10px;
+    }
+
+    .duration-type {
+      width: 90px;
+    }
+  }
+
+
+  @media (max-width: 768px) {
+    .page-header {
+      padding: 5px 16px;
+    }
+
+    .index-options {
+      margin-top: 5px;
+      float: none;
+
+      .inline-block {
+        display: block;
+        width: 100%;
+      }
+    }
+
+    #filters {
+      label.btn {
+        padding: 7px;
+      }
+    }
+  }
+
+}
+
+.tab-pane.recurring {
+  padding: 5px;
+  label { margin: 0; }
+  .form-control {
+    max-width: 200px;
+
+    &.interval {
+      width: 100px;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+  }
+  label.control-label {
+    margin-top: 6px;
+  }
+  .btn-day {
+    display: inline-block;
+    width: 34px;
+    margin-right: 5px;
+    height: 34px;
+    text-align: center;
+    line-height: 34px;
+    border-radius: 50%;
+    color: #777777;
+    background-color: #ededed;
+    border: 1px solid #c6d2d5;
+  }
+  .btn-date {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    color: #777777;
+    background-color: #ededed;
+    border: 1px solid #c6d2d5;
+  }
+  .btn-day.selected, .btn-date.selected {
+    background-color: #00b1e1;
+    border-color: #00a5d2;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.1);
+    color: white;
+  }
+  .btn-date.last-date {
+    width: 120px;
+  }
+  .recurring-type-desc {
+    .monthly, .weekly {
+      margin: 0;
+    }
+    .monthly { display: none; }
+    .weekly { display: block; }
+
+    &.monthly {
+      .monthly { display: block; }
+      .weekly { display: none; }
+    }
+  }
+}
+
+.tab-pane.materials {
+  padding: 0 5px 5px 5px;
+  .clearfix > div {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .material-selector, .material-price {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  .material-selector {
+    width: 330px;
+  }
+  .material-quantity {
+    width: 90px;
+  }
+  .material-price {
+    font-weight: bold;
+    height: 32px;
+    line-height: 32px;
+  }
+
+  table.material-list {
+    .material-item {
+      td {
+        vertical-align: top;
+      }
+
+      td.value {
+        font-weight: bold;
+      }
+
+      td.selected {
+        background: yellow;
+      }
+    }
+  }
+
+  .material-live-cost {
+    height: 32px;
+    line-height: 32px;
+  }
+
+  .materials-total {
+    background-color: #f8f8f8;
+    border-top: 1px solid #cfd9db;
+    padding: 10px;
+
+    .total-value {
+      padding-right: 31px;
+    }
+  }
+
+  tr.no-materials > td {
+    padding: 0;
+  }
+
+  .selectize-input {
+    &.has-error {
+      border: solid 1px red;
+    }
+  }
+}
+
+#occurrences-panel {
+  table td {
+    border: none;
+    padding: 5px;
+  }
+
+  .panel-body {
+    padding: 0 10px;
+  }
+
+  select.form-control {
+    height: 27px;
+  }
+}
+
+@media (max-width: 400px) {
+  .material-selector {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 500px) {
+  .add-material {
+    margin-top: 5px;
+  }
+}

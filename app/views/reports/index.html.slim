@@ -1,0 +1,23 @@
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold=  @title 
+  .page-header-section
+    .toolbar.clearfix
+      .col-md-6
+        /#filter-options.btn-group
+          button.btn.btn-default data-group="spending"  Spending
+          button.btn.btn-default data-group="purchases"  Purchases
+          button.btn.btn-default data-group="budget"  Budget
+          button.btn.btn-default data-group="misc"  Misc
+          button.btn.btn-default data-group="maintenance"  Maintenance
+
+      .col-md-6.pull-right
+        .has-icon
+          input#shuffle-filter.form-control name="shuffle-filter" placeholder=("Search reports") type="search" /
+          i.ico-search.form-control-icon
+
+#shuffle-grid.report-listing.row
+  = render @reports
+
+a.totop.animation data-hideanim="bounceOut" data-offset="50%" data-showanim="bounceIn" data-toggle=("waypoints totop") href="#" 
+  i.ico-angle-up

@@ -1,0 +1,22 @@
+.page-header.page-header-block
+  .page-header-section
+    - if can? :create, Department
+      = link_to :new_department, class: 'btn btn-primary mr10' do
+        span.ico-plus-circle2
+        '
+        = t('.add_deparment')
+  .page-header-section
+    .toolbar.clearfix
+      .col-xs-5
+        .btn-group
+          = link_to departments_path, class: ('btn ' +  ('deleted' == params[:scope] ? 'btn-default': 'btn-success')) do
+            | Active
+          = link_to departments_path(scope: 'deleted'), class: ('btn ' +  ('deleted' == params[:scope] ? 'btn-success': 'btn-default')) do
+            | Inactive
+      .col-md-6.col-md-push-1
+        .has-icon
+          input#shuffle-filter.form-control name="shuffle-filter" placeholder=("Search") type="search" /
+          i.ico-search.form-control-icon
+#shuffle-grid.row
+  = render @departments
+

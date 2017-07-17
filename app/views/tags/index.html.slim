@@ -1,0 +1,17 @@
+.page-header.page-header-block
+  .page-header-section
+    = link_to url_for(controller: params[:controller], action: :new), class: 'btn btn-primary mr10' do
+      span.ico-plus-circle2
+      = "  Add #{tag_type.singularize}"
+    = link_to '#', id: 'order_selected', class: 'btn btn-success', data: {controller: params[:controller]}, disabled: true do
+      span.ico-shopping-cart
+      |  Order Selected
+  .page-header-section
+    .toolbar.clearfix
+      .col-md-6.col-md-push-6
+        .has-icon
+          input#shuffle-filter.form-control name="shuffle-filter" placeholder=("Search #{tag_type}") type="search" /
+          i.ico-search.form-control-icon
+#shuffle-grid.row
+  = render :partial => 'tag', collection: @tags
+

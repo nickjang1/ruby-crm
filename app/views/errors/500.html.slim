@@ -1,0 +1,21 @@
+section.container.animation.delay.animating.fadeInDown
+  .row
+    .col-lg-6.col-lg-offset-3
+      .panel.panel-minimal style="margin-top:10%;"
+
+        .panel-body.text-center
+          i.ico-database3.longshadow.fsize112.text-default
+        .panel-body.text-center
+          h1.semibold.longshadow.text-center.text-default.fsize32.mb10.mt0 SOMETHING WHEN WRONG!!
+          h4.semibold.text-primary.text-center.nm Unexpected condition was encountered...
+
+        .panel-body.text-center
+          a.btn.btn-default.mb5 href="/"  Back To Dashboard
+          span.semibold.text-default.hidden-xs &nbsp;&nbsp;OR&nbsp;&nbsp;
+          a.btn.btn-success.mb5 href="#" onclick="FreshWidget.show(); return false;"  Report This Problem
+
+= render 'layouts/freshdesk'
+css:
+  #freshwidget-button * {
+    display: none;
+  }

@@ -1,0 +1,91 @@
+- body_class 'dashboard-page'
+
+- content_for :breadcrumb, t('.dashboard')
+section#main role="main" 
+  .container-fluid
+    .row
+      .col-md-7
+        .panel.panel-default
+          .panel-heading
+            h3.panel-title= t('.tasks')
+          #orders.table-responsive.panel-collapse.pull.out
+            table.table.table-hover.table-bordered.text-center
+              tbody
+                - @requests_and_orders.each do |request_or_order|
+                  tr class=age_class(request_or_order) 
+                  - if request_or_order.is_a? PurchaseRequest
+                    = render 'purchase_request_row', purchase_request: request_or_order
+                  - else
+                    td
+                      = t('.po')
+                      br
+                      =request_or_order.number
+                    - if request_or_order.sent_at
+                      td= l(request_or_order.sent_at, format: :short)
+                      td= request_or_order.vendor.name
+                      td.col-xs-2
+                        = request_or_order.total_price
+                        br
+                        = request_or_order.item_counts
+                      td.col-xs-2
+                        = link_to new_purchase_receipt_path(purchase_order_id: request_or_order), class: 'btn btn-block btn-inverse mb5' do
+                          i.ico-truck
+                          = t('.receive')
+                    - else
+                      td= l(request_or_order.created_at, format: :short)
+                      td= request_or_order.vendor.name
+                      td
+                        = request_or_order.total_price
+                        br
+                        = request_or_order.item_counts
+                      td.col-xs-2
+                        = link_to_with_icon request_or_order.btn_icon, t('.send'),
+                            send_email_purchase_order_path(request_or_order, redirect_to: dashboard_path),
+                            method: :post,
+                            id: 'send_email',
+                            class: "btn #{request_or_order.btn_class} order-action-btn"
+                            'data-confirm' => "#{ t('purchase_orders.purchase_order_actions.confirm.email', order_number: request_or_order.number, vendor_name: request_or_order.vendor.name)}"
+
+      .col-md-5
+        - if can?(:index, List )
+          .panel.panel-default
+            .panel-heading
+              h3.panel-title= t('.lists')
+              .panel-toolbar.text-right
+                = link_to 'show all', lists_path, class: 'more'
+            #lists.table-responsive.panel-collapse.pull.out
+              table.table.table-hover.table-bordered.text-center
+                tbody
+                  - @lists.each do |list|
+                    tr
+                      td.col-xs-3= list.name
+                      td.col-xs-6= t('.list_description_will_go_here')
+                      td.col-xs-1
+                        = link_to new_purchase_request_path(q: {lists_id_eq_any: [list.id]}), class: 'btn btn-block btn-primary mb5' do
+                          i.ico-basket2
+                          = t('.start_request')
+
+        .panel.panel-default
+          .panel-heading
+            h3.panel-title= t('.spending_by_category')
+          .panel-body
+            .chart#category-spend-chart
+
+        .panel.panel-default
+          .panel-heading
+            h3.panel-title= t('.budget_and_spend')
+            .panel-toolbar.text-right
+              #budget-vs-spend-time-selector.btn-group
+                button.btn.btn-sm.btn-default.status disabled="dis" type="button"
+                button.btn.btn-sm.btn-default.dropdown-toggle data-toggle="dropdown" type="button" 
+                  span.caret
+                ul.dropdown-menu.dropdown-menu-right
+                  li.dropdown-header= t('.time_period')
+                  li= link_to t('.year_to_date'), 'javascript:void(0)', class: 'scope-range', data: {range: 'year'}
+                  li= link_to t('.month_to_date'), 'javascript:void(0)', class: 'scope-range', data: {range: 'month'}
+          .panel-body
+            .chart#budget-and-spend-chart data-budget-spend-data=@budget_spend_data.to_json
+            .indicator
+              .spinner
+
+        = render 'maintenance/shared/charts/work_order_trends'

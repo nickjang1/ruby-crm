@@ -1,0 +1,35 @@
+.col-xs-12.col-sm-6.col-md-4.shuffle
+  .widget.panel
+    .row-fluid
+      .col-xs-11
+        .panel-body
+          .semibold
+            h4.vendor-name.search-target= link_to vendor.name, [:edit, vendor]
+          small.text-muted.listing-email
+            i.ico-envelop.mr5
+            -if vendor.email.present?
+              = mail_to vendor.email, :body => "#{vendor.name},", rel: 'tooltip', title: t('.click_to_send_email') do
+                = vendor.email
+            -else
+              | ---------------
+          .text-muted.mt5
+            = t('.phone', phone: vendor.phone)
+            br
+            = t('.fax', fax: vendor.fax)
+      .listing-actions
+        - if can? :delete, Vendor
+          = link_to vendor, method: :delete, data: { confirm: t('.confirm_inactivate', vendor_name: vendor.name) }, class: 'activate-inactivate btn btn-danger', rel: 'tooltip', title: 'Inactivate' do
+            i.ico-trash
+    ul.nav.nav-section.nav-justified.mt15
+      li
+        .section
+          h4.nm= vendor.purchase_orders.not_closed.count
+          p.nm.text-muted= t('.orders_open')
+      li
+        .section
+          h4.nm= humanized_money_with_symbol(vendor.total_spent)
+          p.nm.text-muted= t('.total_spent')
+      li
+        .section
+          h4.nm= vendor.purchase_orders.closed.count
+          p.nm.text-muted= t('.orders_completed')

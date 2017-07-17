@@ -1,0 +1,153 @@
+- is_corporate = @user.corporate_id? || current_user.corporate?
+#profile.tab-pane.active data-new=(@user.new_record?.to_s)
+  .panel-body.pt0.pb0
+    .form-group.header.bgcolor-default
+      .col-md-12
+        span style="float:left" 
+          h4.semibold.text-muted.mt0.mb5
+            = t('.profile')
+
+        span style="float:right"
+          - unless @user.corporate_id? && !current_user.corporate?
+            = f.submit class: "btn btn-success enabled-on-changes", disabled: true
+            '
+          - unless @user.new_record? || !policy(User).index?
+            - if @user.deleted?
+              = f.submit t('.activate'), class: "btn btn-success"
+            - else
+              = f.submit t('.inactivate'), class: "btn btn-danger"
+          '
+          = link_to 'Cancel', policy(User).index? ? users_path : maintenance_root_path, class: 'btn btn-default'
+    .form-group
+      label.col-sm-3.control-label= t('.photo')
+      = f.file_field :avatar, class: 'hidden', id: 'avatar-file-field'
+      = f.check_box :remove_avatar, class: 'hidden'
+      .col-sm-9
+        .btn-group.pr5
+          = image_tag @user.avatar.url(:thumb), class: 'img-circle img-bordered', width: "34px", id: 'avatar-img'
+        - unless is_corporate && !current_user.corporate?
+          .btn-group
+            - if @user.avatar?
+              button type="button" class="select-avatar btn btn-default"= t('.update')
+              button.btn.btn-default.dropdown-toggle data-toggle="dropdown" type="button" 
+                span.caret
+              ul.dropdown-menu role="menu"
+                li
+                  a href="#" class="select-avatar"= t('.update')
+                li
+                  a href="#" class="remove-avatar"= t('.remove_photo')
+            - else
+              button type="button" class="btn btn-default select-avatar"= t('.select_photo')
+    .form-group
+      label.col-sm-3.control-label
+        = t('.name')
+        span.text-danger *
+      .col-sm-6
+        .form-stack.has-icon.pull-left
+          = f.text_field :name, placeholder: t('.first_last_name'), class: 'form-control input-lg', disabled: @user.deleted?, require: true, data: { :'parsley-required' => ""}
+          i.ico-user2.form-control-icon
+    - if @user.all_properties.count > 1
+      = f.fields_for :settings do |sf|
+        .form-group
+          label.col-sm-3.control-label
+            = t('.primary_hotel')
+          .col-sm-6
+            .form-stack.has-icon.pull-left
+              = sf.select :primary_hotel, options_for_select(@user.all_properties.pluck(:name, :id), selected: @user.settings['primary_hotel']), {}, class: 'form-control'
+    - unless is_corporate
+      .form-group
+        label.col-sm-3.control-label
+          = t('.title')
+          span.text-danger *
+        .col-sm-6
+          = f.simple_fields_for :current_property_user_role do |ur|
+            .form-stack.has-icon.pull-left
+              = ur.text_field :title, placeholder: t('.users_title'), class: 'form-control input-lg', disabled: @user.deleted?, required: true, data: { :'parsley-required' => ""}
+              i.ico-vcard.form-control-icon
+    .form-group.login-section
+      label.col-sm-3.control-label
+        = t('.login')
+        span.text-danger *
+      .col-sm-6
+        .form-stack.has-icon.pull-left
+          = f.email_field :email, placeholder: t('.email'), class: 'form-control input-lg', data: {"parsley-type-message" => "Please enter a valid email."}
+          i.ico-mail2.form-control-icon
+        .form-stack.has-icon.pull-left
+          = f.text_field :username, placeholder: t('.username'), class: 'form-control input-lg username-field', disabled: !@user.new_record? && @user.username.present?
+          i.ico-user.form-control-icon
+          span.text-success.inline-block#code-confirmed-msg style="display: none;" Code verified. User will get access to this hotel once you click Create User.
+        .code-confirm style="display: none;"
+          span.text-danger
+            | Username taken. If you want to invite the person to your hotel, please enter their unique 5 digit code (found in their profile.) below:
+          br
+          input.form-control#username-code data-mask="99999" placeholder="5 Digit Code"
+          button.btn.btn-primary.btn-sm#confirm-code disabled=true Confirm
+          button.btn.btn-danger.btn-sm#cancel-confirm Cancel
+    - if @user.new_record?
+      .form-group.password-section style=("display: none;" if @user.new_record?)
+        label.col-sm-3.control-label
+          = t(".password")
+          - if @user.new_record?
+            span.text-danger *
+        .col-sm-6
+          - if @user.new_record?
+            span.help-block Please create a password for the user (minimum 8 characters). S/he will be able to change the password from their Profile page after logging in.
+          .form-stack.has-icon.pull-left
+            - if @user.new_record?
+              = f.password_field :password,
+                      placeholder: t('.password'), class: 'form-control input-lg password-field',
+                      disabled: @user.new_record? || (!@user.new_record? && @user.username.blank?), required: true,
+                      data: {"parsley-required" => "", "parsley-minlength" => 8, "parsley-minlength" => 8, "parsley-minlength-message" => "Password needs to have a minimum of 8 characters."}
+            - else
+              = f.password_field :password,
+                      placeholder: t('.password'), class: 'form-control input-lg password-field',
+                      disabled: @user.new_record? || (!@user.new_record? && @user.username.blank?),
+                      data: {"parsley-minlength" => 8, "parsley-minlength-message" => "Password needs to have a minimum of 8 characters."}
+            i.ico-key.form-control-icon
+          .form-stack.has-icon.pull-left
+            - if @user.new_record?
+              = f.password_field :password_confirmation,
+                      placeholder: t('.password_confirmation'), class: 'form-control input-lg password-field',
+                      disabled: @user.new_record? || (!@user.new_record? && @user.username.blank?), required: true,
+                      data: {"parsley-required" => "", "parsley-equalto" => "#user_password", "parsley-equalto-message" => "Password confirmation is not match.", "parsley-minlength" => 8, "parsley-minlength-message" => "Password needs to have a minimum of 8 characters."}
+            - else
+              = f.password_field :password_confirmation,
+                      placeholder: t('.password_confirmation'), class: 'form-control input-lg password-field',
+                      disabled: @user.new_record? || (!@user.new_record? && @user.username.blank?),
+                      data: {"parsley-equalto" => "#user_password", "parsley-equalto-message" => "Password confirmation is not match.", "parsley-minlength" => 8, "parsley-minlength-message" => "Password needs to have a minimum of 8 characters."}
+            i.ico-key.form-control-icon
+    .form-group
+      label.col-sm-3.control-label
+        = t('.phone')
+      .col-sm-6
+        .form-stack.has-icon.pull-left
+          = f.text_field :phone_number, placeholder: t('.phone'), class: 'form-control input-lg', data: { mask: '(999) 999-9999' }
+          i.ico-phone2.form-control-icon
+
+    - unless is_corporate
+      .form-group
+        label.col-sm-3.control-label
+          = t('.departments')
+          span.text-danger *
+        .col-sm-6
+          = f.association :departments, label: false, input_html: {class: 'form-control selectize'}, disabled: @user.deleted?
+
+      .form-group
+        label.col-sm-3.control-label
+          = t('.order_approval_limit')
+          span.text-danger *
+        .col-sm-6
+          .input-group
+            span.input-group-addon $
+            = f.simple_fields_for :current_property_user_role do |role_f|
+              = role_f.input_field :order_approval_limit, as: :string, class: 'input-sm form-control currency-input', value: currency_format(@user.current_property_user_role.order_approval_limit)
+            span.input-group-btn
+              button.btn.btn-primary style="padding:5px" data-container="body" data-content="User will be able to approve orders with Cost <= this value" data-placement="right" data-toggle="popover" type="button" 
+                i.ico-question-sign
+      .form-group
+        label.col-sm-3.control-label
+          = t('.role')
+          span.text-danger *
+        .col-sm-6
+          = f.simple_fields_for :current_property_user_role do |ur|
+            = ur.association :role, label: false, required: true, input_html: {class: 'form-control'}, disabled: @user.deleted?

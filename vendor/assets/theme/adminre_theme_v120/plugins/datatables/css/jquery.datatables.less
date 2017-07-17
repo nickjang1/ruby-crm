@@ -1,0 +1,241 @@
+// less variable
+@import "./../../../stylesheet/variables.less";
+@import "./../../../stylesheet/mixin.less";
+/* ----------------------------
+ *
+ * DataTable
+ *
+ * --------------------------- */
+.dataTables_wrapper { 
+    position: relative;
+
+    // Filter
+    // ------------------------------------
+    .dataTables_filter {
+        text-align: right;
+        padding: 10px 15px;
+
+        > label {
+            margin: 0px;
+            color: lighten(@dark, 10%);
+            font-weight: normal;
+
+            > input {
+                display: inline-block;
+                height: 34px;
+                padding: 6px 12px;
+                font-size: 13px;
+                line-height: normal;
+                color: @dark;
+                vertical-align: middle;
+                background-color: #fff;
+                background-image: none;
+                border: 1px solid darken(@border-color, 3%);
+                border-radius: 4px;
+
+                -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+                transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+
+                &:focus {
+                    border-color: @primary;
+                    outline: 0;
+                }
+            }
+        }
+    }
+
+    // Search
+    // ------------------------------------
+    .dataTables_length {
+        text-align: left;
+        padding: 10px 15px; 
+
+        > label {
+            margin: 0px;
+            color: lighten(@dark, 10%);
+            font-weight: normal;
+
+            > select {
+                display: inline-block;
+                height: 34px;
+                padding: 6px 12px;
+                font-size: 13px;
+                line-height: normal;
+                color: @dark;
+                vertical-align: middle;
+                background-color: #fff;
+                background-image: none;
+                border: 1px solid darken(@border-color, 3%);
+                border-radius: 4px;
+
+                -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+                transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+
+                &:focus {
+                    border-color: @primary;
+                    outline: 0;
+                }
+            }
+        }
+    }
+
+    // Info
+    // ------------------------------------
+    .dataTables_info { 
+        text-align: right;
+        padding: 10px 15px;
+        line-height: 32px;
+    }
+
+    // Paginate
+    // ------------------------------------
+    .dataTables_paginate {
+        text-align: left;
+        padding: 10px 15px;
+
+        > .pagination {
+            margin: 0px;
+        }
+    }
+
+    // DTTT
+    // ------------------------------------
+    .DTTT { 
+        padding: 10px 15px;
+    }
+
+    // Loading Indicator
+    // ------------------------------------
+    .dataTables_processing {
+        position: absolute;
+        z-index: 1;
+        left: 0px;
+        right: 0px;
+        top: 0px;
+        bottom: 0px;
+        min-height: 100px;
+        background-color: fade(@white, 90%);
+
+        &:after {
+            content: "";
+            position: absolute;
+            z-index: 2;
+            top: 50%;
+            left: 50%;
+            margin-top: -9px;
+            margin-left: -9px;
+            width: 18px;
+            height: 18px;
+            background-image: url("../../../image/loading/spinner.gif");
+            background-repeat: no-repeat;
+        }
+    }
+
+    // Sorting control
+    // ------------------------------------
+    .dataTable {
+        > thead {
+            > tr {
+                > th {
+                    &:active,
+                    &:focus {
+                        outline: 0;
+                    }
+
+                    &.sorting,
+                    &.sorting_asc,
+                    &.sorting_desc {
+                        cursor: pointer;
+
+                        &:before {
+                            font-family: "iconfont";
+                            font-size: 14px;
+                            color: #999;
+                            position: relative;
+                            margin-right: 10px;
+                        }
+                    }
+
+                    &.sorting:before {
+                        content: "\e6c3";
+                    }
+                    &.sorting_asc:before {
+                        content: "\e6c4";
+                    }
+                    &.sorting_desc:before {
+                        content: "\e6c5";
+                    }
+                }
+            }
+        }
+    }
+}
+
+/* inside panel */
+.panel {
+    > .dataTables_wrapper { 
+        border: 0px; 
+
+        // Table
+        // ------------------------------------
+        .table {
+            border-left-width: 0px;
+            border-right-width: 0px;
+            border-top: 1px solid @border-color;
+            border-bottom: 1px solid @border-color;
+
+            // Table - tbody
+            // ------------------------------------
+            > tbody {
+                > tr {
+                    > td {
+                        &.center { 
+                            text-align: center;
+                        }
+                        &:first-child {
+                            border-left: 0px;
+                        }
+                        &:last-child {
+                            border-right: 0px;
+                        }
+                    }
+                }
+            }
+
+            // Table - thead
+            // ------------------------------------
+            > thead {
+                > tr {
+                    > th {
+                        border-top: 1px solid @border-color; 
+
+                        &.center { 
+                            text-align: center;
+                        }
+                        &:first-child {
+                            border-left: 0px;
+                        }
+                        &:last-child {
+                            border-right: 0px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: @screen-sm-min) {
+    .dataTables_wrapper {
+        .DTTT {
+            display: none;
+        }
+    
+        .dataTables_filter,
+        .dataTables_info,
+        .dataTables_length,
+        .dataTables_paginate { 
+            text-align: center; 
+        }
+    }
+}

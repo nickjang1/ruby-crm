@@ -1,0 +1,279 @@
+// less variable
+@import "./../../../stylesheet/variables.less";
+@import "./../../../stylesheet/mixin.less";
+/* ----------------------------
+ *
+ * Form Wizard
+ *
+ * --------------------------- */
+.form-wizard > .steps {
+    position: relative;
+    padding: 10px 15px;
+    border-bottom: 1px solid @border-color;
+    background-color: lighten(@gray, 5%);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+.panel > .form-wizard > .steps,
+.panel.form-wizard > .steps {
+    border-radius: 0px;
+}
+.form-wizard > .steps > ul {
+    margin: 0px;
+    padding: 0px;
+}
+.form-wizard > .steps > ul > li {
+    list-style: none;
+}
+.form-wizard > .steps > ul > li + li {
+    margin-top: 16px;
+}
+/* step link */
+.form-wizard > .steps > ul > li > a {
+    position: relative;
+    display: block;
+    color: darken(@border-color, 10%);
+}
+/* step vertical line */
+.form-wizard > .steps > ul > li > a:after {
+    content: "";
+    position: absolute;
+    width: 2px;
+    top: -8px;
+    bottom: -8px;
+    left: 17px;
+    background-color: lighten(@border-color, 5%);
+}
+.form-wizard > .steps > ul > li:first-child > a:after {
+    top: 0px;
+}
+.form-wizard > .steps > ul > li:last-child > a:after {
+    bottom: 0px;
+}
+/* step text color state */
+.form-wizard > .steps > ul > li.current > a,
+.form-wizard > .steps > ul > li.done > a {
+    color: darken(@border-color, 25%);
+}
+.form-wizard > .steps > ul > li.error > a {
+    color: fade(@danger, 90%);
+}
+/* step child element */
+.form-wizard > .steps > ul > li > a > .current-info {
+    display: none;
+}
+.form-wizard > .steps > ul > li > a > .number,
+.form-wizard > .steps > ul > li > a > .title {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    line-height: 36px;
+}
+.form-wizard > .steps > ul > li > a > .number {
+    position: relative;
+    z-index: 2;
+    background-color: lighten(@border-color, 5%);
+    font-size: 14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-weight: 700;
+    text-align: center;
+    color: darken(@border-color, 10%);
+}
+.form-wizard > .steps > ul > li > a > .number:after {
+    font-family: "iconfont";
+    font-size: 13px;
+    font-weight: normal;
+    color: @white;
+    text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.1);
+}
+.form-wizard > .steps > ul > li > a > .title {
+    width: auto;
+    font-weight: 700;
+}
+.form-wizard > .steps > ul > li > a > .number + .title,
+.form-wizard > .steps > ul > li > a > .title + .number {
+    padding-left: 10px;
+}
+/* step state - current */
+.form-wizard > .steps > ul > li.current:first-child > a:after {
+    .background-image(linear-gradient(top, @primary 0%, lighten(@border-color, 5%) 100%));
+}
+.form-wizard > .steps > ul > li.current > a:after {
+    .background-image(linear-gradient(to bottom, lighten(@border-color, 5%) 0%,@primary 50%,lighten(@border-color, 5%) 100%););
+}
+.form-wizard > .steps > ul > li.current:last-child > a:after {
+    .background-image(linear-gradient(top, lighten(@border-color, 5%) 0%, @primary 100%));
+}
+.form-wizard > .steps > ul > li.current > a > .number {
+    font-size: 0px;
+    background-color: @primary;
+}
+.form-wizard > .steps > ul > li.current > a > .number:after {
+    content: "\e00d";
+}
+/* step state - done */
+.form-wizard > .steps > ul > li.done:first-child > a:after {
+    .background-image(linear-gradient(top, @success 0%, lighten(@border-color, 5%) 100%));
+}
+.form-wizard > .steps > ul > li.done > a:after {
+    .background-image(linear-gradient(to bottom, lighten(@border-color, 5%) 0%,@success 50%,lighten(@border-color, 5%) 100%););
+}
+.form-wizard > .steps > ul > li.done:last-child > a:after {
+    .background-image(linear-gradient(top, lighten(@border-color, 5%) 0%, @success 100%));
+}
+.form-wizard > .steps > ul > li.done > a > .number {
+    font-size: 0px;
+    background-color: @success;
+}
+.form-wizard > .steps > ul > li.done > a > .number:after {
+    content: "\e370";
+}
+/* step state - error */
+.form-wizard > .steps > ul > li.error:first-child > a:after {
+    .background-image(linear-gradient(top, @danger 0%, lighten(@border-color, 5%) 100%));
+}
+.form-wizard > .steps > ul > li.error > a:after {
+    .background-image(linear-gradient(to bottom, lighten(@border-color, 5%) 0%,@danger 50%,lighten(@border-color, 5%) 100%););
+}
+.form-wizard > .steps > ul > li.error:last-child > a:after {
+    .background-image(linear-gradient(top, lighten(@border-color, 5%) 0%, @danger 100%));
+}
+.form-wizard > .steps > ul > li.error > a > .number {
+    font-size: 0px;
+    background-color: @danger;
+}
+.form-wizard > .steps > ul > li.error > a > .number:after {
+    content: "\e36c";
+}
+/*
+ * Content
+ */
+.form-wizard > .content > .wizard-container {
+    padding-right: 15px;
+    padding-left: 15px;
+}
+/* title */
+.form-wizard > .content > .title,
+.form-wizard > .content > .wizard-title {
+    display: none;
+}
+/*
+ * Action
+ */
+.form-wizard > .actions {
+    padding: 8px 15px;
+    background-color: lighten(@gray, 4%);
+    border-top: 1px solid @border-color;
+}
+.form-wizard > .actions > ul {
+    margin: 0px;
+    padding: 0px;
+}
+.form-wizard > .actions > ul > li {
+    list-style: none;
+    float: right;
+}
+.form-wizard > .actions > ul > li:first-child {
+    float: left;
+}
+.panel .form-wizard > .actions,
+.panel.form-wizard > .actions {
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+/* Button */
+.form-wizard > .actions > ul > li.disabled > .btn {
+    color: lighten(@dark, 20%);
+    background-color: darken(@default, 3%);
+    border-color: darken(@border-color, 3%);
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: .65;
+    filter: alpha(opacity=65);
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+@media (min-width: @screen-sm-min) {
+    /*
+     * Steps
+     */
+    .form-wizard > .steps > ul {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+    .form-wizard > .steps > ul > li {
+        display: table-cell;
+        width: auto;
+        vertical-align: top;
+    }
+    /* step vertical line */
+    .form-wizard > .steps > ul > li > a:after {
+        width: auto;
+        height: 2px;
+        top: 20px;
+        bottom: auto;
+        left: 0px;
+        right: 0px;
+    }
+    .form-wizard > .steps > ul > li:first-child > a:after {
+        top: 20px;
+        left: 50%;
+    }
+    .form-wizard > .steps > ul > li:last-child > a:after {
+        top: 20px;
+        right: 50%;
+    }
+    /* step child element */
+    .form-wizard > .steps > ul > li > a > .number,
+    .form-wizard > .steps > ul > li > a > .title {
+        display: block;
+        margin: 0px auto;
+    }
+    .form-wizard > .steps > ul > li > a > .number {
+        width: 42px;
+        height: 42px;
+        line-height: 42px;
+    }
+    .form-wizard > .steps > ul > li > a > .title {
+        text-align: center;
+        line-height: normal;
+    }
+    .form-wizard > .steps > ul > li > a > .number + .title,
+    .form-wizard > .steps > ul > li > a > .title + .number {
+        padding-left: 0px;
+        margin-top: 5px;
+    }
+    /* step state - current */
+    .form-wizard > .steps > ul > li.current:first-child > a:after {
+        .background-image(linear-gradient(left, @primary 0%, lighten(@border-color, 5%) 100%));
+    }
+    .form-wizard > .steps > ul > li.current > a:after {
+        .background-image(linear-gradient(to right, lighten(@border-color, 5%) 0%,@primary 50%,lighten(@border-color, 5%) 100%););
+    }
+    .form-wizard > .steps > ul > li.current:last-child > a:after {
+        .background-image(linear-gradient(left, lighten(@border-color, 5%) 0%, @primary 100%));
+    }
+    /* step state - done */
+    .form-wizard > .steps > ul > li.done:first-child > a:after {
+        .background-image(linear-gradient(left, @success 0%, lighten(@border-color, 5%) 100%));
+    }
+    .form-wizard > .steps > ul > li.done > a:after {
+        .background-image(linear-gradient(to right, lighten(@border-color, 5%) 0%,@success 50%,lighten(@border-color, 5%) 100%););
+    }
+    .form-wizard > .steps > ul > li.done:last-child > a:after {
+        .background-image(linear-gradient(left, lighten(@border-color, 5%) 0%, @success 100%));
+    }
+    /* step state - error */
+    .form-wizard > .steps > ul > li.error:first-child > a:after {
+        .background-image(linear-gradient(left, @danger 0%, lighten(@border-color, 5%) 100%));
+    }
+    .form-wizard > .steps > ul > li.error > a:after {
+        .background-image(linear-gradient(to right, lighten(@border-color, 5%) 0%,@danger 50%,lighten(@border-color, 5%) 100%););
+    }
+    .form-wizard > .steps > ul > li.error:last-child > a:after {
+        .background-image(linear-gradient(left, lighten(@border-color, 5%) 0%, @danger 100%));
+    }
+}

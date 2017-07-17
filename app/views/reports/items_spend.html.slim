@@ -1,0 +1,179 @@
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold
+      | Item Spend
+      .pull-right#table-actions
+.row
+  .report-sidebar.col-md-4
+    .panel.panel-default
+      .panel-body
+        .row.mb10
+          .col-md-12
+            span.radio.custom-radio.custom-radio-primary  
+              input#filter-option-1 name="sort_type" value="0" type="radio"
+              label for="filter-option-1" &nbsp; Top 5 items
+        .row.mb10
+          .col-md-12
+            span.radio.custom-radio.custom-radio-primary  
+              input#filter-option-2 name="sort_type" value="1" type="radio"
+              label for="filter-option-2"  &nbsp; Top 10 items
+        .row.mb10
+          .col-md-12
+            span.radio.custom-radio.custom-radio-primary  
+              input#filter-option-3 name="sort_type" value="2" type="radio"
+              label for="filter-option-3"  &nbsp; Select items
+        .row
+          .col-md-12
+            select#items-filter.form-control multiple="multiple" placeholder=("Select item...") 
+              option value=""  Select a item...
+              = options_from_collection_for_select Item.all, :id, :name
+        .form-group
+  
+  .report-body.col-md-8
+    .panel.panel-inverse
+      .panel-heading
+        .fc.fc-ltr.fc-unthemed#calendar-control
+          .fc-toolbar
+            .fc-left
+              .fc-button-group
+                a.fc-button.fc-state-default.fc-corner-left#offset-minus <
+                a.fc-button.fc-state-default.fc-corner-right#offset-plus >
+            .fc-right
+              .fc-button-group.date-range-type
+                a.fc-button.fc-state-default.fc-corner-left data-value="today" today
+                a.fc-button.fc-state-default data-value="month" month
+                a.fc-button.fc-state-default data-value="week" week
+                a.fc-button.fc-state-default.fc-corner-right data-value="day" day
+
+            .fc-center
+              h2.text-center#date-range-indicator ...
+
+      .panel-collapse.pull.out
+
+        table.searchable-table.table.no-bottom-border.table-hover#report-data
+          thead
+            tr
+              th.text-center Item Name
+              th.text-center width="150px" Received Orders
+              th.text-center width="150px" Amount Spent
+              th.text-center width="150px" % of Total Spending
+
+        #loading.indicator
+          span.spinner
+
+  javascript:
+    export_filename = "Items Spend Report - " + moment().format("YYYY.MM.DD") + " - #{current_user.name}"
+  coffee:
+    $(document).ready ->
+      dateRangeIndicator = $('#date-range-indicator')
+      loading            = $('#loading')
+      dateRange          = new DateRange('month')
+      $itemsFilter     = undefined
+      itemsFilter      = undefined
+
+      # DataTables initialization:
+      table = $('table#report-data').DataTable
+        dom: 'Trt'
+        aoColumnDefs: [
+          { 'bSortable': false, 'aTargets': [ 'nosort' ] }
+        ],
+        fnRowCallback: ( nRow, aData, iDisplayIndex, iDisplayIndexFull ) ->
+          $('td:eq(2)', nRow).addClass( "success" )
+        fnSort: [[ 3, "desc" ]]
+        oTableTools:
+          sSwfPath: "/assets/adminre_theme_v120/plugins/datatables/tabletools/swf/copy_csv_xls_pdf.swf"
+          aButtons: [
+              "sExtends": "print",
+            ,
+              "sExtends": "pdf",
+              "sFileName": export_filename + ".pdf"
+            ,
+              "sExtends": "csv",
+              "sFileName": export_filename + ".csv"
+          ]
+
+      $('.DTTT').appendTo('#table-actions')
+
+      loadData = ->
+        # disabling offset buttons if chosen "Today"
+        $('#offset-minus, #offset-plus').toggle(dateRange.type isnt 'today')
+        dateRangeIndicator.text(dateRange)
+        
+        loading.show()
+
+        $.debounce(1000, ->
+          $.ajax({
+            dataType: 'json'
+            type: "GET"
+            url: Routes.report_path("render/items_spend")
+            data: { from: dateRange.from4rails(), to: dateRange.to4rails() }
+            success: (data)->
+              table.clear().draw()
+              $(data).each (i, el)->
+
+                table.row.add( [
+                  el.name
+                  "<div class='text-center'>#{el.num_orders}</div>"
+                  "<div class='text-center'><span class='text-muted bold'>$#{ formatPrice(el.spend) }</span></div>"
+                  "<div class='text-center'>#{ Math.round(el.percentage_of_spend) }%</div>"
+                ] ).draw()
+              sortAndOrder()
+              filterByItem()
+            complete: -> loading.hide()
+          })
+        )()
+
+
+      # loading dara after page render complete:
+      loadData()
+
+      selectedCategoriesFilter = {}
+
+      sortAndOrder = ->
+        filter = $('input:radio[name="sort_type"]:checked').val()
+        table.columns(0).search("").page.len(-1) # resetting previous filters
+        itemsFilter.disable()
+
+        if filter is "0"      # top 5 items
+          itemsFilter.clear()
+          table.order( [ 3, 'desc' ] ).page.len(5).draw()
+        else if filter is "1" # top 10 items
+          itemsFilter.clear()
+          table.order( [ 3, 'desc' ] ).page.len(10).draw()
+        else if filter is "2"
+          itemsFilter.enable()
+        else
+          table.order( [3, 'desc'] ).page.len(-1).draw()
+          
+      filterByItem = ->
+        filterTermsArray = (val for key, val of selectedCategoriesFilter)
+        # escaping search string for using in the regexp:
+        filterTermsArray = $.map(filterTermsArray, (term)-> term.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&") )
+        table.columns(0).search( filterTermsArray.join("|"), true, false).draw()
+
+      $itemsFilter = $('#items-filter').selectize(
+        onItemAdd: (value, data)->
+          selectedCategoriesFilter[value] = $(data).text()
+          filterByItem()
+        onItemRemove: (value)->
+          delete selectedCategoriesFilter[value]
+          filterByItem()
+      )
+
+      itemsFilter = $itemsFilter[0].selectize
+
+      $('input:radio[name="sort_type"]').on 'change', sortAndOrder
+
+      # events handlers:
+      $('.date-range-type > a').on('click', ->
+        $(this).parent().find('a').removeClass('fc-state-active')
+        $(this).addClass 'fc-state-active'
+        if dateRange.type isnt $(this).data('value') # reset all offsets if changed $range type
+          dateRange.setType($(this).data('value'))
+          loadData()
+      )
+
+      $(".date-range-type > a[data-value='#{ dateRange.type }']").trigger('click')
+
+      $('#offset-minus').on 'click', -> dateRange.backward(); loadData()
+      $('#offset-plus').on 'click', -> dateRange.forward(); loadData()

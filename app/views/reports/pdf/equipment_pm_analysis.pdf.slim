@@ -1,0 +1,58 @@
+= stylesheet_link_tag "http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css", media: "all"
+h3.text-center Equipment PM Analysis (#{@filter_range}ly) Report
+h3.text-default.text-center #{l(@from, format: :short)} ~ #{l(@to, format: :short)}
+.row
+  .pull-left.text-center style="width: 70%"
+    p
+      b Hotel Name:
+      span= Property.current.name
+    p
+      b Equipment PM Analysis:
+      span= "#{@filter_range}ly"
+    - if @selected_types.count > 0
+      p
+        b Filtered By:
+        span= @stypes.map { |type| (@sgroups[type.id] || []).count > 0 ? "#{type.name} (#{@sgroups[type.id].map(&:name).join(', ')})" : type.name }.join(', ')
+  .pull-right.text-center
+    p
+      b Printed On: 
+      span= Date.today.strftime('%d/%m/%Y')
+    p
+      b Printed By: 
+      span= current_user.name
+  table.equipment-data-table.table.table-bordered.cycle.table-striped
+    thead
+      tr
+        th.text-center rowspan="2" width="250" Equipment
+        th.text-center colspan=(@steps.count)
+          = @filter_range == 'Quarter' ? 'Months' : 'Weeks'
+      tr
+        - @steps.each do |step|
+          th.text-center= step
+    tbody
+      - @equipments.each do |equipment|
+        - if @selected_types.count == 0 || @selected_types.include?(equipment[:type_id])
+          tr
+            td.text-center
+              = "#{equipment[:name]} (#{equipment[:location]})"
+              br
+              span.equipment-type-info.text-default= equipment[:type_name]
+            - @steps.each do |step|
+              td.status.text-center
+                - records = equipment[:maintenance_records][step] || []
+                - records = records.select { |r| @selected_groups.include?(r[:checklist_group_id]) } if @selected_groups.count > 0
+                - if records.count > 0
+                  - records.each do |record|
+                    .record-info
+                      hr
+                      - if record[:inspected]
+                        i.fa.fa-info-circle.text-primary
+                      i.fa.fa-check.text-success
+                      br
+                      span.checklist-group-info= "#{record[:checklist_group_name]} - #{record[:checklist_group_frequency]}"
+                      br
+                      b.text-default= "#{record[:fixes]} fixes"
+                      br
+                      b.text-default= "#{record[:issues]} WOs"
+                - else
+                  i.fa.fa-times-circle.text-danger

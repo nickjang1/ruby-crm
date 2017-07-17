@@ -1,0 +1,42 @@
+.col-md-6
+  .panel.panel-default.table-wrapper
+    .panel-heading
+      h3.panel-title
+        .title.pull-left= title
+    input name="department[#{klass}_ids][]" type="hidden" value="" 
+    .table-responsive.panel-collapse.pull.out
+      table.column-filtering.searchable-table.table.table-hover class="test-department-#{klass}"
+        thead
+          tr
+            td
+            td
+              input.form-control name="search_engine" placeholder=t(".#{ klass }_item_name_filter") type="search" /
+            - if klass == 'user'
+              td
+                input.form-control name="search_engine" placeholder=t(".role_filter") type="search" /
+            td
+          tr
+            th.nosort
+            th= t(".#{ klass }_item_name")
+            - if klass == 'user'
+              th= t('.role')
+            th.nosort
+        tbody
+          - for item in current_property.send(klass.pluralize)
+            - included_item = @department.send(klass.pluralize).include?(item)
+            tr class=("success" if included_item)
+              td
+                i.ico-checkmark
+              td
+                .hidden
+                  input checked=("checked" if included_item) name="department[#{klass}_ids][]" type="checkbox" value=item.id
+                = item.name
+              - if klass == 'user'
+                td = item.user_roles.find_by_property_id(current_property.id).role.try(:name)
+              td.text-center
+                - if can?(:update, Department)
+                  = link_to '#', class: "btn btn-danger remove_btn test-remove-#{klass}-#{item.id}", title: t(".remove_#{klass}_tooltip"), data: { toggle: 'tooltip', placement: 'left' } do
+                    i.ico-trash
+
+                = link_to '#', class: "btn btn-success add_btn test-add-#{klass}-#{item.id}", title: t(".add_#{klass}_tooltip"), data: { toggle: 'tooltip', placement: 'left' }, disabled: cannot?(:update, Department) do
+                  i.ico-plus-circle2

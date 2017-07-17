@@ -1,0 +1,61 @@
+.row
+  div class=(@properties_count > 4 ? 'col-sm-12' : 'col-sm-6')
+    .panel.panel-default
+      .panel-heading
+        h3.panel-title= t('.spend_budget_by_hotel')
+        .panel-toolbar.text-right
+          .btn-group
+            button.btn.btn-sm.btn-default.duration-scope type="button" disabled="dis"
+            button.btn.btn-sm.btn-default.dropdown-toggle data-toggle="dropdown" type="button" 
+              span.caret
+            ul.dropdown-menu.dropdown-menu-right
+              li.dropdown-header= t('.select_duration')
+              li= link_to t('.month_to_date'), 'javascript:void(0)', class: 'scope-range', data: {range: 'month'}
+              li= link_to t('.year_to_date'), 'javascript:void(0)', class: 'scope-range', data: {range: 'year'}
+      .panel-body
+        #spend_budget_by_hotel
+        #loading.indicator
+          .spinner
+- content_for :js do
+  coffee:
+    $(document).ready ->
+      loading = $('#loading')
+    
+      options = 
+        chart: { type: "column" }
+        title: { text: "Spend & Budget by Hotel" }
+        xAxis: { categories: [] }
+        yAxis: [ { min: 0, labels: { format: '${value}' }, title: { text: "Amount" }} ]
+        legend: { shadow: false }
+        tooltip: { shared: true, valuePrefix: "$", valueDecimals: 2 }
+        plotOptions:{ column: { grouping: false, shadow: false, borderWidth: 0 }}
+        series: [
+          { name: "Budget", color: "#00B1E1", data: [], pointPadding: 0.3, pointPlacement: 0 }
+          { name: "Spend", color: "rgba(145, 200, 84, 0.9)", data: [], pointPadding: 0.4, pointPlacement: 0 }
+        ]
+        credits: { enabled: false }
+        
+      drawChat = (range)->
+        loading.show()
+        $.ajax
+          url: Routes.corporate_spend_budget_by_hotel_data_path()
+          type: 'GET'
+          dataType: 'json'
+          data: { range: range }
+          success: (data) ->
+            options.xAxis.categories = data.hotels
+            options.series[0].data = data.data.budget
+            options.series[1].data = data.data.spend
+            $("#spend_budget_by_hotel").highcharts(options)
+          complete: loading.hide()
+
+      # drawChat('month')
+      
+      $('a.scope-range').on 'click', (e)->
+        e.preventDefault()
+        drawChat($(@).data('range'))
+        $('.duration-scope').text( moment().format({ month: "YYYY & MMM", year: "YYYY" }[$(@).data('range')] ))
+
+      $('a.scope-range[data-range="month"]').click()
+        
+        

@@ -1,0 +1,17 @@
+/! START Template Container
+section.animation.delay.animating.fadeInDown
+  /! START row
+  .row
+    .col-lg-6.col-lg-offset-3
+      .panel.panel-minimal style="margin-top:10%;"
+        /! Upper Text
+        .panel-body.text-center
+          i.ico-file-remove2.longshadow.fsize112.text-default
+        .panel-body.text-center
+          h1.semibold.longshadow.text-center.text-default.fsize32.mb10.mt0= t('errors.e_404.whoops')
+          h4.semibold.text-primary.text-center.nm= t('errors.e_404.page_doesnt_exist')
+
+        .panel-body.text-center
+          a.btn.btn-default.mb5 href="/" = t('errors.e_404.back_to_dashboard')
+          /span.semibold.text-default.hidden-xs =raw t('errors.e_404.or')
+          /a.btn.btn-success.mb5 href="javascript:void(0);"  Report This Problem

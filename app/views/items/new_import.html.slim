@@ -1,0 +1,40 @@
+- body_class 'items-import'
+
+= form_tag({action: :import}, multipart: true, id: 'import-form') do
+  .page-header.page-header-block
+    .page-header-section
+      h4.title.semibold
+        | Import Items 
+        .pull-right
+          button type='submit' class='btn btn-success enabled-on-changes' id="import-button"
+            i.ico-upload-alt
+            '
+            | Begin Import
+          = link_to  :items, class: 'btn btn-default' do
+            i.ico-close2
+            '
+            =t('.cancel')
+  .panel.panel-default
+    .panel-body
+      .row
+        .col-md-6
+          h3 Step 1: Download Template
+          = link_to asset_path('items.xlsx'),class: 'btn btn-inverse' do
+            i.ico-file-download
+            '
+            | Excel Template
+
+      .row
+        .col-md-6
+          h3 Step 2: Import Template
+          .input-group
+            input.form-control readonly="readonly" type="text" id="template-filename" val=''
+            span.input-group-btn
+              .btn.btn-primary.btn-file
+                i.ico-file3
+                '
+                | Browse
+                input type="file" name='template' id="template-file" accept=".xlsx"
+      .row.hidden id="importing-spinner"
+        .indicator.inline
+          span.spinner

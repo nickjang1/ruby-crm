@@ -1,0 +1,50 @@
+- if params[:action] == 'show' and po.closed?
+  = link_to_with_icon 'ico-print', 'Print PO' ,print_purchase_order_path(po), class: 'btn btn-primary', target: '_blank'
+
+- else
+  .btn-group style="width: 160px;"
+    - if po.vendor.procurement_interface_enabled?(:vpt)
+      = link_to po.btn_label, send_vpt_purchase_order_path(po), 
+                method: :post,
+                data: { id: po.id, confirm: "#{ t('purchase_orders.purchase_order.confirm.vpt', order_number: po.number, vendor_name: po.vendor.name)}", ajax: true },
+                class: "btn #{po.btn_class} order-action-btn vpt-send-order",
+                target: '_blank'
+    - elsif po.open?
+      = link_to_with_icon po.btn_icon, po.btn_label, send_email_purchase_order_path(po), 
+                          method: :post,
+                          id: 'send_email',
+                          data: { confirm: "#{ t('purchase_orders.purchase_order.confirm.email', order_number: po.number, vendor_name: po.vendor.name)}" },
+                          class: "btn #{po.btn_class} order-action-btn"
+    - elsif po.sent? || po.partially_received?
+      = link_to_with_icon po.btn_icon, po.btn_label, new_purchase_receipt_path(purchase_order_id: po), class: "order-action-btn btn #{po.btn_class}"
+    - elsif po.closed?
+      = link_to_with_icon po.btn_icon, po.btn_label, po, class: "test-order-receive-btn order-action-btn btn #{po.btn_class}"
+    button class="btn #{po.btn_class} dropdown-toggle" data-toggle="dropdown" type="button"
+      span.caret
+    ul.dropdown-menu role="menu"
+      - if po.open?
+        - if po.vendor.fax.present? && !po.vendor.procurement_interface_enabled?(:vpt)
+          li
+            = link_to_with_icon 'ico-image',
+                                t("purchase_orders.purchase_order.button_labels.#{ po.fax_error? ? 'retry_' : '' }fax"),
+                                'javascript:void(0)',
+                                class: "has-tip send-fax-link",
+                                data: {tooltip: 'true', id: "#{po.id}",
+                                       confirm: "#{ t('purchase_orders.purchase_order.confirm.fax',
+                                                order_number: po.number,
+                                                vendor_name: po.vendor.name)}",
+                                       ajax: true},
+                                title: t("purchase_orders.purchase_order.button_labels.#{ po.fax_error? ? 'retry_' : '' }fax"),
+                                method: :post
+        li
+          = link_to_with_icon 'ico-bubble-check', t('purchase_orders.purchase_order.button_labels.mark_as_sent'), purchase_order_path(po, {purchase_order: {sent: 1}}), class: 'has-tip', data: {tooltip: 'true'}, title: t('purchase_orders.purchase_order.button_labels.mark_as_sent'), method: :put
+      - unless po.closed? or params[:action] == 'show'
+        li
+          = link_to_with_icon 'ico-eye-open', t('purchase_orders.purchase_order.button_labels.closed'), po, class: 'has-tip', data: {tooltip: 'true'}, title: 'Review Order'
+
+      li
+        = link_to_with_icon 'ico-print', t('purchase_orders.purchase_order.button_labels.print'), print_purchase_order_path(po), class: 'has-tip', data: {tooltip: 'true'}, title: t('purchase_orders.purchase_order.button_labels.print'), target: '_blank'
+      - unless po.closed?
+        li.divider
+        li
+          = link_to_with_icon 'ico-cancel', t('purchase_orders.purchase_order.button_labels.cancel'), po, class: 'has-tip', data: {tooltip: 'true', confirm: 'Are you sure?'}, title: t('purchase_orders.purchase_order.button_labels.cancel'), method: :delete

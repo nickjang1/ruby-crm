@@ -1,0 +1,50 @@
+//= require adminre_theme_v120/library/bootstrap/css/bootstrap
+//= require adminre_theme_v120/stylesheet/layout
+//= require adminre_theme_v120/stylesheet/uielement
+//= require adminre_theme_v120/stylesheet/icons/iconfont/style.min
+//= require report
+
+.hotel-name {
+  color: rgb(255, 0, 73) !important;
+}
+
+.ft-10 {
+  font-size: 10px;
+  font-weight: 100;
+}
+
+.ft-12 {
+  font-size: 12px;
+  font-weight: 200;
+}
+
+.ft-14 {
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.border-bottom {
+  border-bottom: solid 1px #f1f1f1;
+}
+
+.engage {
+  .engage-table {
+    td, th {
+      border-top: none;
+      border-bottom: none;
+    }
+  }
+
+  .room-badge {
+    padding: 2px 5px;
+    font-size: 10px;
+    border: solid 1px #00b1e1;
+    border-radius: 12px;
+    color: #00b1e1;
+  }
+
+  img {
+    width: 40px;
+    height: 40px;
+  }
+}

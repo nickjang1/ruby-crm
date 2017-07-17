@@ -1,0 +1,43 @@
+.page-header.page-header-block
+  .page-header-section
+  .page-header-section
+    .toolbar.clearfix
+      .col-xs-5
+        .btn-group
+          = link_to purchase_orders_path, class: "btn #{@showing_closed ? 'btn-default' : 'btn-success active' }" do
+            | Active
+          = link_to purchase_orders_path(:scope => 'closed'), class: "btn #{@showing_closed ? 'btn-success active' : 'btn-default' }" do
+            | Closed
+      .col-xs-6.col-xs-push-1
+        .has-icon
+          input#datatable-filter.form-control name="datatable-filter" placeholder=t('.search_placeholder') type="search" /
+          i.ico-search.form-control-icon
+.panel.panel-default
+  .table-wrapper
+    .table-info.text-danger
+    table.column-filtering.searchable-table.table.table-hover.table-bordered
+      thead
+        tr
+          td.text-center
+            input.form-control name="search_engine" placeholder="#" type="search" /
+          td.text-center
+            input.form-control name="search_engine" placeholder=t('.requested_by') type="search" /
+          td.text-center
+            input.form-control name="search_engine" placeholder=t('.delivery_date') type="search" /
+          td.text-center
+            input.form-control name="search_engine" placeholder=t('.vendors') type="search" /
+          td.text-center
+            input.form-control name="search_engine" placeholder=t('.items_and_cost') type="search" /
+          td.text-center
+            input.form-control name="search_engine" placeholder=t('.status') type="search" /
+          td width="160px"
+        tr
+          th.text-center= t('.number')
+          th.text-center= t('.requested_by')
+          th.text-center= t('.delivery_date')
+          th.text-center= t('.vendors')
+          th.text-center= t('.items_and_cost')
+          th.text-center= t('.status')
+          th.nosort.actions width="160px"
+      tbody
+        = render @purchase_orders

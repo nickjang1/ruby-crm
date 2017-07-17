@@ -1,0 +1,37 @@
+.box
+  = simple_form_for :item, remote: true, url: update_multiple_tags_items_path, html: {method: :put} do |f|
+    .head
+      %h1= params[:type].humanize
+      .right
+        %a.btn.small.close Cancel
+    .body
+      .row
+        .large-12.columns
+          %h3 Modifying items:
+          - for item in @items
+            = item.name
+            = hidden_field_tag 'selected_item_ids[]', item.id
+            %br
+      .row
+        .large-12.columns
+          - if params[:type] == 'add_to_category'
+            %h3 Category
+            = f.input :tag_ids, collection: Category.roots_and_descendants_preordered, input_html: {multiple: true, size: 20, class: 'select2'}, label: false
+          - elsif params[:type] == 'add_to_location'
+            %h3 Location
+            = f.input :tag_ids, collection: Location.roots_and_descendants_preordered, input_html: {multiple: true, size: 20, class: 'select2'}, label: false
+          - elsif params[:type] == 'add_to_list'
+            %h3 Category
+            = f.input :tag_ids, collection: List.roots_and_descendants_preordered, input_html: {multiple: true, size: 20, class: 'select2'}, label: false
+    .actions
+      = f.submit 'Save changes', class: 'btn btn-primary'
+
+:coffeescript
+  $(document).ready ->
+    $('select.select2').select2 window.SELECT2_OPTIONS
+
+    $('.close').click ->
+      $(@).closest('.reveal-modal').foundation 'reveal', 'close'
+
+    $('form.item').on 'ajax:success', ->
+      $('.reveal-modal').foundation 'reveal', 'close'

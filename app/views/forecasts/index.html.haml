@@ -1,0 +1,45 @@
+.row
+  .large-12.columns
+    .menubar
+      %h1 Hotel Occupancy
+      = link_to "Previous week", forecasts_path(year: @last_week.year, month: @last_week.month, day: @last_week.day), class: "btn full clear"
+      = link_to "Current Week", forecasts_path, class: "btn full clear btn-primary"
+      = link_to "Next week", forecasts_path(year: @next_week.year, month: @next_week.month, day: @next_week.day), class: "btn full clear"
+
+.row
+  .large-12.columns
+    .box.with_table
+      %table.responsive
+        %tr
+          %th Room Type
+          - (0..@weeks_per_view - 1).each do |n|
+            %th{class: (@current_week + n.weeks).week_number == Date.current.week_number ? "highlight" : ""} 
+              .center
+                Week #{(@current_week + n.weeks).week_number}
+                |
+                #{@current_week + n.weeks}
+              .large-6.columns.center
+                Forecast
+              .large-6.columns.center
+                Actual
+
+        - for room in current_property.room_types.includes(:occupancies)
+          %tr
+            %td
+              = room.name
+            - (0..@weeks_per_view - 1).each do |n|
+              %td
+                .large-6.columns
+                  = text_field_tag nil, room.occupancies.where(date: @current_week + n.weeks).try(:first).try(:forecast), class:"room_forecast", "data-url" => update_forecast_path(room_type_id: room.id, week_start: @current_week + n.weeks, type: "forecast")
+                .large-6.columns
+                  = text_field_tag nil, room.occupancies.where(date: @current_week + n.weeks).try(:first).try(:actual), class:"room_forecast", "data-url" => update_forecast_path(room_type_id: room.id, week_start: @current_week + n.weeks, type: "actual")
+      = link_to "Add a room type", "#", "data-reveal-id"=>"new_room_type_modal", class: "btn"
+
+- content_for :modal do
+  #new_room_type_modal.reveal-modal.box
+    %a.close-reveal-modal &#215;
+    = render "room_types/new"
+
+
+    
+                              

@@ -1,0 +1,353 @@
+.page-header.page-header-block
+  .page-header-section
+    h4.pull-left
+      | Public Area PM Analysis
+      .pull-right#table-actions
+    .pull-right
+      .pull-right
+        = link_to 'Print PDF', '#', onclick: 'printPDF()', class: 'btn btn-default'
+      - if @prev_property_id.nil? # if corporate user is running the report
+        .pull-right.mr10
+          = select_tag :property_id, options_for_select(current_corporate.properties.pluck(:name, :id)), class: "form-control"
+.row
+  .report-sidebar.col-md-4
+    #filters.panel.panel-default
+      .panel-body
+        .row.mb10
+          .col-md-12
+            span.checkbox.custom-checkbox.custom-checkbox-primary
+              input#filter-option-1 name="show_details" type="checkbox" checked="checked"
+              label for="filter-option-1" &nbsp; Show Details of PM
+  .report-body.col-md-8
+    .panel.panel-inverse
+      .panel-heading
+        .fc.fc-ltr.fc-unthemed#calendar-control
+          .fc-toolbar
+            .fc-left
+              .fc-button-group
+                a.fc-button.fc-state-default.fc-corner-left#offset-minus <
+                a.fc-button.fc-state-default.fc-corner-right#offset-plus >
+            .fc-right
+              .fc-button-group.date-range-type#report-type
+                a.fc-button.fc-state-default.fc-corner-left.active data-value="cyclely" Cycle
+                a.fc-button.fc-state-default.fc-corner-right data-value="yearly" Year
+            .fc-center
+              h2.text-center#report-indicator
+                span.report-type ...
+                span.reported-cycle
+
+      .panel-collapse.pull.out
+        .clearfix
+          .col-sm-4.text-center
+            .cycle-label
+              .r-label
+                | Current&nbsp;
+                span.report-type
+              .r-value
+                span.current-cycle &nbsp;
+              .r-label
+                span Reported&nbsp;
+                span.report-type
+              .r-value.reported-cycle
+            .year-label.hide
+              .r-label Total Areas
+              .r-value.area-count= Maintenance::PublicArea.count
+              .r-label Completion %(previous)
+              .r-value.previous-completion
+          .col-sm-4.text-center
+            .cycle-label
+              .r-label Total Areas
+              .r-value.area-count= Maintenance::PublicArea.count
+              .r-label Remaining Areas
+              .r-value.area-missed
+            .year-label.hide
+              .r-label
+                span Current&nbsp;
+                span.report-type
+                span  Completion %:
+              .r-value.current-completion
+          .col-sm-4.text-center
+            .r-label Printed On:
+            .r-value= Date.today.strftime('%d/%m/%Y')
+            .r-label Printed By:
+            .r-value= current_user.name
+        .table-responsive
+          table#analysis-report-data.public-area-table.table.no-bottom-border.table-hover.table-bordered
+            tr
+              th Public Area
+              th width="60%" Status
+
+          #loading.indicator
+            span.spinner
+script.mustache-template.public-area-status-mustache-template type="x-tmpl-mustache"
+  table.table.br0.detail
+    tr
+      td.status
+        | {{{public_area.statues}}}
+      td.maintenance-records
+        | {{#public_area.maintenance_records}}
+          <div class="maintenance-record text-left">
+            <div><b>PM:</b></div>
+            <div>By {{completed_by}} on {{completed_on}}</div>
+            {{#inspected}}
+              <div><b>Inspected: </b></div>
+              <div>By {{inspected_by}} on {{inspected_on}}</div>
+            {{/inspected}}
+          </div>
+        | {{/public_area.maintenance_records}}
+  | {{#public_area.has_issues}}
+  br
+  .text-left
+    h5.sub-title Work Orders
+  table.table.br0.detail
+    | {{#public_area.issues}}
+      <tr>
+        <td class="status semibold" style="vertical-align: top">
+          <div>WO# {{work_order.id}} </div>
+          <div>({{work_order.status}})</div>
+        </td>
+        <td class="text-left pl10" style="border-left: 1px solid #ddd">
+          {{work_order.description}}
+        </td>
+      </tr>
+      <tr class="pa10" style="display: block;"></tr>
+    | {{/public_area.issues}}
+  | {{/public_area.has_issues}}
+
+  | {{#public_area.has_fixes}}
+    <br>
+    <div class="text-left detail">
+      <div class="sub-title">Fixes</div>
+      {{#public_area.fixed}}
+        <div class="clearfix mb10">
+          <div class="col-sm-12 semibold">{{maintenance_checklist_item.name}}</div>
+          <div class="col-sm-12">
+            Fixed: {{comment}}
+          </div>
+        </div>
+      {{/public_area.fixed}}
+    </div>
+  | {{/public_area.has_fixes}}
+
+css:
+
+javascript:
+  maxYear = parseInt("#{Maintenance::Cycle.maximum :year}");
+  minYear = parseInt("#{Maintenance::Cycle.minimum :year}");
+  cycleTerm = 'Cycle';
+  cycleCount    = #{Maintenance::Cycle.by_cycle_type(:public_area).count};
+  cycleOffset   = cycleCount - 1;
+  currentCycle  = ''
+  if (#{current_cycle(:public_area).present?})
+    currentCycle  = "C#{current_cycle(:public_area).ordinality_number} (#{current_cycle(:public_area).period})";
+  area_count = parseInt("#{Maintenance::PublicArea.count}");
+coffee:
+  c2q = (cycle) ->
+    "C#{cycle}"
+
+  $(document).ready ->
+    reportType = 'cyclely' # 'cyclely', 'yearly'
+    reportIndicator = $('#report-indicator')
+    $table = $('#analysis-report-data')
+    loading = $('#loading')
+    offsetCycle = cycleOffset
+    offsetYear = moment().year()
+    sortType = 'name'
+    results = []
+    status_template = $('.public-area-status-mustache-template').html()
+    cycleInfo = {}
+
+    renderAreaStatus = (record) ->
+      detail = ''
+      status = ''
+      if record.status == 'completed'
+        status = " <span class='ico-info2 text-primary pr5'></span>"
+      if record.status == '_remaining'
+        status += "<span class='ico-remove-sign text-danger'></span>"
+      else
+        status += "<span class='ico-checkmark text-success'></span>"
+        if record.count_of_pm > 1
+          status += "<span class='pm-count'>&nbsp;(#{record.count_of_pm} <b class='text-default'>PMs)</b></span>"
+
+      if record.fixed.length > 0
+        detail += "<div>#{record.fixed.length} <b class='text-default'>fixes</b></div>"
+      if record.issues.length > 0
+        detail += "<div>#{record.issues.length} <b class='text-default'>WOs</b></div>"
+      return "#{status}#{detail}"
+
+    renderAreaStatusInDetail = (area) ->
+      public_area = area
+      public_area.statues = renderAreaStatus(area)
+      bShowDetail = $('#filter-option-1:checked').length > 0
+      public_area.has_fixes = area.fixed.length > 0 && bShowDetail
+      public_area.has_issues = area.issues.length > 0 && bShowDetail
+      rendered = Mustache.render(
+              status_template,
+        public_area: public_area
+      )
+    refreshQuarterTable = ->
+      $table.html('')
+      $table.addClass('table-striped')
+      $table.removeClass('small')
+      data = results
+      $('.area-missed').text(_.filter(data, {status: '_remaining'}).length)
+      area_count = data.length
+      $('.area-count').text(area_count)
+      rows = data.length
+      $table.append("<tr class='text-center'><td width='20%'>Public Area</td><td width='60%'>Status</td>")
+      i = 0
+      while i < rows
+        column = "<tr class='text-center'><td width='20%'>#{data[i].name}</td><td>#{renderAreaStatusInDetail(data[i])}</td></tr>"
+        i++
+        $table.append(column)
+
+    refreshYearTable = ->
+      $table.html('')
+      $table.removeClass('table-striped')
+      cycle_data = results
+      cycle_count = cycle_data.length
+      missed_areas = 0
+      area_count = cycle_data[0].data.length
+      $('.area-count').text(area_count)
+      # Calculate current quarter completion %
+      currentMissingAreas = _.filter(cycle_data[cycle_count - 1].data, {status: '_remaining'}).length
+      currentQuarterCompletion = Math.round(100 * (1 - currentMissingAreas / area_count))
+      $('.current-completion').text("#{currentQuarterCompletion}%")
+
+      # Calculate previous cycle's completion %
+      prevMissingAreas = 0
+      prevTotalAreas = 0
+      if cycle_count > 1
+        prevMissingAreas = _.filter(cycle_data[cycle_count - 2].data, {status: '_remaining'}).length
+        prevQuartersCompletion = Math.round(100 * (1 - prevMissingAreas / area_count))
+        $('.previous-completion').text("#{prevQuartersCompletion}%")
+      else
+        $('.previous-completion').text("No Maintenance Data")
+
+      rows = area_count
+      info = _.times(cycle_count, (cycle) ->
+        ordinality_number = cycle_data[cycle].ordinality_number
+        "<td>#{c2q(ordinality_number)}#{if ordinality_number == cycleInfo.number && offsetYear == cycleInfo.year then '<br>(Current)' else ''}</td>"
+      )
+      thead = "<tr class='text-center'><td>Public Area</td>#{info}</tr>"
+      $table.append(thead)
+      if cycle_count >= 6
+        $table.addClass('small')
+      else
+        $table.removeClass('small')
+
+      i = 0
+      while i < rows
+        column = "<tr class='text-center'>"
+        column += "<td>#{cycle_data[0].data[i].name}</td>"
+        column += _.times(cycle_count,
+        (cycle) -> "<td class='value'>#{renderAreaStatus(cycle_data[cycle].data[i])}</td>")
+        column += "</tr>"
+        i++
+        $table.append(column)
+
+    refreshTable = ->
+      if reportType == 'yearly'
+        $("#filters input[type='checkbox']").attr('disabled', true)
+        $("#filters label").addClass('text-default')
+        refreshYearTable()
+        $('#analysis-report-data').addClass('year')
+        $('#analysis-report-data').removeClass('cycle')
+      else if reportType == 'cyclely'
+        $("#filters input[type='checkbox']").attr('disabled', false)
+        $("#filters label").removeClass('text-default')
+        refreshQuarterTable()
+        $('#analysis-report-data').addClass('cycle')
+        $('#analysis-report-data').removeClass('year')
+
+    loadData = (propertySwitched = null) ->
+      loading.show()
+      $.ajax({
+        dataType: 'json'
+        type: "GET"
+        url: Routes.report_path("render/public_area_pm_analysis")
+        data:
+          report_type: reportType
+          year: offsetYear
+          cycle: offsetCycle
+          property_id: $('#property_id').val()
+          property_switched: propertySwitched
+        success: (data, status, xhr) =>
+          results = data.result
+          cycleInfo = data.cycle
+          if propertySwitched
+            @minYear = parseInt(xhr.getResponseHeader('min_year'))
+            @maxYear = parseInt(xhr.getResponseHeader('max_year'))
+            @cycleCount = parseInt(xhr.getResponseHeader('cycle_count'))
+            @cycleOffset = parseInt(xhr.getResponseHeader('cycle_offset'))
+            @currentCycle = parseInt(xhr.getResponseHeader('current_cycle'))
+            offsetCycle = @cycleOffset
+            offsetYear = @maxYear
+          if reportType == 'yearly'
+            $('.reported-cycle').text(offsetYear)
+          else
+            $('.current-cycle').text("#{c2q(@currentCycle)}")
+            $('.reported-cycle').text("#{c2q(cycleInfo.number)} (#{cycleInfo.period})")
+            $('.report-type').text("#{cycleTerm}: ")
+            $("a[data-value='cyclely']").text(cycleTerm)
+          refreshTable()
+        error: (data, status, xhr) ->
+          $.gritter.add(text: data.responseText, class_name: "alert alert-danger")
+          $('#analysis-report-data').html('')
+        complete: ->
+          loading.hide()
+      })
+
+    $("input[type='checkbox'], input[type='radio']").on 'click', (e) ->
+      refreshTable()
+
+    $('#property_id').on 'change', ->
+      loadData(true)
+
+    loadData(true)
+
+    $("#report-type > a").on 'click', ->
+      $('#report-type > a').removeClass('active')
+      reportType = $(this).data('value')
+      $('.reported-cycle').text('...')
+      if reportType == 'yearly'
+        $('.report-type').text("Year: ")
+        $('.cycle-label').addClass('hide')
+        $('.year-label').removeClass('hide')
+      else
+        $('.cycle-label').removeClass('hide')
+        $('.year-label').addClass('hide')
+        $('.report-type').text("#{cycleTerm}: ")
+
+      $(this).addClass('active')
+      loadData()
+
+    $('#offset-minus').on 'click', ->
+      switch reportType
+        when "cyclely"
+          return if offsetCycle == 0
+          offsetCycle -= 1
+        when "yearly"
+          return if offsetYear == minYear
+          offsetYear -= 1
+      $('.reported-cycle').text("...")
+      loadData()
+
+    $('#offset-plus').on 'click', ->
+      switch reportType
+        when "cyclely"
+          return if offsetCycle == cycleCount - 1
+          offsetCycle += 1
+        when "yearly"
+          return if offsetYear == maxYear
+          offsetYear += 1
+      $('.reported-cycle').text("...")
+      loadData()
+
+    @printPDF = ->
+      showDetail = $('#filter-option-1:checked').length > 0
+      params = "cycle=#{offsetCycle}&report_type=#{reportType}&year=#{offsetYear}&show_detail=#{showDetail}"
+      if $('#property_id').length > 0
+        params += "&property_id=#{$('#property_id').val()}"
+      url = "/reports/render/public_area_pm_analysis.pdf?#{params}"
+      window.open(url, '_blank')

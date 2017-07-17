@@ -1,0 +1,25 @@
+.daterangepicker {
+  .ranges li {
+    border-radius: 3px;
+    color: #00a5d2;
+
+    &:hover, &.active:hover {
+      background-color: #008cb5;
+      border-color: #008cb5;
+    }
+
+    &.active {
+      background-color: #00a5d2;
+      border-color: #00a5d2;
+    }
+  }
+
+  td.in-range {
+    background-color: #FFF3F0;
+  }
+
+  td.active, td.active:hover {
+    background-color: #ed5466;
+    border-color: #ed5466;
+  }
+}

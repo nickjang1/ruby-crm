@@ -1,0 +1,163 @@
+h3.text-center Hotel Trending Issues - #{l(@from, format: :short)} ~ #{l(@to, format: :short)}
+- active_work_orders = @results[:work_orders].select { |wo| wo[:status] != 'Closed' }
+- closed_work_orders = @results[:work_orders].select { |wo| wo[:status] == 'Closed' }
+- open_wos_count = active_work_orders.select { |wo| wo[:status] == 'Open'}.count
+- working_wos_count = active_work_orders.select { |wo| wo[:status] == 'Working'}.count
+
+.clearfix
+  h4.pl15.bold
+    | Active Work Orders
+    '
+    - if active_work_orders.count > 0
+      span.text-muted="(#{open_wos_count} open, #{working_wos_count} in progress)"
+  table.table.no-bottom-border.table-hover#active-work-orders
+    tbody
+      - if active_work_orders.count > 0
+        - active_work_orders.each do |wo|
+          tr
+            td width="80px"
+              div
+                span.semibold.text-default ##{wo[:id]}
+              span.text-small #{wo[:priority].html_safe}
+              br
+              span.text-small #{wo[:status]}
+            td= wo[:description]
+            td.semibold.text-default width="150px"= wo[:location_name]
+            td width="120px"
+              - unless wo[:is_unassigned]
+                span.text-muted Assigned To:
+                br
+              span.text-small= " #{wo[:assigned_to_name]}"
+              br
+              - if wo[:due_to_date]
+                span.text-muted Due by:
+                span.text-small= " #{wo[:due_to_date]}"
+            td width="120px"
+              span.text-muted Created By:
+              br
+              span.text-small=" #{wo[:opened_by_name]}"
+              br
+              span.text-muted Open for:
+              span.text-small= " #{wo[:days_opened]} days"
+          - if wo[:materials_exists]
+            tr.details
+              td width="80px"
+              td colspan="4"
+                table
+                  tbody
+                    tr
+                      td width="70px"
+                        span.text-muted Material Cost:
+                      td
+                        span.text-primary= " #{wo[:materials_cost]}"
+                    tr
+                      td
+                        span.text-muted Materials Used:
+                      td.text-small
+                        table
+                          tbody
+                            - wo[:material_items].each do |mi|
+                              tr
+                                td width="60px"= "[#{mi[:quantity]} <span class='text-muted text-small'>#{mi[:unit]}</span>]".html_safe
+                                td= mi[:name]
+      - else
+        .pa10 There's no related closed work orders
+
+  h4.pl15.bold
+    | Closed Work Orders
+    '
+    - if closed_work_orders.count > 0
+      span.text-muted="(#{closed_work_orders.count} closed)"
+  table.table.no-bottom-border.table-hover#closed-work-orders
+    - if closed_work_orders.count > 0
+      - closed_work_orders.each do |wo|
+        tr
+          td width="80px"
+            div
+              span.semibold.text-default ##{wo[:id]}
+            span.text-small #{wo[:priority].html_safe}
+            br
+            span.text-small #{wo[:status]}
+          td= wo[:description]
+          td.semibold.text-default width="150px"= wo[:location_name]
+          td width="120px"
+            span.text-muted Closed On:
+            br
+            span.text-small= "#{wo[:closed_on]}"
+            br
+            - if wo[:closed_same_day]
+              span.text-small Closed Same Day
+            - else
+              span.text-muted Time to resolve:
+              span.text-small= " #{wo[:days_elapsed]} days"
+          td width="120px"
+            - unless wo[:is_unassigned]
+              span.text-muted Assigned To:
+              br
+            span.text-small= " #{wo[:assigned_to_name]}"
+            br
+            div
+              span.text-muted Closed By:
+            span.text-small= " #{wo[:closed_by_name]}"
+        - if wo[:detail_exists]
+          tr.details
+            td width="80px"
+            td colspan="4"
+              table
+                tbody
+                  - if wo[:closing_comment]
+                    tr
+                      td width="80px"
+                        span.text-muted Closing comment:
+                      td
+                        span.text-small= wo[:closing_comment]
+                  - if wo[:duration]
+                  tr
+                    td
+                      span.text-muted Time to complete:
+                    td
+                      span.text-small= wo[:duration]
+                  - if wo[:materials_exists]
+                    tr
+                      td width="70px"
+                        span.text-muted Material Cost:
+                      td
+                        span.text-primary= " #{wo[:materials_cost]}"
+                    tr
+                      td
+                        span.text-muted Materials Used:
+                      td.text-small
+                        table
+                          tbody
+                            - wo[:material_items].each do |mi|
+                              tr
+                                td width="60px"= "[#{mi[:quantity]} <span class='text-muted text-small'>#{mi[:unit]}</span>]".html_safe
+                                td= mi[:name]
+    - else
+      .pa10 There's no related closed work orders
+
+  h4.pl15.bold PM fixes
+  table.table.no-bottom-border.table-hover#fixed-checklists
+    tbody
+      - @results[:fixes].each do |fix|
+        tr
+          td
+            div
+              span.text-muted Fixed:
+              |  #{fix[:comment]}
+          td
+            | #{fix[:location]}
+          td width="200px"
+            - if fix[:completed_on]
+              span.text-default.semibold #{fix[:completed_by]}
+              |  completed PM on
+              span.text-default.semibold
+                |  #{fix[:completed_on]}
+            - else
+              span
+                | PM in progress. Started by
+              span.text-default.semibold
+                |  #{fix[:started_by]}
+              |  on
+              span.text-default.semibold
+                |  #{fix[:started_on]}

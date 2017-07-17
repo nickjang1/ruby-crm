@@ -1,0 +1,176 @@
+.page-header.page-header-block
+  .page-header-section
+    h4.nm.pull-left PM Productivity Report
+    .pull-right
+      - if @prev_property_id.nil? # if corporate user is running the report
+        .pull-right
+          = select_tag :property_id, options_for_select(current_corporate.properties.pluck(:name, :id)), class: "form-control"
+.row
+  .report-sidebar.col-md-3
+    .panel.panel-default
+      .panel-body
+        .row.mb11
+          .col-md-12
+            label for="filter-option-1" &nbsp; Choose Type of Report
+            select#location-select.form-control
+              option value=""  Select Location
+              optgroup label="Time usage for PM"
+                = options_for_select(Maintenance::WorkOrder::MAINTEINABLE_TYPES.map{ |mt| [t('.' + mt.parameterize), mt, 'data-chart-type' => :time_usage] }, "Maintenance::Room")
+              optgroup label="Productivity"
+                = options_for_select(%w(Maintenance::RoomPmProgress Maintenance::WorkOrderProductivity).map{ |mt| [t('.' + mt.parameterize), mt, 'data-chart-type' => :productivity] })
+  .report-body.col-md-9
+    .panel
+      .panel-heading.black
+        .fc.fc-ltr.fc-unthemed#calendar-control
+          .fc-toolbar
+            .fc-left
+              .fc-button-group
+                a.fc-button.fc-state-default.fc-corner-left#offset-minus <
+                a.fc-button.fc-state-default.fc-corner-right#offset-plus >
+            .fc-right
+              .fc-button-group.date-range-type.week-month-year-all.hidden
+                a.fc-button.fc-state-default.fc-corner-left data-value="week" Week
+                a.fc-button.fc-state-default data-value="month" Month
+                a.fc-button.fc-state-default data-value="year" Year
+                a.fc-button.fc-state-default.fc-corner-right data-value="" All
+
+              .fc-button-group.date-range-type.week-month-quarter.hidden
+                a.fc-button.fc-state-default.fc-corner-left data-value="week" Week
+                a.fc-button.fc-state-default data-value="month" Month
+                a.fc-button.fc-state-default.fc-corner-right data-value="quarter" Quarter
+
+            .fc-center
+              h2.text-center#date-range-indicator ...
+
+      .panel-collapse.pull.out
+        div style="padding: 10px"
+          #chart{ style="height: 300px" }
+          #loading.indicator
+            span.spinner
+scss:
+  .tickLabel{ font-size: 120%; strong{ color: #A1A0A0; } }
+
+coffee:
+  $(document).ready ->
+    dateRangeIndicator = $('#date-range-indicator')
+    dateRange          = new DateRange('month')
+    loading            = $('#loading')
+    locationSelect     = $('#location-select')
+    chartType          = null
+
+    showTooltip = (x, y, contents) ->
+      $('<div id="tooltip">' + contents + '</div>').css(
+        position: 'absolute'
+        display: 'none'
+        top: y + 5
+        left: x + 20
+        border: '2px solid #4572A7'
+        padding: '2px'
+        size: '10'
+        'border-radius': '6px 6px 6px 6px'
+        'background-color': '#fff'
+        opacity: 0.80).appendTo('body').fadeIn 200
+
+    plotOptions =
+      series: bars: { align: 'center', lineWidth: 0, show: true, barWidth: .3, fill: .9 }
+      grid: { borderColor: '#eee', borderWidth: 1, hoverable: true, backgroundColor: '#fcfcfc', hoverable: true }
+      tooltipOpts: { content: '%x : %y' }
+      xaxis: { tickColor: '#fcfcfc', mode: 'categories', minTickSize: 1,autoscaleMargin: .10}
+      yaxis:
+        tickColor: '#eee'
+        ticks: (axis)->
+          step = Math.round(Math.ceil(axis.max) / 5)
+          $([1,2,3,4,5,6]).map (x,i)-> x * step
+
+        tickFormatter: (val, obj)-> if val is 0 then "" else val
+      shadowSize: 0
+      colors: ['#FFCF00', '#E8700C', '#FF0000', '#A40CE8', '#0D33FF', '#D8FF00', '#E8930C', '#FF0000', '#5F0CE8', '#27CCFF']
+
+    $chartDataUrls = (location)->
+      result = {
+        "Maintenance::RoomPmProgress" : Routes.report_path("render/room_pm_progress_data")
+        "Maintenance::WorkOrderProductivity" : Routes.report_path("render/work_order_productivity_data")
+      }[location] or Routes.report_path("render/maintenance_pm_productivity_data")
+
+
+    loadData = ->
+      url = $chartDataUrls(locationSelect.val())
+      dateRangeIndicator.text(dateRange)
+      loading.show()
+
+      $(".date-range-type").addClass('hidden')
+      if locationSelect.find('option:selected').data('chart-type') is 'productivity'
+        $('#offset-plus, #offset-minus').show()
+        $(".date-range-type.week-month-quarter").removeClass('hidden')
+        dateRangeText =
+          if dateRange.type is 'week'
+            "Weekly report"
+          else if dateRange.type is 'month'
+            "Monthly report"
+          else if dateRange.type is 'quarter'
+            "Quarter report"
+        dateRangeIndicator.text(dateRangeText)
+      else
+        $(".date-range-type.week-month-year-all").removeClass('hidden')
+        $('#offset-plus, #offset-minus').toggle(!!dateRange.type) # if date range is not set to "ALL"
+        $("#date-range-indicator").show()
+
+      $.debounce(1000, ->
+        $.ajax(
+          url,
+          data:
+            offset: dateRange.offset,
+            date_range: dateRange.type,
+            from: dateRange.from4rails(),
+            to: dateRange.to4rails(),
+            location: locationSelect.val(),
+            property_id: $('#property_id').val()
+          dataType: 'json'
+          type: "GET"
+        ).done((chartData)->
+          $.plot $('#chart'), chartData, plotOptions
+
+          unless locationSelect.find('option:selected').data('chart-type') is 'productivity'
+            $('#chart').bind 'plothover', (event, pos, item) ->
+              if item
+                if previousPoint != item.dataIndex
+                  previousPoint = item.dataIndex
+                  $('#tooltip').remove()
+                  x = item.datapoint[0]
+                  y = item.datapoint[1]
+                  showTooltip item.pageX, item.pageY, "<strong>#{ y }</strong> (Maintenances Completed)"
+              else
+                $('#tooltip').remove()
+                previousPoint = null
+        ).always -> loading.hide()
+      )()
+
+    # loading data after page render complete:
+    loadData()
+
+    $('#property_id').on 'change', ->
+      loadData()
+
+    locationSelect.on 'change', ->
+      newChartType = $(@).find('option:selected').data('chart-type')
+      if newChartType isnt chartType
+        $('.date-range-type > a[data-value="month"]').click()
+        chartType = newChartType
+      loadData()
+
+    # events handlers:
+    $('.date-range-type > a').on('click', ->
+      $(this).parent().find('a').removeClass('fc-state-active')
+      $(this).addClass 'fc-state-active'
+      if dateRange.type isnt $(this).data('value') # reset all offsets if changed $range type
+        dateRange.setType($(this).data('value'))
+        loadData()
+    )
+
+    $(".date-range-type > a[data-value='#{ dateRange.type }']").trigger('click')
+
+    # date $range navigation buttons
+    $('#offset-minus').on 'click', -> dateRange.backward(); loadData()
+    $('#offset-plus').on 'click', -> dateRange.forward(); loadData()
+
+

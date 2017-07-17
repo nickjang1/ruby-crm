@@ -1,0 +1,60 @@
+= stylesheet_link_tag "http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css", media: "all"
+
+h3.text-center Hotel Guest Log Report - #{params[:date]}
+
+br
+h4  Wakeup Call List
+.alarms
+  table.table
+    tbody
+      - @results[:alarms].each do |alarm|
+        tr
+          td
+            div
+              | #{alarm[:body]}
+            div
+              | #{alarm[:user_name]} created on #{alarm[:created_at]}
+          td
+            | #{alarm[:alarm_at]}
+          td
+            - if  alarm[:is_checked]
+              span.text-success Done
+              div
+                span.text-muted Completed By:
+                |  #{alarm[:checked_by]}
+              div
+                span.text-muted On:
+                |  #{alarm[:checked_on]}
+
+br
+h4  Comments
+.guest-logs
+  - @results[:comments].each do |log|
+    .panel.nm
+      .panel-body
+        .log-body.mb10
+          div
+            i.fa.fa-quote-left.text-muted
+          .pl15
+            | #{log[:body].html_safe}
+          div.text-right
+            i.fa.fa-quote-right.text-muted
+
+        .log-footer.clearfix
+          .pull-left
+            .img-group.img-group-stack.pull-left
+              /= wicked_pdf_image_tag log[:user_avatar], class: "img img-circle"
+            .pl5.pull-left
+              div
+                span.semibold href="javascript:void(0);"  #{log[:user_name]}
+              |  created at #{log[:created_at_time]}
+          /.pull-right#likes
+          /  - if log[:has_likes]
+          /    .clearfix
+          /      .pl5.pt5.pull-right
+          /        span.semibold
+          /          | #{log[:likes_count]} people
+          /        |  like this
+          /      .img-group.img-group-stack.pull-right
+          /        - log[:likes].each do |like|
+          /          img.img-circle alt="#{like[:user_name]}" src="#{like[:user_avatar]}"

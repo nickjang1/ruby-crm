@@ -1,0 +1,75 @@
+- body_class 'messaging-enabled-form'
+
+= simple_form_for @purchase_order do |f|
+
+  .page-header.page-header-block
+    .page-header-section
+      h4.nm.ml10.clearfix
+        span.pull-left
+          = t('.title', order_number: @purchase_order.number)
+          '
+          span.badge class="#{@purchase_order.decorate.badge_class} has-tip" data-tooltip='true' title="#{@purchase_order.tooltip}"
+            = @purchase_order.decorate.state_label
+          br
+          span.h5.text-muted
+            | Vendor:
+            '
+            = @purchase_order.vendor.try(:name)
+        = render partial: 'shared/messages', locals: {model: @purchase_order.object, add_message: true}
+        .pull-right
+          = link_to_with_icon 'ico-pencil', t('shared.messages.add_message'), 'javascript:void(0)', class: 'btn btn-info add-message-btn'
+          = render partial: 'purchase_order_actions', locals: {po: @purchase_order}
+
+  .panel.panel-default
+    .table-wrapper
+      .table-info.hidden
+      table.column-filtering.searchable-table.table.no-top-border.no-bottom-border.datatable.table-hover
+        thead
+          tr
+            th.text-center Item #
+            th.text-center Item Name
+            th.text-center Ordered
+            th.text-center Received
+            th.text-center Price
+            th.text-center Trend
+            th.text-center Total
+        tbody
+          - @item_orders.each do |item_order|
+            tr.bold
+              td.col-xs-1.text-center= item_order.item_id
+              td.text-center= item_order.item.name
+              td.col-xs-1.text-center
+                = item_order.quantity
+                '
+                span.text-muted
+                  = item_order.purchase_unit
+              td.text-center
+                button.btn.btn-primary data-container="body" data-content=item_order.popover_receivings data-title="Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|Qty| Price" data-html='true' data-toggle="popover" type="button" data-placement="bottom"
+                  = item_order.received
+              td.text-center
+                = humanized_currency_format item_order.price
+                '
+                span.text-muted
+                  = item_order.price_unit_if_different
+              td.text-center
+                span.sparklines sparkBarColor="#a0d569" sparktype="bar"
+                  = item_order.price_trend
+              td.text-primary.bold.text-center= humanized_currency_format item_order.total
+
+    .panel-footer
+      ul.list-table.pa10
+        li
+          h5.semibold.nm.text-uppercase= t('.sub_total')
+        li.text-right
+          h3.semibold.nm= humanized_currency_format @purchase_order.total_price
+      ul.list-table.pa10
+        li
+          h5.semibold.nm.text-uppercase= t('.total_freight_shipping')
+        li.text-right
+          h3.semibold.nm= humanized_currency_format(@purchase_order.total_freight)
+    .panel-footer
+      ul.list-table.pa10
+        li
+          h5.semibold.nm.text-uppercase= t('.total_order_cost')
+        li.text-right
+          h3.semibold.nm.text-success= humanized_currency_format(@purchase_order.total_cost)

@@ -1,0 +1,131 @@
+- :role: General Manager
+  :department: All
+  :attributes: :all
+  :except:
+    - :name: Available to be assigned to WOs
+
+- :role: Asst General Manager
+  :department: All
+  :attributes: :all
+  :except:
+    - :name: Available to be assigned to WOs
+
+- :role: Manager
+  :department: Maintenance
+  :attributes:
+    - :name: Maintenance
+    - :name: Work Orders
+    - :name: WO Listing
+      :options:
+        - :all
+        - :own
+        - :assigned_to
+    - :name: Create WOs
+    - :name: Edit WO
+      :options:
+        - :priority
+        - :status
+        - :due_to_date
+        - :assigned_to_id
+    - :name: PM Setup
+    - :name: PM
+    - :name: Single click PM for Categories
+    - :name: Report
+    - :name: Available to be assigned to WOs
+
+- :role: Corporate
+  :department: All
+  :attributes:
+    - :name: Hotel Settings
+    - :name: Permission Setting
+    - :name: Maintenance
+    - :name: Work Orders
+    - :name: WO Listing
+      :options:
+        - :all
+        - :own
+        - :assigned_to
+    - :name: Create WOs
+    - :name: Edit WO
+      :options:
+        - :priority
+        - :status
+        - :due_to_date
+        - :assigned_to_id
+    - :name: PM Setup
+    - :name: PM
+    - :name: Inspection
+    - :name: Report
+    - :name: Team
+
+- :role: Manager
+  :department: Food & Beverage
+  :attributes:
+    - :name: Procurement
+    - :name: Maintenance
+    - :name: Work Orders
+    - :name: WO Listing
+      :options:
+        - :own
+        - :assigned_to
+    - :name: Create WOs
+    - :name: Report
+
+- :role: Manager
+  :department: Front Desk
+  :attributes:
+    - :name: Maintenance
+    - :name: Work Orders
+    - :name: WO Listing
+      :options:
+        - :all
+        - :own
+        - :assigned_to
+    - :name: Create WOs
+    - :name: Edit WO
+      :options:
+        - :priority
+        - :status
+        - :due_to_date
+        - :assigned_to_id
+
+- :role: User
+  :department: Front Desk
+  :attributes:
+    - :name: Maintenance
+    - :name: Work Orders
+    - :name: WO Listing
+      :options:
+        - :own
+        - :assigned_to
+    - :name: Create WOs
+    - :name: Edit WO
+      :options:
+        - :status
+
+- :role: User
+  :department: Maintenance
+  :attributes:
+    - :name: Maintenance
+    - :name: Work Orders
+    - :name: WO Listing
+      :options:
+        - :all
+        - :own
+        - :assigned_to
+    - :name: Create WOs
+    - :name: Edit WO
+    - :name: Available to be assigned to WOs
+    - :name: PM
+
+- :role: External Tech
+  :department: 3rd Party Vendors
+  :attributes:
+    - :name: Maintenance
+    - :name: Work Orders
+    - :name: WO Listing
+      :options:
+        - :assigned_to
+    - :name: Edit WO
+      :options:
+        - :status

@@ -1,0 +1,106 @@
+.page-header.page-header-block
+  .page-header-section.activity-toolbar
+    .row
+      .col-xs-6.col-md-3.col-sm-6
+        .row
+          .col-sm-6
+            = text_field_tag :from, @from, placeholder: 'From', class: "form-control", id: 'datepicker-from', data: {mask: '99/99/9999'}
+          .col-sm-6
+            = text_field_tag :to, @to, placeholder: 'To', class: "form-control", id: "datepicker-to", data: {mask: '99/99/9999'}
+      .col-xs-6.col-md-3.col-sm-3
+        = select_tag :activity_type, options_for_select(activity_type_options, params[:activity_type]), class: 'form-control'
+      .col-xs-6.col-md-3.col-sm-3
+        = select_tag :owner, options_for_select(@owners, params[:owner]), multiple: true, class: "form-control"
+.row
+  .col-md-9
+    /! START Timeline
+    ul#activities.timeline
+    #loading.indicator.inline
+      span.spinner
+    ul.timeline
+      li.header.text-center.semibold.nm
+        a#load-activity href="javascript:void(0);"  Load more
+script.mustache-template.activity-wrapper-mustache-template type="x-tmpl-mustache"
+  li.header.year.ellipsis data-time="{{created_at}}" {{date}}
+  li.wrapper
+    ul.events
+
+script.mustache-template.activity-mustache-template type="x-tmpl-mustache"
+  li.wrapper
+    .figure class="{{color}}"
+      i class="{{icon}}"
+    /! panel
+    .panel
+      /! ribbon
+      /span.panel-ribbon.panel-ribbon-danger
+      /  i.ico-bug2
+      /! ribbon
+      .panel-body
+        ul.list-table
+          li.text-left style="width:60px;"
+            img.img-circle alt="" height="50px" src="{{avatar}}" width="50px" /
+          li.text-left
+            p.semibold.text-default
+              | {{title}}
+            p.nm
+              | {{{body}}}
+            p.nm.text-right style='font-size: 12px;'
+              | {{elapsed}} ago
+- content_for :js do
+  coffee:
+    $(document).ready ->
+      activity_template = $('.activity-mustache-template').html()
+      activity_wrapper_template = $('.activity-wrapper-mustache-template').html()
+      page = 1
+      $('#owner').selectize()
+      $('#datepicker-from').datepicker
+        defaultDate: '+1w'
+        numberOfMonths: 2
+        maxDate: new Date()
+        onClose: (selectedDate) ->
+          $('#datepicker-to').datepicker('option', 'minDate', selectedDate)
+
+      $('#datepicker-to').datepicker
+        defaultDate: '+1w'
+        numberOfMonths: 2
+        maxDate: new Date()
+
+      loadActivity = (refresh = false) ->
+        $('#loading').show()
+        $.ajax({
+          dataType: 'json'
+          type: "GET"
+          url: '/activities'
+          data:
+            page: page
+            ransack:
+              created_from: $('#datepicker-from').val()
+              created_to: $('#datepicker-to').val()
+              key_cont: $('#activity_type').val()
+              owner_id_eq_any: $('#owner').val()
+
+          success: (data, status, xhr) =>
+            if refresh == true
+              $('#activities').html('')
+            _.each(data, (activity) ->
+              $timestamp = $("li.header[data-time='#{activity.created_at}']")
+              if $timestamp.length == 0 # if date label doesn't exist
+                new_wrapper = Mustache.render(activity_wrapper_template, activity)
+                $("ul#activities").append new_wrapper
+                $wrapper = $("li.header[data-time='#{activity.created_at}'] + li.wrapper .events")
+              else
+                $wrapper = $timestamp.next('li.wrapper').find('.events')
+              rendered = Mustache.render(activity_template, activity)
+              $wrapper.append rendered
+            )
+          complete: -> $('#loading').hide()
+        })
+      $('#load-activity').on 'click', ->
+        page += 1
+        loadActivity()
+
+      $('.activity-toolbar input, .activity-toolbar select').on 'change', (e) ->
+        page = 1
+        loadActivity(true)
+
+      loadActivity()

@@ -1,0 +1,31 @@
+<% content_for :page_heading do %>
+ Reset your Lodgistics password
+<% end %>
+
+<%= simple_form_for resource, as: resource_name, url:  password_path(resource_name), method: :post, html: {class: 'panel', name: 'form-login'} do |f|%>
+    <div class="panel-body">
+
+      <p>Submit your Email or Username to receive instructions for reseting your password. <p>
+      <!-- Alert message -->
+      <% flash[:alert] = resource.errors.full_messages[0] if resource.errors.present? %>
+      <%= render 'layouts/alerts', locals: {flash: flash}%>
+      <% flash.delete :alert %>
+      <!--/ Alert message -->
+      <div class="form-group">
+        <div class="form-stack has-icon pull-left">
+          <%= f.text_field :login, :placeholder => "Email or Username", :class => 'form-control input-lg', :data => { :'parsley-required' => "", :'parsley-error-message' => 'Please fill in your email', :'parsley-errors-container' => "#error-container" } %>
+          <i class="ico-user2 form-control-icon"></i>
+        </div>
+      </div>
+
+      <!-- Error container -->
+      <div class="mb15" id="error-container"></div>
+      <!--/ Error container -->
+
+
+      <div class="form-group nm">
+        <%=f.submit :class => "btn btn-block btn-success", :value => "Submit"  %>
+      </div>
+    </div>
+<%end%>
+

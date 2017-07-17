@@ -1,0 +1,19 @@
+= simple_form_for @tag, as: :tag, html: { 'data-parsley-validate' => true, id: 'tag-form'} do |f|
+  .page-header.page-header-block
+    .page-header-section
+      h4.title.semibold
+        span.text-muted= @tag.name
+        .pull-right
+          = f.submit class: 'btn btn-success enabled-on-changes'
+          '
+          = link_to t('.cancel'), @tag.type.underscore.pluralize.to_sym, class: 'btn btn-default'
+
+  .panel.panel-default
+    .panel-body
+      .form-group.row
+        .col-md-6
+          label.control-label= raw t('.name')
+          = f.input :name, label: false,required: true, placeholder: "New #{params[:controller].classify}", input_html: { class: 'form-control', required: true }
+      .form-group.row
+        = render partial: 'items_table', locals: {title:"Items In #{tag_type_h}", collection: @tag.items, show_add: false}
+        = render partial: 'items_table', locals: {title:"All Items", collection: Item.all - @tag.items, show_add: true}

@@ -1,0 +1,32 @@
+= simple_form_for @vendor, html: { 'data-parsley-validate'=> true } do |f|
+  - if params[:active] == 'profile'
+    - update_permission = cannot? :update_profile, Vendor
+  - elsif params[:active] == 'vtp'
+    - update_permission = cannot? :update_vtp, Vendor
+  .page-header.page-header-block
+    .page-header-section
+      h4.title.semibold
+        = @vendor.name
+        .pull-right
+          - if @vendor.procurement_interface_enabled?(:punchout)
+            = link_to_with_icon 'ico-cart', t('.punchout'), start_punchout_path(Property.current_id, @vendor.id), class: 'btn btn-primary'
+          - unless update_permission
+            = f.submit class: 'btn btn-success enabled-on-changes'
+          '
+          - unless @vendor.new_record? || update_permission
+            = link_to_with_icon 'ico-trash', t('.delete'), @vendor, method: :delete, data: {confirm: t('.confirm_inactivate', vendor_name: @vendor.name)}, class: 'btn btn-danger', rel: 'tooltip', title: 'Inactivate'
+          = link_to_with_icon 'ico_cancel', t('.cancel'), :vendors, class: 'btn btn-default'
+
+  .panel.panel-default
+
+    .panel-body
+      .row
+        - unless @vendor.new_record?
+          .col-lg-3
+            ul.list-group.list-group-tabs
+              li.list-group-item class=('active' if params[:active] == 'profile')
+                = link_to_with_icon 'ico-user2 mr5', t('.profile'), edit_vendor_path(active: 'profile')
+              li.list-group-item class=('active' if params[:active] == 'procurement')
+                = link_to_with_icon 'ico-key2 mr5', t('.procurement'), edit_vendor_path(active: 'procurement'), class: 'procurement-link'
+        .col-lg-9 class=('col-md-offset-3' if @vendor.new_record? )
+          = render params[:active], f: f, update_permission: update_permission

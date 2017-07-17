@@ -1,0 +1,128 @@
+- body_class 'messaging-enabled-form'
+
+= simple_form_for @purchase_receipt do |f|
+  = f.input :purchase_order_id, as: :hidden
+
+  .page-header.page-header-block
+    .page-header-section
+      h4.nm.ml10.clearfix
+        span.pull-left
+          = t('.title', order_number: @purchase_order.number)
+          br
+          span.h5.text-muted
+            | Vendor:
+            '
+            = @purchase_receipt.purchase_order.vendor.try(:name)
+        = render partial: 'shared/messages', locals: {model: @purchase_receipt.purchase_order, add_message: true}
+        
+    .page-header-section
+      .search.col-md-6.col-md-push-6
+        .text-right
+          button type='submit' class= 'btn btn-primary' 
+            i.ico-truck
+            '
+            | Receive
+          '
+          = link_to_with_icon 'ico-cancel', t('.cancel'), purchase_orders_path, class: 'btn btn-default'
+  .panel.panel-default
+    .table-responsive
+      table.table.datatable.table-hover
+        thead
+          tr
+            th SKU
+            th Item
+            th.text-center Ordered
+            th.text-center Received
+            th.text-center Receive
+            th.text-center Price
+            th.text-center Total
+        tbody
+          = f.simple_fields_for :item_receipts, @purchase_receipt.item_receipts do |item_receipt_f, i|
+            = item_receipt_f.input :item_id, as: :hidden
+            = item_receipt_f.input :item_order_id, as: :hidden
+            tr.item data-price-value=( item_receipt_f.object.price_unit_factor.to_f )
+              td= item_receipt_f.object.item_order.sku
+              td= item_receipt_f.object.item_order.item.name
+              td.col-xs-1.text-center
+                = item_receipt_f.object.item_order.quantity
+                '
+                = humanized_unit_format item_receipt_f.object.item_order.decorate.purchase_unit
+              td.col-xs-1.text-center
+                = item_receipt_f.object.item_order.received
+                '
+                = humanized_unit_format item_receipt_f.object.item_order.decorate.purchase_unit
+              td.col-xs-2.col-md-1
+                = item_receipt_f.input :quantity, label: false, autofocus: @purchase_receipt.item_receipts.first == item_receipt_f.object, input_html: {class: 'form-control text-center numeric-input quantity', type: 'text'}
+
+              td.col-xs-4.col-md-1
+                .input-group
+                  span.input-group-addon= t('currency')
+                  = item_receipt_f.input :price, label: false, input_html: {class: 'width-min120 form-control numeric-input text-center price', type: 'text'}
+              td.col-xs-2.col-md-1.text-center
+                span.text-primary.bold.text-center
+                  | $
+                  span.total-item-cost
+          tr.bg-gray
+            td colspan=5
+            td.text-center
+              h5.semibold.nm= t('.current_receiving')
+            td.text-center
+              h3.semibold.nm
+                | $
+                span#total-price-value
+          tr.bg-gray
+            td.no-top-border colspan=5
+            td.no-top-border.text-center
+              h5.semibold.nm= t('.freight_shipping')
+            td.no-top-border.text-center
+              .input-group
+                span.input-group-addon = t('currency')
+                = f.input :freight_shipping, label: false, input_html: { id: 'inputFreight', class: 'form-control width-min120 text-center numeric-input', type: 'text'}
+          tr.bg-gray
+            td.no-top-border  colspan=5
+            td.text-center
+              h5.semibold.nm= t('.previous_receiving_and_freight')
+            td.text-center
+              h3.semibold.nm
+                | $
+                span#previousTotal= currency_format @purchase_order.decorate.total_receiving_and_freight
+          tr.bg-gray
+            td.no-top-border colspan=5
+            td.text-center
+              h5.semibold.nm= t('.total')
+            td.text-center
+              h3.semibold.nm.text-success
+                | $
+                span#total-with-freight-value
+
+- content_for :js do
+  coffee:
+    $(document).ready ->
+      totalPrice = $("#total-price-value")
+      totalWithFreightPrice = $("#total-with-freight-value")
+      itemTotalPricesArray  = []
+      itemQuantitiesArray   = []
+      previousTotal = parseFloat($("#previousTotal").text())
+      totalSum      = 0
+      inputFreight = $("#inputFreight")
+      $("tr.item").each (rowIndex) ->
+        row = $(this)
+        inputQuantity = row.find("input.quantity")
+        inputPrice    = row.find("input.price")
+        totalItemCost = row.find(".total-item-cost")
+        priceValue    = row.data("price-value")
+        inputQuantity.add(inputPrice).add(inputFreight).on("input", ->
+          itemTotalPricesArray[rowIndex] = formatPrice(inputQuantity.val() * inputPrice.val() * priceValue)
+          totalItemCost.text itemTotalPricesArray[rowIndex]
+          totalSum = 0
+          i = itemTotalPricesArray.length
+
+          while i--
+            totalSum += parseFloat(itemTotalPricesArray[i])
+          totalPrice.text formatPrice(totalSum)
+          freightValue = parseFloat(inputFreight.val()) or 0
+          sum = totalSum + previousTotal + freightValue
+          totalWithFreightPrice.text formatPrice(sum)
+          return
+        ).trigger "input"
+

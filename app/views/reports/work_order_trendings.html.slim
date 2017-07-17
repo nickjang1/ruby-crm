@@ -1,0 +1,317 @@
+.page-header.page-header-block
+  .page-header-section
+    h4.nm.pull-left
+      | Hotel Trending Issues
+    .pull-right
+      = link_to 'Print PDF', '#', onclick: 'printPDF()', class: 'btn btn-default'
+.clearfix
+  = render partial: 'maintenance/shared/charts/work_order_trends',
+           locals: { activeWord: params[:active_word],
+                     cloudReport: true, is_corporate: @prev_property_id.nil?,
+                     from: params[:from] || Date.today - 3.months,
+                     to: params[:to] || Date.today }
+  .report-body
+    .panel
+      .panel-collapse.pull.out
+        h4.pl15.bold
+          | Active Work Orders
+          '
+          span.text-muted.active-wos-count
+        table.table.no-bottom-border.table-hover#active-work-orders
+
+        h4.pl15.bold
+          | Closed Work Orders
+          '
+          span.text-muted.closed-wos-count
+        table.table.no-bottom-border#closed-work-orders
+
+        h4.pl15.bold PM fixes
+        table.table.no-bottom-border#fixed-checklists
+
+        #loading.indicator
+          span.spinner
+script.mustache-template.active-wos-mustache-template type="x-tmpl-mustache"
+  tbody
+    | {{#wos}}
+    tr data-status="{{status}}" data-priority="{{priority_value}}" data-type="{{type}}"
+      td width="80px"
+        span.semibold.text-default
+          | #
+          | {{id}}
+        br
+        span.text-small
+          | {{{priority}}}
+        br
+        span.text-small
+          | {{status}}
+      td
+        | {{description}}
+      td.semibold.text-default.location-name width="150px"
+        | {{location_name}}
+      td width="120px"
+        | {{^is_unassigned}}
+        span.text-muted Assigned To:
+        br
+        | {{/is_unassigned}}
+        span.text-small
+          |  {{assigned_to_name}}
+        br
+        | {{#due_to_date}}
+        span.text-muted Due by:
+        span.text-small
+          |  {{due_to_date}}
+        br
+        | {{/due_to_date}}
+      td width="120px"
+        span.text-muted Created By:
+        br
+        span.text-small
+          |  {{opened_by_name}}
+        br
+        span.text-muted Open for:
+        span.text-small
+          |  {{days_opened}} days
+    | {{#materials_exists}}
+    tr.details
+      td width="80px"
+      td colspan="4"
+        table
+          tbody
+            tr
+              td width="70px"
+                span.text-muted Material Cost:
+              td
+                span.text-primary
+                  |  {{materials_cost}}
+            tr
+              td
+                span.text-muted Materials Used:
+              td.text-small
+                table
+                  tbody
+                    | {{#material_items}}
+                    tr
+                      td width="60px"
+                        | [{{quantity}}
+                        span.text-muted.text-small
+                          |  {{unit}}
+                        | ]
+                      td
+                        | {{name}}
+                    | {{/material_items}}
+    | {{/materials_exists}}
+    | {{/wos}}
+script.mustache-template.closed-wos-mustache-template type="x-tmpl-mustache"
+  tbody
+    | {{#wos}}
+    tr data-status="{{status}}" data-priority="{{priority_value}}" data-type="{{type}}"
+      td width="80px"
+        span.semibold.text-default
+          | #
+          | {{id}}
+        br
+        span.text-small
+          | {{{priority}}}
+        br
+        span.text-small
+          | {{status}}
+      td
+        | {{description}}
+      td.semibold.text-default.location-name width="150px"
+        | {{location_name}}
+      td width="120px"
+        span.text-muted Closed On:
+        br
+        span.text-small
+          |  {{closed_on}}
+        br
+        | {{#closed_same_day}}
+        span.text-small Closed Same Day
+        | {{/closed_same_day}}
+        | {{^closed_same_day}}
+        span.text-muted Time to resolve:
+        span.text-small
+          |  {{days_elapsed}} days
+        | {{/closed_same_day}}
+      td width="120px"
+        | {{^is_unassigned}}
+        span.text-muted Assigned To:
+        br
+        | {{/is_unassigned}}
+        span.text-small
+          |  {{assigned_to_name}}
+        div
+          span.text-muted Closed By:
+        span.text-small
+          |  {{closed_by_name}}
+    | {{#detail_exists}}
+    tr.details
+      td width="80px"
+      td colspan="4"
+        table
+          tbody
+            | {{#closing_comment}}
+            tr
+              td width="80px"
+                span.text-muted Closing comment:
+              td
+                span.text-small
+                  | {{closing_comment}}
+            | {{/closing_comment}}
+            | {{#duration}}
+            tr
+              td
+                span.text-muted Time to complete:
+              td
+                span.text-small
+                  | {{duration}}
+            | {{/duration}}
+            | {{#materials_exists}}
+            tr
+              td
+                span.text-muted Material Cost:
+              td
+                span.text-primary
+                  |  {{materials_cost}}
+            tr
+              td
+                span.text-muted Materials Used:
+              td.text-small
+                table
+                  tbody
+                    | {{#material_items}}
+                    tr
+                      td width="60px"
+                        | [{{quantity}}
+                        span.text-muted.text-small
+                          |  {{unit}}
+                        | ]
+                      td
+                        | {{name}}
+                    | {{/material_items}}
+            | {{/materials_exists}}
+    | {{/detail_exists}}
+    | {{/wos}}
+
+script.mustache-template.fixed-checklists-mustache-template type="x-tmpl-mustache"
+  tbody
+    | {{#fixes}}
+    tr
+      td
+        div
+          span.text-muted Fixed:
+          |  {{comment}}
+      td
+        | {{location}}
+      td width="200px"
+        | {{#completed_on}}
+        span.text-default.semibold
+          | {{completed_by}}
+        |  completed PM on
+        span.text-default.semibold
+          |  {{completed_on}}
+        | {{/completed_on}}
+        | {{^completed_on}}
+        span
+          | PM in progress. Started by
+        span.text-default.semibold
+          |  {{started_by}}
+        |  on
+        span.text-default.semibold
+          |  {{started_on}}
+        | {{/completed_on}}
+    | {{/fixes}}
+javascript:
+  var ids = "#{params[:ids]}";
+coffee:
+  $(document).ready ->
+    offset = 0
+    selectedTrend = {}
+
+    loading            = $('#loading')
+    $vendorsFilter     = undefined
+    vendorsFilter      = undefined
+
+    $active_table = $("table#active-work-orders")
+    $closed_table = $("table#closed-work-orders")
+    $checklists_table = $("table#fixed-checklists")
+
+    $('body').on 'trending.clicked', 'span.trending-word', (e) ->
+      loadData($(@).data('ids'), $(@).data('location'))
+
+    $('body').on 'trending.clear', '#maintenance-trending', (e) ->
+      $active_table.html("<div class='pa10'>Select a word from the trending words to see data</div>")
+      $closed_table.html("<div class='pa10'>Select a word from the trending words to see data</div>")
+      $checklists_table.html("<div class='pa10'>Select a word from the trending words to see data</div>")
+      $('.active-wos-count').html('')
+
+    loadData = (ids = [], isChecklist=false)->
+      return if ids.length == 0
+
+      # save selected trends to send pdf request
+      selectedTrend =
+        wo_ids: ids['wos']
+        cim_ids: ids['cim']
+        checklist_trends: isChecklist
+
+      loading.show()
+      $.debounce(1000, ->
+        $.ajax({
+          dataType: 'json'
+          type: "GET"
+          url: Routes.report_path("render/work_order_trendings")
+          data:
+            wo_ids: ids['wos']
+            cim_ids: ids['cim']
+            checklist_trends: isChecklist
+            property_id: $('#property-dropdown > button:first-child').data('id')
+          success: (data)->
+            active_work_orders = _.filter(data.work_orders, (e) -> e.status != 'Closed')
+            closed_work_orders = _.filter(data.work_orders, (e) -> e.status == 'Closed')
+
+            open_wos_count = _.filter(active_work_orders, 'status', 'Open').length
+            working_wos_count = _.filter(active_work_orders, 'status', 'Working').length
+            if active_work_orders.length > 0
+              $('.active-wos-count').html("(#{open_wos_count} open, #{working_wos_count} in progress)")
+            else
+              $('.active-wos-count').html("")
+
+            if closed_work_orders.length > 0
+              $('.closed-wos-count').html("(#{closed_work_orders.length} closed)")
+            else
+              $('.closed-wos-count').html("")
+
+            if active_work_orders.length > 0
+              rendered = Mustache.render($('.active-wos-mustache-template').html(), wos: active_work_orders)
+              $active_table.html(rendered)
+            else
+              $active_table.html("<div class='pa10'>There's no related active work orders</div>");
+
+            if closed_work_orders.length > 0
+              rendered = Mustache.render($('.closed-wos-mustache-template').html(), wos: closed_work_orders)
+              $closed_table.html(rendered)
+            else
+              $closed_table.html("<div class='pa10'>There's no related closed work orders</div>");
+
+            if data.fixes
+              rendered = Mustache.render($('.fixed-checklists-mustache-template').html(), fixes: data.fixes)
+              $checklists_table.html(rendered)
+            else
+              $checklists_table.html("<div class='pa10'>There's no related pm fixes</div>");
+
+          complete: -> loading.hide()
+        })
+      )()
+
+    # loading data after page render complete:
+    loadData(ids)
+
+    @printPDF = ->
+      selectedTrend['from'] = $('#trending-date-range').data('daterangepicker').startDate.toString()
+      selectedTrend['to'] = $('#trending-date-range').data('daterangepicker').endDate.toString()
+
+      if $('#property-dropdown > button:first-child').length > 0
+        selectedTrend.property_id = $('#property-dropdown > button:first-child').data('id')
+
+      url = "/reports/render/work_order_trendings.pdf?#{$.param(selectedTrend)}"
+      window.open(url, '_blank')

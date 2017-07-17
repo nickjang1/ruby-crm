@@ -1,0 +1,19 @@
+tr.material-item data-cost=(m.cost) data-id=(m.id)
+  td.value data-id=(m.item.id)
+    = m.item.name
+  td.value.text-center
+    span.x-editable data-title='Edit Quantity' data-type="text" data-url=(maintenance_material_path(m)) data-send='always' data-pk=(m.id) data-name="quantity"
+      = quantity_format(m.quantity.to_f)
+    br
+    span.text-muted= m.item.inventory_unit.name
+  td.value.text-right
+    span $
+    span
+      span.x-editable data-title='Edit Price' data-type="text" data-url=(maintenance_material_path(m)) data-send='always' data-pk=(m.id) data-name="price"
+        = currency_format(m.price)
+      br
+      span.text-muted= "per #{m.item.inventory_unit.name}"
+  td.value.item-price.text-primary.text-right= humanized_currency_format(m.cost)
+  td width="31px"
+    = link_to maintenance_material_path(m), method: :delete, remote: true, class: 'delete-material text-danger', data: { confirm: "Remove item '#{m.item.name}'" } do
+      span.ico-trash

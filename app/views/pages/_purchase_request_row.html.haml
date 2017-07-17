@@ -1,0 +1,23 @@
+%td
+  = t('.pr')
+  %br
+  =purchase_request.number
+%td
+  = l(purchase_request.created_at, format: :short)
+  %br
+  = purchase_request.user.name
+%td= pluralize(purchase_request.preferred_vendors.count, 'vendor') 
+%td
+  = humanized_money_with_symbol(purchase_request.total_price)
+  %br
+  = pluralize( purchase_request.item_requests.count, 'item')
+%td.col-xs-2
+  - unless purchase_request.state.to_sym == :completed && cannot?(:approve, purchase_request) && current_user.current_property_role == Role.manager
+    = link_to edit_purchase_request_path(purchase_request), class: ('btn btn-block mb5 ' + PurchaseRequest::BTN_CLASS[purchase_request.state.to_sym]) do
+      %i{class: PurchaseRequest::BTN_ICON[purchase_request.state.to_sym]}
+      = PurchaseRequest::ACTION[purchase_request.state.to_sym]
+      - # TODO: should use i18n
+  - else
+    = t('.waiting_for_approval')
+
+    

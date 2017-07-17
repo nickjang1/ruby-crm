@@ -1,0 +1,53 @@
+.row
+  .col-lg-12
+    .table-layout
+      .panel.widget
+        .panel-body
+          ul.list-table
+            li.text-left
+              h4.semibold.nm Inventory Sheet
+              p.semibold.hotel-name.nm = @purchase_request.user.current_property.name
+            li.text-right
+              p.semibold.text-primary.nm = "Printed By: #{current_user.name}"
+              p.semibold.text-primary.nm = l(Time.now, format: :short)
+        table.table.no-initial-sorting.no-stripe-classes.table-striped
+          thead
+            tr
+              th width="5%" 
+              th Item Description
+              th.text-center width="25%"  Location
+              th.text-center width="15%"  On Hand
+              th.text-center width="15%"  Inventory Unit
+          tbody
+            - @purchase_request.item_requests.each_with_index do |ir, ii|
+              - if ir.item.locations.empty?
+                tr class="#{ii % 2 == 0 ? 'odd' : 'even'}"
+                  td.valign-middle.text-center= ir.item.number
+                  td
+                    h5.semibold.mt0.mb5= ir.item.name
+                  td.valign-middle.text-center
+                    span.location.text-muted.semibold data-id='none'   -
+                  td.valign-middle.text-center
+                    input type="text" class="form-control"
+                  td.valign-middle.text-center
+                    span.text-muted= ir.item.inventory_unit.name
+              - else
+                - ir.item.locations.each_with_index do |location, index|
+                  tr class="#{ii % 2 == 0 ? 'odd' : 'even'}"
+                    td.valign-middle.text-center= ir.item.number if index == 0
+                    td
+                      h5.semibold.mt0.mb5= ir.item.name if index == 0
+                    td.valign-middle.text-center
+                      span
+                        = content_tag(:span, location.name, class: 'location text-muted semibold', data: {id: location.id}).html_safe
+                        br
+                    td.valign-middle.text-center
+                      input type="text" class="form-control"
+                    td.valign-middle.text-center
+                      span.text-muted= ir.item.inventory_unit.name
+        .panel-footer
+          ul.list-table.pa10
+            li
+              h5.semibold.nm.pull-right COMPLETED BY:
+            li
+              input type="text" class="form-control pull-left" style="width: 40%;"

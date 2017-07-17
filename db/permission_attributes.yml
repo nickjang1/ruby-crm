@@ -1,0 +1,80 @@
+- :name: Hotel Settings
+  :subject: :access
+  :action: :settings
+  :items:
+    - :name: Connect Corporate
+      :subject: :access
+      :action: connect_corporate
+    - :name: Permission Setting
+      :subject: :access
+      :action: :permission_setting
+
+- :name: Procurement
+  :subject: :access
+  :action: :procurement
+
+- :name: Maintenance
+  :subject: :access
+  :action: :maintenance
+  :items:
+    - :name: Work Orders
+      :subject: :access
+      :action: :work_order
+      :items:
+        - :name: WO Listing
+          :subject: :maintenance_work_order
+          :action: :index
+          :options:
+            - :name: View All
+              :option: :all
+            - :name: View WOs by department
+              :option: :department
+            - :name: View Own WOs
+              :option: :own
+            - :name: View Assigned To
+              :option: :assigned_to
+        - :name: Create WOs
+          :subject: :maintenance_work_order
+          :action: :create
+        - :name: Edit Closed WOs
+          :subject: :maintenance_work_order
+          :action: :edit_closed
+        - :name: Edit WO
+          :subject: :maintenance_work_order
+          :action: :edit
+          :options:
+            - :name: Priority
+              :option: :priority
+            - :name: Status
+              :option: :status
+            - :name: Due Date
+              :option: :due_to_date
+            - :name: Assigned To
+              :option: :assigned_to_id
+        - :name: Available to be assigned to WOs
+          :subject: :maintenance_work_order
+          :action: :assignable
+        - :name: Delete WO
+          :subject: :maintenance_work_order
+          :action: :destroy
+    - :name: PM Setup
+      :subject: :access
+      :action: :pm_setup
+    - :name: PM
+      :subject: :access
+      :action: :pm
+      :items:
+        - :name: Single click PM for Categories
+          :subject: :maintenance_checklist_item_maintenance
+          :action: :single_click_pm
+    - :name: Inspection
+      :subject: :access
+      :action: :inspection
+
+- :name: Report
+  :subject: :report
+  :action: :index
+
+- :name: Team
+  :subject: :user
+  :action: :index

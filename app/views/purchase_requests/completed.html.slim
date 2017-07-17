@@ -1,0 +1,196 @@
+- body_class 'messaging-enabled-form'
+
+= simple_form_for @purchase_request, html: {id: "pr-form", class: 'purchase_request form-horizontal request-order test-request-completed-form'} do |f|
+  = f.input_field :rejection_reason, as: :hidden, id: "rejection-reason-hidden"
+  .page-header.page-header-block
+    .page-header-section
+      h4.title.semibold.clearfix
+        span.pull-left= t('.title', number: @purchase_request.number)
+        = render partial: 'shared/messages', locals: {model: @purchase_request, add_message: true}
+        .pull-right
+          = link_to_with_icon 'ico-pencil', t('shared.messages.add_message'), 'javascript:void(0)', class: 'btn btn-info add-message-btn'
+          - if can? :approve, @purchase_request
+            input#commit type='hidden' name='commit'
+            a.btn.btn-success.test-approve-btn data-action='approve' data-confirm="#{ t('.approve_request_modal_title', req_number: @purchase_request.number, orders_count: @purchase_request.items_by_vendor.count) }"
+              i.ico-check
+              |  #{ t('.approve') }
+            '
+            a.btn.btn-danger data-action='reject' data-toggle="modal" data-target="#myModal" data-confirm2="#{ t('.reject_request_modal_title', req_number: @purchase_request.number, creator_name: @purchase_request.user.name) }"
+              i.ico-cancel
+              |  #{ t('.reject') }
+          - else
+            '
+            .order_status.pull-right= t('.waiting_for_approval')
+  
+
+  .panel.panel-default
+    = render 'requests_steps_indicator', step: PurchaseRequest::STATES.index(@purchase_request.state.to_sym)
+    
+    .row.visible-xs
+      .col-md-12.mt10
+        .list-table.pa10
+            li
+              h5.semibold.nm= t('.total_price')
+            li.text-right
+              h3.semibold.nm.text-primary
+                | $
+                span.total-price-value
+
+    table.responsive-stacktable.column-filtering.searchable-table.table.mt10.table-striped
+      thead
+        tr
+          td
+            input.form-control name="search_engine" placeholder=t('.item_name') type="search" /
+          td
+            input.form-control name="search_engine" placeholder=t('.vendor') type="search" /
+          td
+            input.form-control name="search_engine" placeholder=t('.par') type="search" /
+          td
+            input.form-control name="search_engine" placeholder=t('.on_hand_qty') type="search" /
+          td
+            input.form-control name="search_engine" placeholder=t('.request_quantity') type="search" /
+          td
+            input.form-control name="search_engine" placeholder=t('.purchase_price') type="search" /
+          td
+
+        tr
+          th.width-min200= t('.item_name')
+          th.text-center= t('.vendor')
+          th.text-center.nosort width="100px"= t('.par')
+          th.text-center= t('.on_hand_qty')
+          th.text-right width="100px"= t('.request_quantity')
+          th.text-right= t('.purchase_price')
+          th.text-right.nosort.width-min120 = t('.total_item_cost')
+      tbody
+        = f.simple_fields_for :item_requests do |g|
+          - purchase_unit_name = humanized_unit_format g.object.item.unit
+          - price_unit_name    = humanized_unit_format g.object.item.price_unit
+          tr
+            td data-title=(t('.item_name'))
+              .hidden-sm.hidden-xs= render 'shared/open_pr_po_for_item', item: g.object.item
+              span.item-name= g.object.item.try :name
+              = g.input :item_id, as: :hidden
+              = g.input :id, as: :hidden
+            td.text-center data-title=(t('.vendor'))
+              - vendor_name = g.object.item.vendors.first.try(:name)
+              - if vendor_name.present?
+                = vendor_name
+              - else
+                .visible-xs -
+            td.text-center data-title=(t('.par'))
+              - if g.object.item.par_level.present?
+                = g.object.item.par_level
+                br.hidden-xs
+                span.unit-format= humanized_unit_format g.object.item.inventory_unit
+              - else
+                .visible-xs -
+            td.text-center data-title=(t('.on_hand_qty'))
+              - unit = purchase_unit_name.try(:pluralize)
+              - if g.object.count
+                = g.object.count
+                br.hidden-xs
+                span.unit-format= humanized_unit_format g.object.item.inventory_unit
+              - else
+                span.badge.badge-danger= t('.skipped')
+            td.text-right data-title=(t('.request_quantity')) data-item-price="#{ g.object.item.price.to_f }" data-price-value="#{ g.object.price_unit_factor.to_f }"
+              .form-group
+                .col-sm-12 style="padding: 0px;"
+                  .has-feedback
+                    = g.text_field :quantity, value: g.object.quantity || g.object.order_quantity, as: :string, class: 'width100 pull-right text-right numeric-input input-sm form-control quantity_input test_quantity_input', type: "number"
+                    span.ico-warning.form-control-feedback data-toggle="tooltip" title="#{ t('purchase_requests.request.quantity_validation')}"
+                span.purchase-unit-name= purchase_unit_name
+
+              = g.input_field :_destroy, value: nil, as: :hidden, class: "destroy_input"
+            td.text-right data-title=(t('.purchase_price'))
+              = humanized_money_with_symbol(g.object.item.price)
+              - if price_unit_name && purchase_unit_name && price_unit_name != purchase_unit_name
+                br.hidden-xs
+                span.unit-format= price_unit_name
+            td.text-right.item-total-price data-title=(t('.total_item_cost'))
+              span.text-primary.bold
+                | $
+                span.value
+
+    .row.hidden-xs
+      .col-md-12
+        .panel-footer.mt10
+          .list-table.pa10
+              li
+                h5.semibold.nm= t('.total_price')
+              li.text-right
+                h3.semibold.nm.text-primary
+                  | $
+                  span.total-price-value
+
+#myModal.modal aria-hidden="true" aria-labelledby="myModalLabel" role="dialog" tabindex="-1" 
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close data-dismiss="modal" type="button" 
+          span aria-hidden="true" &times;
+          span.sr-only= t('.close')
+        h4#myModalLabel.modal-title=t('.reject_request_modal_title', req_number: @purchase_request.number, creator_name: @purchase_request.user.name)
+      .modal-body
+        h5=t('.add_reason_for_rejecting_request')
+        textarea#rejection-reason.form-control placeholder=t('.please_add_a_comment_for_rejection')
+      .modal-footer
+        button.btn.btn-default data-dismiss="modal" type="button" NO! this was a terrible idea.
+        button#confirm-rejection.btn.btn-danger disabled="disabled" data-toggle="tooltip" data-placement="bottom" title=t('.comment_is_required')
+          | YES I'm sure!
+
+
+- content_for :js do
+  coffee:
+    $(document).ready ->
+      $('.purchase_request .page-header-section a.btn').on 'dialog.confirmed', ->
+        $(this).parent().find('#commit').val($(this).data('action'))
+        $('form#pr-form').submit()
+        return false
+
+      $('#rejection-reason').on 'input change', ->
+        $('#confirm-rejection').attr('disabled', $(this).val() is '')
+
+      $('#confirm-rejection').on 'click', ->
+        $('#commit').val('reject')
+        $('#rejection-reason-hidden').val($('#rejection-reason').val())
+        $('form#pr-form').submit()
+
+      totalPriceContainer = $(".total-price-value")
+      itemTotalPricesArray = []
+      itemQuantitiesArray = []
+      $(".quantity_input").each (inputIndex) ->
+        input = $(this)
+        itemCost = input.closest("td").data("item-price")
+        itemTotalPriceContainer = input.closest("tr").find("td:last-child span.value")
+        form_group = input.closest(".form-group")
+        priceValue = input.closest("td").data("price-value")
+        
+        # if all quantities set to 0 => disable submit buttons: 
+        input.on("input change keypress keydown", ->
+          input_val = input.val()
+          itemTotalPricesArray[inputIndex] = formatPrice(input_val * itemCost * priceValue)
+          itemTotalPriceContainer.text itemTotalPricesArray[inputIndex]
+          sum = 0
+          i = itemTotalPricesArray.length
+
+          while i--
+            sum += parseFloat(itemTotalPricesArray[i])
+          totalPriceContainer.text formatPrice(sum)
+          itemQuantitiesArray[inputIndex] = parseFloat(input_val)
+          allZeroOrBlank = true
+          i = itemQuantitiesArray.length
+
+          while i--
+            if itemQuantitiesArray[i] isnt 0 and !!itemQuantitiesArray[i]
+              allZeroOrBlank = false
+              break
+          valIsZero = !parseFloat(input_val)# is 0
+          form_group.toggleClass "has-error", valIsZero
+          input.next().toggle valIsZero
+          input.toggleClass "quantity-validation-error", valIsZero
+          input.closest("td").find("input.destroy_input").val (if parseFloat(input.val()) is 0 or not input.val() then true else "")
+          return
+        ).change()
+        return
+
+      return

@@ -1,0 +1,48 @@
+/* ----------------------------
+ *
+ * Vector Maps
+ *
+ * --------------------------- */
+.jvectormap-label {
+  font-size: 12px;
+  position: absolute;
+  display: none;
+  border: solid 1px #777777;
+  border-radius: 4px;
+  background: #444444;
+  color: #ffffff;
+  padding: 3px 5px;
+}
+.jvectormap-zoomin,
+.jvectormap-zoomout {
+  position: absolute;
+  left: 10px;
+  color: white;
+  width: 24px;
+  height: 24px;
+  font-size: 0px;
+  cursor: pointer;
+}
+.jvectormap-zoomin:after,
+.jvectormap-zoomout:after {
+  font-family: "iconfont";
+  font-size: 14px;
+  line-height: 24px;
+  color: #15cdff;
+}
+.jvectormap-zoomin:hover:after,
+.jvectormap-zoomout:hover:after {
+  color: #00b1e1;
+}
+.jvectormap-zoomin {
+  top: 10px;
+}
+.jvectormap-zoomin:after {
+  content: "\e35f";
+}
+.jvectormap-zoomout {
+  top: 30px;
+}
+.jvectormap-zoomout:after {
+  content: "\e361";
+}

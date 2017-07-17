@@ -1,0 +1,112 @@
+- if policy(Maintenance::WorkOrder.new).create? || policy(:access).pm?
+  nav.path-nav.path-nav-bottom-right#quick-actions
+    a.path-nav-expander href='#quick-actions'
+      .cross
+        .cross-h
+        .cross-v
+    a.path-nav-close href='#'
+    ul
+      - if policy(Maintenance::WorkOrder.new).create?
+        li
+          a.add-work-order href="#"
+            i.ico-tools.fa-fw
+      - if policy(:access).pm?
+        li
+          a.open-room-pm-modal href="#"
+            i.ico-bed
+        li
+          a.new-comment-link href="#"
+            i.ico-pen5
+
+#wo-modal.modal.fade
+#start-room-pm-modal.modal.fade
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close aria-label="Close" data-dismiss="modal" type="button"
+          span aria-hidden="true"  &times;
+        h4.modal-title Start Room PM
+      .modal-body
+        .form-group
+          select#room-select.select2 multiple="true"
+        p.room-info
+        .clearfix
+          .pull-right
+            a.btn.btn-primary href='#' Start PM
+
+- content_for :js do
+  javascript:
+    current_property_id = "#{current_property.try(:id)}";
+
+    $('.open-room-pm-modal').on('click', function (e) {
+      e.preventDefault();
+      $.ajax({url: '/maintenance/rooms', dataType: 'json'}).done(function (data) {
+        $('#room-select').html('')
+        _.each(data, function (obj) {
+          $optgroup = $('<optgroup label="Floor ' + obj.floor + '"></optgroup>');
+          $('#room-select').append($optgroup);
+          _.each(obj.rooms, function (room) {
+            $optgroup.append('<option value="' + room.id + '">' + room.room_number + '</option>');
+          });
+        });
+        $('#start-room-pm-modal').modal();
+      });
+    });
+
+    $('.select2').select2({
+      placeholder: "Select a room for PM",
+      maximumSelectionSize: 1,
+      formatNoMatches: function () {
+        return "No rooms found";
+      },
+      formatSelectionTooBig: function (limit) {
+        return "You can only select " + limit + " room" + (limit == 1 ? "" : "s");
+      },
+    });
+    $('.select2').on("change", function (e) {
+      if (e.val.length == 0) {
+        $('.room-info').text('');
+        return;
+      }
+
+      room_url = '/maintenance/rooms/' + e.val[0];
+
+      $.ajax({url: room_url, dataType: 'json'}).done(function (data) {
+        if (data.completed_on)
+          $('.room-info').text('Last PM was done on ' + data.completed_on + ' by ' + data.completed_by + ' in Cycle #' + data.last_maintained_cycle)
+        else
+          $('.room-info').text('This room has not maintained yet.');
+        if (data.status == 'in_progress') {
+          $('#start-room-pm-modal .btn-primary').text('Continue PM');
+          $('.room-info').prepend('<div>PM for this room is in progress - started on ' + data.started_on + ' by ' + data.started_by + '</div>');
+        }
+        else
+          $('#start-room-pm-modal .btn-primary').text('Start PM');
+        $('#start-room-pm-modal .btn-primary').attr('href', '/maintenance/rooms/floor' + data.floor + '-room' + data.room_number);
+      });
+    });
+    $('.new-comment-link').on('click', function(e) {
+      window.location.href = Routes.engage_dashboard_path({anchor: 'expanded'});
+    });
+
+    $('#quick-actions').on('click', function(e) {
+      e.preventDefault();
+      if ($(this).hasClass('active')) {
+        $(this).removeClass('active');
+        $('.path-nav.path-nav-backdrop').removeClass('active');
+        setTimeout(function() {
+          $('.path-nav.path-nav-backdrop').remove();
+        }, 300);
+      } else {
+        $(this).addClass('active');
+        $('body').append('<div class="path-nav path-nav-backdrop"></div>');
+        setTimeout(function() {
+          $('.path-nav.path-nav-backdrop').addClass('active');
+        }, 100);
+      }
+    });
+
+    $('body').on('click', '.path-nav.path-nav-backdrop', function(e) {
+      $('.path-nav').removeClass('active');
+      $(this).remove();
+    });

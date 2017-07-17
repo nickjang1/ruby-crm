@@ -1,0 +1,75 @@
+# Note: this file needs to be manually created on the server
+
+defaults: &defaults
+  host: http://localhost:3000
+  external_host: localhost:3000
+  secret_token: <%= ('x' * 128) %>
+  airbrake_project_id:
+  airbrake_api_key:
+  phaxio_api_key: 5826abca6879028f66b2e81948135d140d8b415c
+  phaxio_api_secret: 6e6c896f225f860668431a8166873727d324feab
+  pusher_app_id: 88995
+  pusher_api_key: 86d055f43ac176272b01
+  pusher_api_secret: 64e6ff0957b9433fba78
+  action_mailer_delivery_method: letter_opener
+  twilio_account_sid: ACa649ea9b857ee57e66eead0d306599f4
+  twilio_auth_token: a145378ae69e940b76899f2c2bbb089d
+  twilio_from_number: "+15005550006"
+  stripe_publishable_key: pk_test_KBTJiGs5WrdqZqYzk94Lbouz
+  stripe_secret_key: sk_test_6yw2JHpi5he2OgA9ej0q7o4a
+  google_analytics_code: UA-63907794-2
+  pendo_key: 060ae7f0-5bf9-40e9-5142-494f7306ec28
+  blazer_database_url: 
+
+  Mailgun:
+    domain: lodgistics.mailgun.org
+    API:
+      KEY: key-4nkme-50jm4n8dh73qlrdi5dc2r767y1
+    SMTP:
+      LOGIN: postmaster@lodgistics.mailgun.org
+      PASSWORD: 0gzd7g4cmpp4
+      PORT: 587
+      SERVER: smtp.mailgun.org
+
+  formats:
+    decimals_count_for_price: 2 # number of digits after "." in all numbers that display price. Global across application
+
+development:
+  <<: *defaults
+
+production:
+  <<: *defaults
+  host: http://104.131.201.182
+  phaxio_api_key:
+  phaxio_api_secret:
+
+test:
+  <<: *defaults
+
+
+# https://github.com/binarylogic/settingslogic
+#
+# Usage:
+# >> Rails.env
+# => "development"
+#
+# >> Env.cool
+# => "#<Settingslogic::Settings ... >"
+#
+# >> Env.cool.saweet
+# => "nested settings"
+#
+# >> Env.neat_setting
+# => 800
+#
+# defaults: &defaults
+#   cool:
+#     saweet: nested settings
+#   neat_setting: 24
+#
+# development:
+#   <<: *defaults
+#   neat_setting: 800
+#
+# test:
+#   <<: *defaults

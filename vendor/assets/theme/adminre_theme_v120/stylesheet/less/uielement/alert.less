@@ -1,0 +1,69 @@
+/* ----------------------------
+ *
+ * Alert
+ *
+ * --------------------------- */
+.alert {
+    padding: 10px;
+    color: @white;
+    opacity: 0.95;
+
+    &:empty {
+        display: none;
+    }
+}
+.alert-dismissable {
+    padding-right: 10px;
+
+    .close {
+        right: 0px;
+    } 
+}
+
+/* success */
+.alert-success {
+    // color: darken(@white, 26%) !important;
+    background-color: @success;
+    border-color: darken(@success, 5%);
+
+    .gritter-item,
+    .gritter-close {
+        // color: darken(@success, 26%) !important;
+    }
+}
+
+/* info */
+.alert-info {
+    // color: darken(@info, 30%) !important;
+    background-color: @info;
+    border-color: darken(@info, 5%);
+
+    .gritter-item,
+    .gritter-close {
+        // color: darken(@info, 30%) !important;
+    }
+}
+
+/* warning */
+.alert-warning {
+    // color: darken(@warning, 28%) !important;
+    background-color: @warning;
+    border-color: darken(@warning, 5%);
+
+    .gritter-item,
+    .gritter-close {
+        // color: darken(@warning, 28%) !important;
+    }
+}
+
+/* danger */
+.alert-danger {
+    // color: darken(@danger, 10%) !important;
+    background-color: @danger;
+    border-color: darken(@danger, 5%);
+
+    .gritter-item,
+    .gritter-close {
+        // color: darken(@danger, 10%) !important;
+    }
+}

@@ -1,0 +1,5 @@
+<%flash.each do |name, message|%>
+  <div class="alert alert-<%= alert_class(name) %>">
+    <%= raw(message)%>
+  </div>
+<%end%>

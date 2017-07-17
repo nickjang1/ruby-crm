@@ -1,0 +1,499 @@
+.engage-dashboard {
+  font-size: 11px;
+
+  .tooltip {
+    .tooltip-inner {
+      font-size: 11px;
+      font-weight: 300;
+    }
+  }
+
+  .ui-datepicker td {
+    padding: 0;
+  }
+
+  .form-control {
+    font-size: 11px;
+    font-weight: 300;
+  }
+
+  #main > .container-fluid {
+    padding: 7px 5px 5px 5px;
+
+    .page-header {
+      margin-bottom: 5px;
+      padding-bottom: 5px;
+
+      .has-icon {
+        .form-control {
+          line-height: 30px;
+          height: 30px;
+        }
+        i {
+          line-height: 30px;
+        }
+      }
+
+      button.btn {
+        padding: 5px 8px;
+        font-size: 11px;
+        font-weight: 300;
+      }
+    }
+  }
+
+  .inline-block {
+    vertical-align: middle;
+  }
+
+  [contenteditable=true] {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    -webkit-user-modify: read-write;
+    word-wrap: break-word;
+    -webkit-line-break: after-white-space;
+  }
+
+  .panel {
+    margin-bottom: 5px;
+
+    .panel-heading {
+      padding: 0 4px 0 2px;
+    }
+  }
+
+  .date-selector {
+    .date-value {
+      text-align: center;
+      border: none;
+      background: transparent;
+      outline: none;
+      text-shadow: 0 0 0 #00b1e1;
+      color: transparent;
+      width: 100px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 300;
+    }
+
+    .btn {
+      padding: 3px 9px !important;
+      margin-top: 1px;
+    }
+  }
+
+  [contenteditable='true']:empty:not(:focus):before {
+    content: "Type your message here";
+    color: #aaa;
+  }
+
+  #form-message {
+    margin-top: 5px;
+
+    #message-title {
+      height: 30px;
+      border-radius: 0;
+      font-weight: 600;
+    }
+
+    .note-editor {
+      .note-editable {
+        padding: 5px 10px;
+        font-weight: 300;
+        overflow: hidden;
+      }
+
+      .btn {
+        padding: 7px;
+      }
+    }
+  }
+
+  .panel {
+    .panel-heading {
+      .panel-title {
+        height: 30px;
+        font-size: 12px;
+        font-weight: 600;
+
+        .btn {
+          padding: 5px 12px;
+        }
+      }
+    }
+  }
+
+  .center-toolbar {
+    display: inline-block;
+
+    button, span {
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+
+    span {
+      line-height: 33px;
+    }
+  }
+
+  .room-badge {
+    padding: 2px 5px;
+    margin-top: 10px;
+    font-size: 10px;
+    border: solid 1px #00b1e1;
+    border-radius: 12px;
+    color: #00b1e1;
+    margin-right: 10px;
+  }
+
+  .work-order-badge {
+    padding: 2px 5px;
+    margin-top: 10px;
+    font-size: 10px;
+    border: solid 1px #ed5466;
+    border-radius: 12px;
+    color: #ed5466;
+  }
+
+  .working-order {
+    margin-right: 15px;
+    text-align: center;
+    display: inline-block;
+    vertical-align: middle;
+    color: #ed5466;
+  }
+
+  .message-detail {
+    padding-right: 10px;
+  }
+
+  .btn.btn-panel-toggle {
+    color: #5e5e5e;
+    background: transparent;
+
+    &:focus, &:active {
+      box-shadow: none;
+      -webkit-box-shadow: none;
+    }
+
+    .arrow {
+      display: block;
+      font-family: 'iconfont';
+      font-size: 12px;
+      width: 12px;
+      text-align: center;
+      font-style: normal;
+    }
+
+    &.up {
+      .arrow:before {
+        content: "\e670";
+      }
+    }
+    &.down {
+      .arrow:before {
+        content: "\e671";
+      }
+    }
+  }
+
+  .panel-ribbon {
+    .ico-heart3 {
+      display: none;
+    }
+    .ico-heart4 {
+      &:hover {
+        color: #dd172f;
+      }
+    }
+
+    &.liked {
+      .ico-heart3 {
+        display: inline-block;
+        color: #dd172f;
+      }
+      .ico-heart4 {
+        display: none;
+      }
+    }
+  }
+
+  .message-body.list-table > li {
+    vertical-align: top;
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+
+  .user-detail {
+    text-align: center;
+    width: 80px;
+    font-size: 9px !important;
+
+    img {
+      width: 34px;
+      height: 34px;
+    }
+
+    .name {
+      font-weight: 100;
+    }
+  }
+
+  .reply-form {
+    textarea {
+      border-radius: 0;
+      padding: 3px 6px;
+    }
+
+    .submit-reply {
+      border-radius: 0;
+      padding: 9px 13px;
+    }
+  }
+
+  blockquote {
+    margin-bottom: 0;
+
+    > p {
+      font-size: 11px !important;
+      &:before, &:after {
+        font-size: 14px;
+      }
+    }
+  }
+
+  .log-list {
+    padding: 0;
+
+    .panel.widget {
+      border-radius: 0;
+      border-right: none;
+      border-left: none;
+      margin: 0;
+
+      &:hover, &:focus {
+        background-color: white;
+      }
+
+      > .panel-footer {
+        margin: 0;
+        padding: 2px 10px !important;
+      }
+    }
+  }
+
+  .message-list {
+    .message-panel {
+      margin-top: 1px !important;
+    }
+    .message-group {
+      > .message-panel:first-child {
+        margin-top: 0px !important;
+      }
+    }
+  }
+
+  .message-panel {
+    &.with-title {
+      border: solid 1px #cec8c8 !important;
+
+      .message-title {
+        padding-left: 5px;
+        margin: 0;
+        background: #f8f8f8;
+        font-size: 13px;
+        border-bottom: 1px solid #cfd9db;
+      }
+    }
+    .message-body {
+      border-bottom: solid 1px #f1f1f1;
+    }
+
+    .toggle-replies {
+      padding: 3px 10px;
+      display: block;
+      text-align: right;
+    }
+
+    .message-actions a {
+      font-weight: 300;
+
+      > i {
+        font-size: 12px;
+      }
+
+      > span {
+        white-space: nowrap;
+      }
+    }
+
+    .follow-up, .add-work-order, .likes, .complete-task, .cancel-follow-up {
+      margin-right: 15px;
+      cursor: pointer;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .cancel-follow-up {
+      white-space: nowrap;
+    }
+
+    .cancel-broadcast {
+      display: inline-block;
+      vertical-align: middle;
+      @media screen and (max-width: 480px) {
+        // display: block;
+      }
+    }
+
+    .follow-up, .add-work-order, .likes, .complete-task, .cancel-follow-up, .cancel-broadcast, .uncomplete-task {
+      > span {
+        font-size: 10px;
+      }
+    }
+
+    .uncomplete-task {
+      margin-right: 5px;
+    }
+
+    .complete-task {
+      color: #999;
+
+      &:hover, &:active {
+        color: #91c854;
+      }
+    }
+
+    .follow-up, .broadcast, .reply {
+      color: #999;
+      cursor: pointer;
+      display: inline-block;
+      vertical-align: middle;
+
+      &:hover, &:active {
+        color: #00b1e1;
+      }
+    }
+
+    .add-work-order {
+      color: #999;
+
+      &:hover, &:active {
+        color: #ed5466;
+      }
+    }
+
+    .likes {
+      display: inline-block;
+
+      .likes-images {
+        img {
+          width: 30px;
+          height: 30px;
+        }
+      }
+      .likes-text {
+        margin-left: 5px;
+      }
+    }
+  }
+
+  .replied-messages {
+    padding: 3px 3px 3px 30px;
+  }
+
+  #follow-up-count, #message-count, #alarm-count {
+    color: #808080;
+    font-size: 14px;
+  }
+
+  #follow-up-picker {
+    position: absolute;
+    margin-left: -9999px;
+  }
+
+  .alarm, .pickup {
+    padding: 2px 0;
+    border-bottom: solid 1px #cfd9db;
+
+    .time {
+      text-align: center;
+      width: 80px;
+
+      .time-string {
+        font-size: 12px;
+        font-weight: 300;
+      }
+    }
+
+    > li {
+      padding: 0 4px;
+    }
+
+    .room {
+      width: 100px;
+
+      .room-badge {
+        margin-top: 0;
+        margin-right: 0;
+        font-size: 9px;
+      }
+    }
+
+    .actions {
+      white-space: nowrap;
+      min-width: 100px;
+      text-align: right;
+
+      a, span {
+        margin-right: 5px;
+        font-weight: 300;
+
+        &.semibold {
+          font-weight: 600;
+        }
+      }
+
+      i {
+        font-size: 12px;
+      }
+
+      .mark-done {
+        margin-right: 15px;
+        vertical-align: middle;
+        display: inline-block;
+        color: #999;
+
+        &:hover, &:active {
+          color: #91c854;
+        }
+      }
+
+      .uncomplete-alarm {
+        text-align: center;
+        font-size: 9px;
+        margin-right: 5px;
+      }
+    }
+  }
+
+  .lost-found {
+    padding: 5px 10px;
+    border-bottom: solid 1px #cfd9db;
+
+    .status-badge {
+      padding: 0 5px;
+      margin-top: 10px;
+      border: solid 1px #00b1e1;
+      border-radius: 12px;
+      color: #00b1e1;
+    }
+
+    .actions {
+      width: 80px;
+      text-align: right;
+    }
+  }
+}

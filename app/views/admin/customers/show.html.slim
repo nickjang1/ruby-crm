@@ -1,0 +1,17 @@
+h1 Corporate
+p= @corporate.name
+
+h3 Corporate Users
+ul
+  - @corporate.users.each do |user|
+    li= [user.name, user.email].join(' - ')
+
+h1 Properties
+ul
+  - @corporate.properties.each do |property|
+    li= property.name
+    h4 Property Users
+    - property.user_roles.unscoped.where(property_id: property.id).each do |user_role|
+      - user = user_role.user
+      - if user
+        p= [user.name, user.email, user_role.role.name, user_role.title, user_role.order_approval_limit].join(' - ')

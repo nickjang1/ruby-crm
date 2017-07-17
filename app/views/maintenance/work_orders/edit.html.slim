@@ -1,0 +1,7 @@
+.modal-dialog
+  .modal-content
+    .modal-header
+      .cell.text-center
+        button.close data-dismiss="modal" type="button"  ×
+        h4.semibold.text-primary.modal-title Edit Work Order ##{@work_order.id}
+    = render 'form'

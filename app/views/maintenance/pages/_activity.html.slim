@@ -1,0 +1,42 @@
+.panel.panel-minimal
+  .panel-heading
+    h5.panel-title
+      i.ico-refresh.mr5
+      | Latest Activity
+  ul#activities.media-list.media-list-feed.nm
+  ul.media-list.media-list-feed.nm
+    li.media
+      .media-body
+        a.media-heading.text-primary href="/activities"  Load more feed
+script.mustache-template.activity-mustache-template type="x-tmpl-mustache"
+  li.media
+    .media-object.pull-left
+      i class="{{icon}} {{color}}"
+    .media-body
+      p.media-heading.text-default
+        | {{title}}
+      p.media-text
+        | {{{body}}}
+      p.media-meta
+        | {{elapsed}} ago
+
+- content_for :js do
+  coffee:
+    activity_template = $('.activity-mustache-template').html()
+
+    loadActivity = ->
+      $.ajax({
+        dataType: 'json'
+        type: "GET"
+        url: '/activities'
+        success: (data, status, xhr) =>
+          $('#activities').html('')
+          _.each data, (activity) ->
+            rendered = Mustache.render(activity_template, activity)
+            $('#activities').append rendered
+      })
+
+    loadActivity()
+
+    $('i.ico-refresh').on 'click', (e) ->
+      loadActivity()

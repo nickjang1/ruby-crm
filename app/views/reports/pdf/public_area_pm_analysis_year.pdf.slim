@@ -1,0 +1,36 @@
+= stylesheet_link_tag "http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css", media: "all"
+- cycleTerm = 'Cycle'
+h3.text-center Public Area PM Analysis Year Report - #{params[:year]}
+.text-center.report-body
+  .pull-left
+    .r-label Total Areas: 
+    .r-value= Maintenance::PublicArea.count
+
+    .r-label Completion % (previous): 
+    .r-value #{@results.length == 1 ? 'No Mainteance Data' : "#{@previous_cycle_completion.round}%"}
+  div style="display: inline-block"
+    .r-label Current #{cycleTerm} Completion % : 
+    .r-value #{@current_cycle_completion.round}%
+  .pull-right
+    .r-label Printed On: 
+    .r-value= Date.today.strftime('%d/%m/%Y')
+
+    .r-label Printed By: 
+    .r-value= current_user.name
+- if @results.first && @results.first.present?
+  table#analysis-report-data.table.table-bordered.year class="#{'small' if @results.length == 6}"
+    tr.text-center
+      td Public Area
+      - @results.each do |cycle_data|
+        td.value
+          | #{c2q(cycle_data[:ordinality_number])}
+          - if current_cycle(:public_area).ordinality_number == cycle_data[:ordinality_number].to_i && params[:year].to_i == current_cycle(:public_area).year
+            br
+            | (Current)
+
+    - rows = @results[0][:data].count - 1
+    - (0..rows).each do |i|
+      tr.text-center
+        td #{@results[0][:data][i][:name]}
+        - @results.length.times do |j|
+          td.value #{area_status(@results[j][:data][i])}

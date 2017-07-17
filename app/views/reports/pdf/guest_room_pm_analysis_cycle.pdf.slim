@@ -1,0 +1,42 @@
+= stylesheet_link_tag "http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css", media: "all"
+- cycleTerm = 'Cycle'
+h3.text-center Guest Room PM Analysis Report - #{c2q @cycle.ordinality_number}
+.text-center
+  .pull-left
+    p
+      b Current #{cycleTerm}: 
+      span= "#{c2q(current_cycle(:room).ordinality_number)} (#{current_cycle(:room).period})"
+    p
+      b Reported #{cycleTerm}: 
+      span.reported-cycle= "#{c2q(@cycle.ordinality_number)} (#{@cycle.period})"
+  .col-sm-4 style="display: inline-block"
+    p
+      b Total Rooms: 
+      span= Maintenance::Room.count
+    p
+      b Rooms Missed: 
+      span= @remaining_rooms
+  .col-sm-4.pull-right
+    p
+      b Printed On: 
+      span= Date.today.strftime('%d/%m/%Y')
+    p
+      b Printed By: 
+      span= current_user.name
+  table#analysis-report-data.table.table-bordered.cycle
+    tr
+      td.text-center Room
+      td.value
+      td.text-center Room
+      td.value
+      td.text-center Room
+      td.value
+    - rows = (@results.length / 3).ceil
+    - (0..rows).each do |i|
+      tr.text-center
+        td #{@results[i][:room_no]}
+        td #{room_status(@results[i])}
+        td #{@results[i + rows][:room_no]}
+        td #{room_status(@results[i + rows])}
+        td #{@results[i + rows + rows][:room_no] if @results[i + rows + rows].present?}
+        td #{room_status(@results[i + rows + rows])}

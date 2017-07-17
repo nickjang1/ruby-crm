@@ -1,0 +1,42 @@
+- body_class 'property-setting'
+
+section#main role="main" 
+  .container-fluid
+    .row
+      - if policy(:access).connect_corporate?
+        .col-md-6
+          .panel.panel-default
+            .panel-heading
+              h3.panel-title= t('.corporate')
+              .panel-toolbar.text-right
+            .panel-body
+              .text-center
+                - if current_property.corporate.present?
+                  = render 'corporate_connections/details', connection: Property.current.corporate_connection, user: Property.current.corporate_connection.corp_user
+                - else
+                  - if current_property.corporate_connection
+                    = link_to t('.review_corporate_connection'), :new_corporate_connections, class: 'btn btn-default btn-large'
+                  - else
+                    = link_to t('.connect_to_corporate'), :new_corporate_connections, class: 'btn btn-default btn-large'
+      - if policy(:access).permission_setting?
+        .col-md-6
+          .panel.panel-default
+            .panel-heading
+              h3.panel-title= t('.settings')
+            .panel-body
+              = form_for Property.current, remote: true, html: {class: 'form-inline', id: 'property-setting-form'} do |f|
+                = f.time_zone_select :time_zone, ActiveSupport::TimeZone.us_zones, {}, class: 'form-control'
+                '
+                = f.submit 'Update TimeZone', class: 'btn btn-primary', disable_with: "Updating..."
+
+    - if policy(:access).permission_setting?
+      .row
+        .col-md-12
+          .panel.panel-default
+            .panel-heading
+              h4.panel-title= t('.permission_title')
+              .panel-toolbar.text-right
+                #permissions-filter.btn-group
+                  button.btn class=("#{@filter == 'active' ? 'btn-success' : 'btn-default'}") type="button" data-value="active" Active Roles
+                  button.btn class=("#{@filter == 'all' ? 'btn-success' : 'btn-default'}") type="button" data-value="all" All Roles
+            .panel-body.permissions-page#permission-content data-role-id=(@role_id) data-department-id=(@department_id) data-filter=(@filter)

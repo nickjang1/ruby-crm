@@ -1,0 +1,71 @@
+= stylesheet_link_tag "http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css", media: "all"
+- cycleTerm = 'Cycle'
+h3.text-center Public Area PM Analysis Report - #{c2q @cycle.ordinality_number}
+.text-center
+  .pull-left
+    p
+      b Current #{cycleTerm}: 
+      span= "#{c2q(current_cycle(:public_area).ordinality_number)} (#{current_cycle(:public_area).period})"
+    p
+      b Reported #{cycleTerm}: 
+      span.reported-cycle= "#{c2q(@cycle.ordinality_number)} (#{@cycle.period})"
+  .col-sm-4 style="display: inline-block"
+    p
+      b Total Areas:
+      span= Maintenance::PublicArea.count
+    p
+      b Areas Missed:
+      span= @remaining_areas
+  .col-sm-4.pull-right
+    p
+      b Printed On: 
+      span= Date.today.strftime('%d/%m/%Y')
+    p
+      b Printed By: 
+      span= current_user.name
+  table#analysis-report-data.table.table-bordered.cycle.public-area-table.table-striped
+    tr
+      td.text-center width="30%" Public Area
+      td.value Status
+    - @results.each do |public_area|
+      tr
+        td width="30%"= public_area[:name]
+        td
+          table.br0.detail
+            tr
+              td.status= area_status(public_area)
+              td.maintenance-records
+                - if public_area[:maintenance_records].present?
+                  - public_area[:maintenance_records].each do |record|
+                    .maintenance-record.text-left
+                      div
+                        b PM:
+                      div By #{record[:completed_by]} on #{record[:completed_on]}
+                      - if record[:inspected]
+                        div
+                          b Inspected
+                        div By #{record[:inspected_by]} on #{record[:inspected_on]}
+                - else
+                  span
+          - if params[:show_detail] == 'true'
+            - if public_area[:issues].count > 0
+              br
+              .sub-title.text-left Work Orders
+              table.table.br0.detail
+                - public_area[:issues].each do |issue|
+                  tr
+                    td.status.semibold style="vertical-align: top;"
+                      div #WO #{issue[:work_order][:id]}
+                      div
+                        | (#{issue[:work_order][:status]})
+                    td.text-left.pl10 style="border-left: 1px solid #ddd"
+                      = issue[:work_order][:description]
+                  tr.pd15 style="display: block;"
+            - if public_area[:fixed].count > 0
+              br
+              .text-left.detail
+                .sub-title.semibold Fixes
+                - public_area[:fixed].each do |fix|
+                  .clearfix.mb10
+                    .col-sm-12.semibold= fix[:checklist_item][:name]
+                    .col-sm-12 Fixed: #{fix['comment']}

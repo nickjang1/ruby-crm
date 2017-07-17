@@ -1,0 +1,37 @@
+.panel.panel-minimal
+  .panel-heading.expandable
+    h4.panel-title
+      a.text-primary.collapsed.inline-block data-toggle="collapse" data-parent=("##{item_id(root)}-items") href=("##{item_id(root)}-#{item_id(item)}")
+        - if item.items.count > 0
+          span.plus.mr10
+        span= item.name
+      span.checkbox.custom-checkbox.inline-block.ml10
+        = check_box_tag "permissions#{item_name(item)}", item.id, permission_value(@permission_values, item)
+        label for=("permissions_#{item_id(item)}")
+  div class=("panel-collapse #{permission_value(@permission_values, item) ? '' : 'hidden'} detail-items collapse permission-detail") id=("#{item_id(root)}-#{item_id(item)}")
+    - if item.items.count > 0
+      - item.items.each do |ii|
+        - if (ii.options || []).count > 0
+          - ii.options.each do |option|
+            .form-group class=(option[:option] == :department ? 'expandable' : '')
+              label.inline-block.control-label for=("permissions_#{item_id(ii, option)}")
+                = "#{ii.name} - #{option[:name]}"
+              .inline-block.ml10
+                span.checkbox.custom-checkbox
+                  - if option[:option] == :department
+                    = check_box_tag "permissions#{item_name(ii, option)}", ii.id, !permission_value(@permission_values, ii, {option: :all})
+                  - else
+                    = check_box_tag "permissions#{item_name(ii, option)}", ii.id, permission_value(@permission_values, ii, option)
+                  label for=("permissions_#{item_id(ii, option)}")
+            - if option[:option] == :department
+              .form-group.detail-items class=(!permission_value(@permission_values, ii, {option: :all}) ? '' : 'hidden')
+                = select_tag :departments, options_for_select(Department.pluck(:name, :id), (permission_option(@permission_values, ii, option[:option])[0] || {})[:departments]), class: 'form-control selectize', multiple: true
+        - else
+          .form-group
+            label.inline-block.control-label for=("permissions_#{item_id(ii)}")
+              = ii.name
+            .inline-block.ml10
+              span.checkbox.custom-checkbox
+                = check_box_tag "permissions#{item_name(ii)}", ii.id, permission_value(@permission_values, ii)
+                label for=("permissions_#{item_id(ii)}")
+

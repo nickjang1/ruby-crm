@@ -1,0 +1,11 @@
+.head
+  %h1 New Room Type
+
+= simple_form_for @room, remote: true do |f|
+  .body
+    = f.input :name
+    = f.input :max_occupancy
+    = f.input :average_occupancy
+    = f.input :min_occupancy
+  .actions
+    = f.button :submit

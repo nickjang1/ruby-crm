@@ -1,0 +1,174 @@
+$bp-maggie: 15em; 
+$bp-lisa: 30em;
+$bp-bart: 48em;
+$bp-marge: 62em;
+$bp-homer: 75em;
+
+$mobile-width: 768px;
+
+.responsive-stacktable {
+  width: 100%;
+  margin-bottom: 10px;
+  
+  @media (min-width: $mobile-width) {
+    font-size: 13px; 
+  }
+  
+  @media (max-width: $mobile-width) {
+    font-size: 12px; 
+  }
+  
+  thead {
+    // Accessibly hide <thead> on narrow viewports
+    position: absolute;
+    clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+    clip: rect(1px, 1px, 1px, 1px);
+    padding: 0;
+    border: 0;
+    height: 1px; 
+    width: 1px; 
+    overflow: hidden;
+    
+    @media (min-width: $mobile-width) {
+      // Unhide <thead> on wide viewports
+      position: relative;
+      clip: auto;
+      height: auto;
+      width: auto;
+      overflow: auto;
+    }
+    
+    th {
+      background-color: #ddd;
+      font-weight: normal;
+      text-align: center;
+      color: white;
+      
+      &:first-of-type {
+        text-align: left; 
+      }
+    }
+  }
+  
+  // Set these items to display: block for narrow viewports
+  tbody,
+  tr,
+  th,
+  td {
+    display: block;
+    padding: 0;
+    text-align: left;
+    white-space: normal;
+  }
+  
+  tr {   
+    @media (min-width: $mobile-width) {
+      display: table-row; 
+    }
+  }
+  
+  th,
+  td {
+    padding: 5px !important;
+    vertical-align: middle;
+    
+    @media (min-width: $mobile-width) {
+      // Undo display: block 
+      display: table-cell;
+      padding: 10px !important;
+    }
+  }
+  
+  tbody {
+    @media (min-width: $mobile-width) {
+      display: table-row-group; 
+    }
+    
+    tr {
+      margin-bottom: 1em;
+      border: 1px solid #ddd;
+      
+      @media (min-width: $mobile-width) {
+        // Undo display: block 
+        display: table-row;
+      }
+      
+      &:last-of-type {
+        margin-bottom: 0; 
+      }      
+    }
+    
+    th[scope="row"] {
+      background-color: #ddd;
+      color: white;
+      
+      @media (min-width: $mobile-width) {
+        background-color: transparent;
+        color: #666;
+        text-align: left;
+      }
+    }
+    
+    td {
+      text-align: right;
+      .form-group {
+        margin-right: -4px;
+        @media (min-width: $mobile-width) {
+          margin-right: -15px;
+        }
+        
+        @media (max-width: $mobile-width) {
+          span.form-control-feedback {
+            left: auto !important;
+            right: 69px !important;
+            top: -2px;
+          }
+        }
+      }
+      
+      .form-group > span {
+        @media (max-width: $mobile-width) {
+          padding-right: 10px;
+        }
+      }
+      
+      @media (min-width: $mobile-width) {
+        text-align: center; 
+      }
+
+      @media (max-width: $mobile-width) {
+        width: 100%;
+        span.item-name {
+          padding-left: 40px;
+        }
+        span.unit-format {
+          margin-left: 5px;
+        }
+        span.purchase-unit-name {
+          padding-top: 4px;
+          display: inline-block;
+        }
+      }
+    }
+    
+    td[data-type=currency] {
+      text-align: right; 
+    }
+
+    td.skip-inv-cell {
+      min-height: 26px;
+    }
+    
+    td[data-title]:before {
+      content: attr(data-title);
+      float: left;
+      font-size: .8em;
+      color: #666;
+      
+      @media (min-width: $mobile-width) {
+        // Don’t show data-title labels 
+        content: none; 
+      }
+    } 
+  }
+}

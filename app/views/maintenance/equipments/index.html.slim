@@ -1,0 +1,75 @@
+- body_class 'equipment-selection-page'
+
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold Equipment Maintenance
+
+.row
+  .col-sm-12.col-md-12
+    .panel.panel-default
+      .panel-heading
+        h3.panel-title Choose the Equipment to Maintain
+      .panel-body
+        .row
+          .col-sm-12
+            .btn-group.pull-right
+              = link_to 'Equipments Remaining', 'javascript:void(0)', class: 'btn btn-primary', data: { filter_type: 'remaining' }
+              - if Maintenance::MaintenanceRecord.for_equipments.in_progress.count > 0
+                = link_to 'In Progress', 'javascript:void(0)', class: 'btn btn-default', data: { filter_type: 'in_progress' }
+        br
+        .row
+          .col-sm-12
+            table.table.table-bordered.table-hover.selection-table#equipment-selection-table
+              thead.hidden
+                tr
+                  th Equipments
+              tbody
+          .indicator
+            span.spinner
+script#equipment-type-template type="x-tmpl-mustache"
+  table.table-condensed.table-bordered.nm.equipment-type-table.selection-detail-table
+    | {{#active_equipments}}
+    tr.equipment-item data-id="{{id}}"
+      td
+        | {{name}} ({{location}})
+      td.text-center.selection-actions
+        = link_to 'Start PM', 'javascript:void(0)', class: 'btn btn-success btn-outline start-maintenance'
+    | {{/active_equipments}}
+
+script#equipment-type-in-progress-template type="x-tmpl-mustache"
+  table.table-condensed.table-bordered.nm.equipment-type-table.selection-detail-table
+    | {{#equipments_in_progress}}
+    tr.equipment-item data-id="{{id}}"
+      td
+        | {{name}} ({{location}}) - {{group_name}}
+      td.text-center.selection-actions
+        = link_to 'Continue PM', '{{maintenance_path}}', class: 'btn btn-success btn-outline start-maintenance continue'
+    | {{/equipments_in_progress}}
+
+#equipment-modal.modal.fade
+  .modal-dialog
+
+script#equipment-modal-template type="x-tmpl-mustache"
+  .modal-content
+    .modal-header
+      .cell.text-center
+        button.close data-dismiss="modal" type="button" ×
+        h4.semibold.text-primary.modal-title Choose Checklist to Maintain
+    .modal-body
+      table.table.table-hover.table-bordered.table-checklist-groups
+        tbody
+          | {{#checklist_groups}}
+          tr data-in-progress="{{in_progress}}" class="checklist-group-item {{#in_progress}}in-progress{{/in_progress}}"
+            td width="3%"
+              .checkbox.custom-checkbox.nm
+                input type="checkbox" id="checklist-group-{{id}}" data-toggle="selectrow" data-target="tr" data-contextual="success" data-group-id="{{id}}"
+                label for="checklist-group-{{id}}"
+            td
+              | {{name}}
+              | {{#in_progress}}
+              | &nbsp;(in progress)
+              | {{/in_progress}}
+          | {{/checklist_groups}}
+    .modal-footer
+      button.btn.btn-default.btn-expanded data-dismiss="modal" type="button" Cancel
+      button.btn.btn-primary.btn-expanded id="start-maintenance" disabled="disabled" Start PM

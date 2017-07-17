@@ -1,0 +1,20 @@
+tr
+  td
+    .checkbox.custom-checkbox.nm
+      = check_box_tag :selected_item_ids, item.id, false, { id: "customcheckbox-item-#{item.id}", data: {toggle: 'selectrow', target: 'tr', contextual: 'success'} }
+      label for="customcheckbox-item-#{item.id}"
+  td= item.number
+  td
+    = render 'shared/open_pr_po_for_item', item: item
+    = link_to item.name, edit_item_path(item)
+  td= humanized_unit_format item.unit
+  td.text-center
+    = item.par_level
+    br
+    = humanized_unit_format item.inventory_unit unless item.par_level.blank?
+  td
+    - vendor_to_display = item.vendor_items.select(&:preferred).first.try(:vendor) || item.vendors.first
+    = vendor_to_display.try(:name)
+    - if item.vendors.count > 1
+      br
+      = raw t('.more_vendors', count: item.vendors.count - 1)

@@ -1,0 +1,10 @@
+= breadcrumb link_to('Home', root_path), link_to('Requests', purchase_requests_path), @purchase_request.id
+
+%h2
+  Purchase Request
+  = @purchase_request.number
+%dl.dl-horizontal
+  %dt User
+  %dd= @purchase_request.user.try(:name)
+  %dt Status
+  %dd= @purchase_request.state

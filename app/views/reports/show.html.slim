@@ -1,0 +1,5 @@
+#report-content
+
+- content_for :js do
+  javascript:
+    $('#report-content').load(Routes.report_path("render/#{params[:id]}", #{raw params.to_json}))

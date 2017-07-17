@@ -1,0 +1,10 @@
+!!!
+%html.backend
+  %head
+    = wicked_pdf_stylesheet_link_tag 'pdf', media: 'all'
+    = wicked_pdf_javascript_include_tag 'adminre_theme_v120/library/modernizr/js/modernizr.min'
+  %body.print
+    %section#main{:role => "main"}
+      .container-fluid
+        = yield
+    = wicked_pdf_javascript_include_tag 'pdf'

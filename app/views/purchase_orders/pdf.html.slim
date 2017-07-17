@@ -1,0 +1,92 @@
+.row
+  .col-lg-12
+    .table-layout
+      .col-lg-12.panel.widget.valign-top.pt15
+        h4.semibold.mb0.mt15.text-center Purchase Order
+        ul.list-table.pa15
+          li.text-left
+            h4.semibold.mb0.mt5.hotel-name= @purchase_order.user.default_hotel_name
+            p.mt5
+              address
+                = @purchase_order.property.street_address
+                br
+                = (@purchase_order.property.city || '') + ' ' + (@purchase_order.property.zip_code || '')
+                br
+                = 'Phone: ' + @purchase_order.property.phone if @purchase_order.property.phone.present?
+                br
+                = 'Fax: ' + @purchase_order.property.fax if @purchase_order.property.fax.present?
+          li.text-right
+            table.pull-right
+              tr
+                td.text-right Requested Delivery:
+                td.pl5.text-left= l(@purchase_order.created_at, format: :short)
+              tr
+                td.text-right Client #:
+                td.pl5.text-left= @purchase_order.vendor.id
+              - if @purchase_order.sent?
+                tr
+                  td.text-right Sent On:
+                  td.pl5.text-left= l(@purchase_order.sent_at, format: :short)
+
+      .col-lg-12.panel.widget
+        .panel-body
+          ul.list-table
+            li.text-left.valign-top
+              h4.semibold.nm To:
+              p.semibold.text-muted.nm
+                address
+                  = @purchase_order.vendor.contact_name
+                  br
+                  = @purchase_order.vendor.name
+                  br
+                  = @purchase_order.vendor.street_address
+                  br
+                  = (@purchase_order.vendor.city || '') + ' ' + (@purchase_order.vendor.zip_code || '')
+            li.text-right.valign-top
+              h4.semibold.nm Ship To:
+              p.semibold.text-muted.nm
+                address
+                  = @purchase_order.property.contact_name
+                  br
+                  = @purchase_order.property.name
+                  br
+                  = @purchase_order.property.street_address
+                  br
+                  = (@purchase_order.property.city || ' ') + ' ' + (@purchase_order.property.zip_code || '')
+                  br
+                  = 'Phone: ' + @purchase_order.property.phone if @purchase_order.property.phone.present?
+        hr.nm
+          .panel-body
+            ul.list-table
+              li.text-left
+              li.text-right
+                p.semibold.text-primary.nm Purchase Order: #{@purchase_order.number}
+          table.table
+            thead
+              tr
+                th width="5%" SKU
+                th Item Description
+                th.text-center width="25%"  Price / Unit
+                th.text-center width="15%"  Quantity
+                th.text-center width="15%"  Total
+            tbody
+              - ItemOrderDecorator.decorate_collection(@purchase_order.item_orders).each do |io|
+                tr
+                  td.valign-middle.text-center= io.sku
+                  td
+                    h5.semibold.mt0.mb5= io.item.try :name
+                  td.valign-top.text-center
+                    span
+                      span= io.price
+                      br
+                      span= io.purchase_unit
+                  td.valign-middle.text-center
+                    span.bold= io.quantity
+                  td.valign-middle.text-center
+                    span.text-primary= io.total
+          .panel-footer
+            ul.list-table.pa10
+              li
+                h5.semibold.nm SUB TOTAL EXCLUDING TAXES
+              li.text-right
+                h3.semibold.nm= @purchase_order.total_price

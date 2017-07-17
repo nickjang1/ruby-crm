@@ -1,0 +1,59 @@
+- body_class 'messaging-enabled-form'
+
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold.clearfix
+      span.pull-left= t('.title', number: @purchase_request.number)
+      = render partial: 'shared/messages', locals: {model: @purchase_request, add_message: false}
+      .pull-right
+        input#commit type='hidden' name='commit'
+        input#print type='hidden' name='print'
+        input#message-ids type='hidden' name='message_ids'
+
+.panel.panel-default
+  table.searchable-table.table.ordered-request-table
+    thead
+      tr
+        th.width-min200.text-center= t('.order_number_vendor')
+        th.text-center= t('.item_number')
+        th.width-min200= t('.item_name')
+        th.text-center= t('.on_hand_qty')
+        th.text-center= t('.request_quantity')
+        th.text-right= t('.purchase_price')
+        th.text-center= t('.total_item_cost')
+    tbody
+      - @item_requests_grouped.sort.each_with_index do |(order_number, irs), i|
+        - irs.each_with_index do |ir, index|
+          tr
+            - if index == 0
+              td.text-center.border-right rowspan=(irs.count)
+                span.text-muted= ir.order_number
+                br
+                span= ir.item.vendors.first.try(:name)
+            td.text-center
+              span= ir.item.number
+            td
+              = ir.item.try :name
+            td.text-center
+              - unless ir.skip_inventory?
+                = quantity_format ir.count
+                br
+                = humanized_unit_format ir.item.inventory_unit
+              - else
+                span.badge.badge-danger= t('.skipped')
+            td.text-center
+              = quantity_format ir.quantity || 0
+              br
+              = humanized_unit_format ir.item.unit
+            td.text-right= humanized_currency_format(ir.item.price)
+            td.text-center
+              span.text-primary.bold= humanized_currency_format(ir.total_item_price)
+
+  .row
+    .col-md-12
+      .panel-footer
+        .list-table.pa10
+            li
+              h5.semibold.nm= t('.total_price')
+            li.text-right
+              h3.semibold.nm.text-primary= humanized_currency_format(@purchase_request.total_price)

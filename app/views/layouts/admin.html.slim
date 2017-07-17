@@ -1,0 +1,29 @@
+doctype html
+html.backend
+  head
+    meta charset="utf-8" /
+    meta content="IE=edge" http-equiv="X-UA-Compatible" /
+    title Lodgistics
+    meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" /
+    link href="../image/touch/apple-touch-icon-144x144-precomposed.png" rel="apple-touch-icon-precomposed" sizes="144x144" /
+    link href="../image/touch/apple-touch-icon-114x114-precomposed.png" rel="apple-touch-icon-precomposed" sizes="114x114" /
+    link href="../image/touch/apple-touch-icon-72x72-precomposed.png" rel="apple-touch-icon-precomposed" sizes="72x72" /
+    link href="../image/touch/apple-touch-icon-57x57-precomposed.png" rel="apple-touch-icon-precomposed" /
+    = favicon_link_tag 'adminre_theme_v120/image/favicon.ico'
+    = stylesheet_link_tag 'admin'
+    = javascript_include_tag 'adminre_theme_v120/library/modernizr/js/modernizr.min'
+    = csrf_meta_tags
+
+  body class=(yield(:body_class))
+    .alert-messages data-messages=(flash.to_hash.except(:sticky_messages).to_a.to_json) data-messages-sticky=(flash[:sticky_messages].to_a.to_json)
+
+    = render 'layouts/admin/header'
+    = render 'layouts/admin/sidebar_left'
+    section#main role="main"
+      .container-fluid= yield
+      a.totop.animation data-hideanim="bounceOut" data-offset="50%" data-showanim="bounceIn" data-toggle="waypoints totop" href="#"
+        i.ico-angle-up
+    aside.sidebar.sidebar-right
+
+    = javascript_include_tag 'admin'
+    = yield :js

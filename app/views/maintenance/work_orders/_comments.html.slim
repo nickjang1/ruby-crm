@@ -1,0 +1,60 @@
+#wo-new-message.clearfix
+  .form-group
+    textarea id="message-body" class="form-control" rows=3 placeholder="Write your comment" required=true maxlength="500"
+  .form-group
+    .attachment.pull-left
+      .input-group
+        input.form-control readonly="" type="text" placeholder="Select the file to attach" id="attachment-name"
+          span.input-group-btn
+            .btn.btn-primary.btn-file
+              span.icon.iconmoon-file-3
+              | Browse
+              input type="file" id="message-attachment" name="message-attachment"
+    .save-comment.pull-left
+      a.btn.btn-info Add Comment
+hr
+- messages = model.messages
+- if model.is_a?(Maintenance::WorkOrder) && model.closed? && model.closing_comment.present?
+  - messages.build(user_id: model.closed_by_user_id, body: "(Closing Comment) #{model.closing_comment}", created_at: model.closed_at)
+  - messages = messages.to_a.sort_by(&:created_at).reverse!
+- message_count = messages.count
+#wo-messages data-model-id=(model.id) data-model-type='Maintenance::WorkOrder' data-user-avatar=(current_user.avatar.url) data-user-name=(current_user.name) data-message-count=(message_count)
+  script.mustache-template.message-mustache-template type="x-tmpl-mustache"
+    = link_to "{{message.attachment_url}}", class: 'media border-dotted new message-item', target: '_blank', data: {'created-at' => "{{message.created_time}}"} do
+      span.pull-left
+        img.media-object.img-circle src="{{message.user_avatar}}"
+      span.media-body.pull-left
+        span.media-heading.text-muted= "{{message.user_name}}"
+        span.media-text.nm= "{{{message.body}}}"
+        | {{#message.attachment_exist}}
+        span.media-meta.pull-left
+          i.ico-attachment
+        span.media-meta.pull-left
+          span.label.label-success= "{{message.attachment_type}}"
+          '
+          | {{message.attachment_filename}}
+        | {{/message.attachment_exist}}
+        span.media-meta.message-created-at.pull-right= "{{message.created_at}} ago"
+
+  .indicator.inline.hide
+    span.spinner
+  .media-list data-message-count=(message_count)
+    - if model.new_record? || message_count == 0
+      .text-center
+        span.no-messages.semibold.title= t('shared.messages.no_messages')
+    - else
+      - messages.each do |msg|
+        = link_to msg.attachment.url || 'javascript:void(0)', class: 'media border-dotted new message-item', target: '_blank', data: {'created-at' => "#{l(msg.created_at, format: :long)}"} do
+          span.pull-left
+            img.media-object.img-circle src=(msg.user_avatar)
+          span.media-body.pull-left
+            span.media-heading.text-muted= msg.user_name
+            span.media-text.nm= raw msg.body.gsub(/\n/, "<br/>")
+            - unless msg.attachment.url.nil?
+              span.media-meta.pull-left
+                i.ico-attachment
+              span.media-meta.pull-left
+                span.label.label-success= msg.attachment.file.extension
+                '
+                | #{msg.attachment.file.filename}
+            span.media-meta.message-created-at.pull-right #{time_ago_in_words(msg.created_at)} ago

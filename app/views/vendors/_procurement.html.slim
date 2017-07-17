@@ -1,0 +1,29 @@
+- body_class 'vendors-procurement-page'
+- procurement_interface = f.object.try(:procurement_interface)
+
+= f.fields_for :procurement_interface_attributes do |ff|
+  = ff.select :interface_type, options_for_select(ProcurementInterface.types_for_select, procurement_interface.try(:interface_type)), { prompt: t('.procurement_selector_placeholder') }, { class: 'form-control', style: 'width: initial;' }
+  = ff.hidden_field :id, value: procurement_interface.try(:id)
+  
+  = ff.fields_for :data do |data_f|
+    - ProcurementInterface::TYPE_SETTINGS.each do |interface_id, setting|
+      .interface-settings.pt10.hidden id=interface_id
+        - setting[:fields].in_groups_of(2, false).each do |group|
+          .row
+            - group.each do |field|
+              .col-md-6
+                label.control-label= t(".#{interface_id}.#{field}")
+                .row.mb10
+                  .col-md-12= data_f.text_field field, placeholder: t(".#{interface_id}.#{field}_placeholder"), value: procurement_interface.try(:data).try(:[], field), class: 'form-control', disabled: update_permission
+
+= content_for :js do
+  coffee:
+    $ ->
+      $('select#vendor_procurement_interface_attributes_interface_type').on('change', ->
+        $('.interface-settings').addClass('hidden').find(":input").prop('disabled', true)
+        selected_val = $(@).val()
+        selected_interface_id = "#" + $(@).val()
+        $(selected_interface_id).removeClass('hidden').find(":input").prop('disabled', false)
+      ).trigger 'change'
+         
+        

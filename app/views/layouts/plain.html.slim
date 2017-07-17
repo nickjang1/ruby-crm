@@ -1,0 +1,20 @@
+doctype html
+html.backend
+  head
+    meta charset="utf-8" /
+    meta content="IE=edge" http-equiv="X-UA-Compatible" /
+    title Lodgistics
+    meta content="pampersdry.info" name="author" /
+    meta content=("Adminre is a clean and flat backend and frontend theme build with twitter bootstrap 3.1.1") name="description" /
+    meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport" /
+    link href="../image/touch/apple-touch-icon-144x144-precomposed.png" rel="apple-touch-icon-precomposed" sizes="144x144" /
+    link href="../image/touch/apple-touch-icon-114x114-precomposed.png" rel="apple-touch-icon-precomposed" sizes="114x114" /
+    link href="../image/touch/apple-touch-icon-72x72-precomposed.png" rel="apple-touch-icon-precomposed" sizes="72x72" /
+    link href="../image/touch/apple-touch-icon-57x57-precomposed.png" rel="apple-touch-icon-precomposed" /
+    = favicon_link_tag 'adminre_theme_v120/image/favicon.ico'
+    = stylesheet_link_tag 'devise'
+    = javascript_include_tag 'adminre_theme_v120/library/modernizr/js/modernizr.min'
+  body
+    section#main role="main"
+      = yield
+    = javascript_include_tag 'devise'

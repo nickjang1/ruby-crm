@@ -1,0 +1,21 @@
+.col-xs-12.col-sm-6.col-md-4.shuffle data-groups=report.groups_as_array
+  .widget.panel class=('favorite' if report.favorited_by?(current_user))
+    =link_to '#', data: { tooltip_active: t('.report_fav'), tooltip_inactive: t('.report_nonfav'), href: favorite_report_path(report), toggle: "tooltip", placement:'left'},
+      class: "favorite panel-ribbon pull-right" do
+        i.ico-heart3
+        i.ico-heart4
+    .panel-body
+      ul.list-unstyled
+        li.text-center
+          h4.semibold.mb0.report-name.search-target= link_to report.name, report_path(report.permalink)
+          br
+          p.nm.text-muted= report.description
+      hr/
+      .mt10.text-muted.text-center
+        -if report.report_runs.present?
+          ' Last run on:
+          strong<>= l(report.last_run_at, format: :short) 
+          ' By:
+          strong<>= report.last_run_by_name
+        - else
+          ' Last run: Never

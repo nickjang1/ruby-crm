@@ -1,0 +1,75 @@
+:a:
+  :name: Food & Beverage
+  :children:
+    :a1:
+      :name: Beverages
+      :items:
+      - Beer
+      - Milk
+      - Soda
+      - Bottled Water
+    :a2:
+      :name: Non-perishables
+      :items:
+      - Salt
+      - Sugar
+      - Black Pepper
+      - Crushed Red Pepper
+    :a3:
+      :name: Perishables
+      :children:
+        :a31:
+          :name: Fruits
+          :items:
+          - Apple
+          - Banana
+          - Strawberry
+          - Mango
+          - Pineapple
+        :a32:
+          :name: Vegetables
+          :items:
+          - Carrot
+          - Pumpkin
+          - Cucumber
+        :a33:
+          :name: Meats
+          :items:
+          - Beef
+          - Chicken Breast
+          - Pork
+:b:
+  :name: Housekeeping
+  :children:
+    :b1:
+      :name: Linens
+      :items:
+      - Bath towel
+      - Hand towel
+      - Fitted sheet
+      - Bed sheet
+      - Bed skirt
+    :b2:
+      :name: Bathroom Supplies
+      :items:
+      - Shampoo
+      - Hand soap
+      - Body lotion
+      - Conditioner
+    :b3:
+      :name: Tools
+      :items:
+      - Broom
+:c:
+  :type: Location
+  :name: Storage Room 1
+  :children:
+    :c1:
+      :type: Location
+      :name: Fridge
+    :c2:
+      :type: Location
+      :name: Shelves
+:d:
+  :type: Location
+  :name: Storage Room 2

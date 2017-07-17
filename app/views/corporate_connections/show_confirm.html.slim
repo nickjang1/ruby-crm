@@ -1,0 +1,21 @@
+.panel.panel-default
+  .panel-heading
+    h4.panel-title= t('.connect')
+  = render 'steps_indicator', step: 2
+  .panel-body
+    strong.text-primary= t('.confirm_corp')
+    br
+    strong.text-muted= t('.verify_details')
+    hr
+
+    = render 'details', connection: @connection, user: @connection.corp_user
+        
+
+  .panel-footer
+    = form_for @connection, url: corporate_connections_path do |f|
+      = hidden_field_tag :reject, true
+      button.pull-left.btn.btn-danger= t('.cancel')
+
+    = form_for @connection, url: corporate_connections_path do |f|
+      = hidden_field_tag :approve, true
+      button.pull-right.btn.btn-success= t('.confirm')

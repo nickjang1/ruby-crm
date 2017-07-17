@@ -1,0 +1,20 @@
+- content_for :page_heading do
+  | Login to Lodgistics Admin
+
+= simple_form_for resource, as: resource_name, url: session_path(resource_name), html: {class: 'panel', name: 'form-login'} do |f|
+  .panel-body
+    = render 'layouts/admin/alerts', locals: {flash: flash}
+    .form-group
+      .form-stack.has-icon.pull-left
+        = f.text_field :email, :placeholder => "Email", :class => 'form-control input-lg', data: {'parsley-required' => "", 'parsley-error-message' => 'Please fill in your email', 'parsley-errors-container' => "#error-container"}
+        i.ico-user2.form-control-icon
+      .form-stack.has-icon.pull-left
+        = f.password_field :password, :placeholder => "Password", :class => 'form-control input-lg', data: {'parsley-required' => "", 'parsley-error-message' => 'Please fill in your password', 'parsley-errors-container' => "#error-container"}
+        i.ico-lock2.form-control-icon
+    #error-container.mb15
+    .form-group
+      .row
+        .col-xs-6.text-right style=("float: right")
+          = link_to 'Forgot password?', new_admin_password_path
+    .form-group.nm
+      = f.submit :class => "btn btn-block btn-success", :value => "Sign In"

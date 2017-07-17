@@ -1,0 +1,22 @@
+.col-md-6
+  .panel.panel-default.table-wrapper
+    .panel-heading
+      h3.panel-title
+        .title.pull-left
+          = title
+        .table-info.pull-right
+    .table-responsive.panel-collapse.pull.out id=(show_add ? 'excluded' : 'included')
+      table.column-filtering.searchable-table.table.table-hover
+        thead
+          tr
+            td
+              input.form-control name="search_engine" placeholder=("Item Name Filter") type="search" /
+            td
+              input.text-center.form-control name="search_engine" placeholder=("Category Filter") type="search" /
+            td
+          tr
+            th Item Name
+            th.text-center Category
+            th.nosort
+        tbody
+          = render partial: 'item', collection: collection, locals: {show_add: show_add}

@@ -1,0 +1,71 @@
+- body_class 'items-listing-page'
+
+.page-header.page-header-block
+  .page-header-section
+    .actions
+      - if can? :new, Item
+        = link_to new_item_path, class: 'mr10 btn btn-primary' do
+          span.ico-plus-circle2
+          |  #{t('.add_item')}
+      = link_to new_import_items_path, class: 'mr10 btn btn-teal' do
+        span.ico-stack3
+        |  #{t('.import_items')}
+      = link_to '#', id: 'order_selected_items', class: 'mr10 btn btn-success', disabled: true, data: {controller: 'Items'} do
+        span.ico-shopping-cart
+        |  #{t('.order_selected')}
+      - if can? :delete, Item
+        = link_to '#', id: 'delete_selected', class: 'btn btn-danger hidden', disabled: true do
+          span.ico-trash
+          |  #{t('.delete_selected')}
+  .page-header-section
+    .search.col-md-6.col-md-push-6
+      .has-icon
+        input#search-filter.form-control name="datatable-filter" data-search-column="all" placeholder=("Search Items") type="search" /
+        i.ico-search.form-control-icon
+.panel.panel-default
+  .table-wrapper
+    .table-info.text-danger
+    table.searchable-table.table.datatable.table-hover.table-bordered
+      thead
+        tr
+          td
+            input.hidden.form-control placeholder=("Checkbox") type="search" /
+          td width="75px"
+            input.form-control placeholder=("#") data-search-column="number" type="search" /
+          td
+            input.form-control placeholder=("Name") data-search-column="name" type="search" /
+          td width="75px"
+            input.form-control placeholder=("Unit") data-search-column="unit" type="search" /
+          td width="75px"
+            input.form-control placeholder=("Par") data-search-column="par" type="search" /
+          td
+            input.form-control placeholder=("Vendor") data-search-column="vendor" type="search" /
+        tr
+          th.nosort
+            .checkbox.custom-checkbox.nm
+              = check_box_tag :check_all_items, 1, false, { id: "customcheckbox-item-select-all", data: {toggle: 'checkall', target: '.column-filtering'} }
+              label for="customcheckbox-item-select-all"
+          th Item #
+          th Item Name
+          th.nosort 
+            | Purchase
+            br
+            | Unit
+          th.nosort.text-center
+            | PAR
+          th Vendor
+      tbody= render @items
+
+  .panel-toolbar-wrapper
+    .panel-toolbar.relative
+      .pull-right.text-danger= raw t('.showing_x_from_total', loaded: @items.count, total: @total_items_count)
+      #scroll-down-to-load-more.text-muted.text-center= t('.scroll_to_load_more')
+      #loading-next-page-indicator.indicator
+        span.text-muted.spinner-loading= t('.loading')
+        span.spinner
+
+script.mustache-template.items-checkbox type="x-tmpl-mustache"
+  td
+    .checkbox.custom-checkbox.nm
+      input id="customcheckbox-item-{{item.id}}" data-contextual="success" data-target="tr" data-toggle="selectrow" name="selected_item_ids" type="checkbox" value="{{item.id}}"
+      label for="customcheckbox-item-{{item.id}}" 

@@ -1,0 +1,40 @@
+= stylesheet_link_tag "http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css", media: "all"
+- cycleTerm = 'Cycle'
+h3.text-center Guest Room PM Analysis Year Report - #{params[:year]}
+.text-center.report-body
+  .pull-left
+    .r-label Total Rooms: 
+    .r-value= Maintenance::Room.count
+
+    .r-label Completion % (previous): 
+    .r-value #{@results.length == 1 ? 'No Mainteance Data' : "#{@previous_quarter_completion.round}%"}
+  div style="display: inline-block"
+    .r-label Current #{cycleTerm} Completion % : 
+    .r-value #{@current_quarter_completion.round}%
+  .pull-right
+    .r-label Printed On: 
+    .r-value= Date.today.strftime('%d/%m/%Y')
+
+    .r-label Printed By: 
+    .r-value= current_user.name
+- if @results.first && @results.first.present?
+  table#analysis-report-data.table.table-bordered.year
+    tr.text-center
+      - 2.times do
+        td Room
+        - @results.each do |cycle_data|
+          td.value
+            | #{c2q(cycle_data[:ordinality_number])}
+            - if current_cycle.ordinality_number == cycle_data[:ordinality_number].to_i && current_cycle.year == params[:year].to_i
+              br
+              | (Current)
+    - rows = (@rooms.count / 2).ceil
+    - (0..rows).each do |i|
+      tr.text-center
+        td #{@results[0][:data][i][:room_no]}
+        - @results.length.times do |j|
+          td.value #{room_status(@results[j][:data][i])}
+
+        td #{@results[0][:data][i + rows][:room_no] unless @results[0][:data][i + rows].nil?}
+        - @results.length.times do |j|
+          td.value #{room_status(@results[j][:data][i + rows])}

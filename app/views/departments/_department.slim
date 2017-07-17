@@ -1,0 +1,21 @@
+.col-xs-12.col-sm-6.col-md-4.shuffle
+  .widget.panel
+    .row-fluid
+      .col-xs-11
+        .panel-body
+          .semibold
+            h4.search-target= link_to department.name, [:edit, department]
+      
+      .listing-actions
+        - if can? :delete, Department
+          = link_to department, method: :delete, data: { confirm: t('.confirm_delete', name: department.name) }, class: 'activate-inactivate btn btn-danger', rel: 'tooltip', title: 'Inactivate' do
+            i.ico-trash
+    ul.nav.nav-section.nav-justified.mt15
+      li
+        .section
+          h4.nm= department.categories.count
+          p.nm.text-muted categories
+      li
+        .section
+          h4.nm= department.users.count
+          p.nm.text-muted users

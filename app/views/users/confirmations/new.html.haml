@@ -1,0 +1,15 @@
+- content_for :page_heading do
+  Resend confirmation instructions
+= simple_form_for resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post, class: 'form-horizontal' } do |f|
+  .panel-body
+    = render 'layouts/alerts', locals: {flash: flash}
+    = devise_error_messages!
+    .form-group
+      .form-stack.has-icon.pull-left
+        = hidden_field_tag :confirmation_token, @original_token
+        .form-stack.has-icon.pull-left
+          = f.text_field :email, :input_html => {:autofocus => true}, :placeholder => "Email", :class => 'form-control input-lg', :data => { :'parsley-required' => ""}
+          %i.ico-mail2.form-control-icon
+        #error-container.mb15
+        .form-group.nm
+          = f.submit 'Resend confirmation instructions', :class => "btn btn-block btn-primary"

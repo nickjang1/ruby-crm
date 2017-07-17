@@ -1,0 +1,68 @@
+- body_class 'equipment-maintenance-page'
+
+.page-header.page-header-block
+  .page-header-section
+    h4.title.semibold Equipment PM - #{@equipment.name}
+  .page-header-section
+    .actions.pull-right
+      = link_to_with_icon 'ico-clock', t('.continue_later'), maintenance_equipments_path, class: 'btn btn-primary', data: {confirm: t('.continue_later_confirm')}, method: :get
+      '
+      = link_to_with_icon 'ico-close2', t('.cancel'), maintenance_record_path(@record), class: 'btn btn-danger', data: {confirm: t('.cancel_confirm')}, method: :delete
+
+.row
+  .col-sm-12.col-md-12
+    table.table.table-bordered.table-hover.maintenance-table#equipment-maintenance-table data-group-id=(@record.equipment_checklist_group_id) data-type-id=(@equipment.equipment_type_id) data-id=(@equipment.id) data-record-id=(@record.id)
+      thead
+        tr
+          th= @group.name
+          th
+      tbody
+    .indicator
+      span.spinner
+
+script#checklist-item-template type="x-tmpl-mustache"
+  tr data-item-id="{{id}}"
+    td.item-name
+      .text-justify= '{{name}}'
+      | {{#fixed}}
+      dl.dl-horizontal.maintenance-detail
+        dt Fixed:
+        dd.text-justify= '{{comment}}'
+      | {{/fixed}}
+      | {{#issues}}
+      dl.dl-horizontal.work-order-detail
+        dt Work Order:
+        dd &#35;{{work_order.id}}
+      | {{/issues}}
+    td.item-actions
+      = link_to '{{cancel_path}}',
+                class: 'maintenance-action no-issues {{#no_maintenance}}inactive{{/no_maintenance}} {{#no_issues}}active{{/no_issues}}',
+                data: {status: Maintenance::ChecklistItemMaintenance::STATUS_NO_ISSUES, confirm: '{{cancel_confirm_msg}}', remote: true, method: :delete} do
+        i.ico-ok.fa-fw
+      '
+      = link_to '{{cancel_path}}',
+                class: 'maintenance-action issue-fixed {{#no_maintenance}}inactive{{/no_maintenance}} {{#fixed}}active{{/fixed}}',
+                data: {status: Maintenance::ChecklistItemMaintenance::STATUS_FIXED, confirm: '{{cancel_confirm_msg}}', remote: true, method: :delete} do
+        i.ico-wand.fa-fw
+      '
+      = link_to 'javascript:void(0)',
+                class: 'maintenance-action work-order {{#no_maintenance}}inactive{{/no_maintenance}} {{#issues}}active{{/issues}}',
+                data: {status: Maintenance::ChecklistItemMaintenance::STATUS_ISSUES} do
+        i.ico-tools.fa-fw
+
+#equipment-maintenance-comment-modal.modal.fade
+  .modal-dialog
+    form.modal-content id="equipment-fixed-form" data-parsley-validate=true
+      = render 'maintenance/shared/request_wo_modal_content'
+
+#equipment-maintenance-completed-modal.modal.fade
+  .modal-dialog
+    = form_for @record, url: maintenance_record_path(@record), html: {class: 'modal-content'} do |f|
+      .modal-header
+        .cell.text-center
+          h4.semibold.text-primary.modal-title= t('.maintenance_completed_header')
+      .modal-body
+        = f.hidden_field :status, value: Maintenance::MaintenanceRecord::STATUS_FINISHED
+        p#maintenance-information
+      .modal-footer
+        = f.submit 'OK', class: 'btn btn-primary btn-expanded'

@@ -1,0 +1,22 @@
+.page-header.page-header-block
+  .page-header-section
+    - if can? :create, Vendor
+      = link_to new_vendor_path, class: 'btn btn-primary' do
+        span.ico-plus-circle2
+        |  Add Vendor
+
+  .page-header-section
+    .toolbar.clearfix
+      .col-xs-5
+        .btn-group
+          = link_to vendors_path, class: ('btn ' +  ('deleted' == params[:scope] ? 'btn-default': 'btn-success')) do
+            | Active
+          = link_to vendors_path(:scope => 'deleted'), class: ('btn ' +  ('deleted' == params[:scope] ? 'btn-success': 'btn-default')) do
+            | Inactive 
+      .col-xs-6.col-xs-push-1
+        .has-icon
+          input#shuffle-filter.form-control name="shuffle-filter" placeholder=("Search vendors") type="search" /
+          i.ico-search.form-control-icon
+
+#shuffle-grid.row
+  = render @vendors

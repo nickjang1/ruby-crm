@@ -1,0 +1,106 @@
+- body_class 'item-form'
+
+= simple_form_for @item, html: {class: "item-form items #{ 'locked' unless can?(:change, @item) }", 'data-parsley-validate' => true } do |f|
+  - if can? :change, @item
+    .page-header.page-header-block
+      .page-header-section
+      .page-header-section
+        .toolbar.clearfix
+          .col-md-6.col-md-push-6
+            .btn-group.narrow-dropdown.pull-right
+              = f.submit class: 'btn btn-success'
+              - unless @item.new_record?
+                a.btn.btn-success.dropdown-toggle data-toggle="dropdown"  
+                  span.caret
+                - if false
+                  ul.dropdown-menu role="menu"
+                    li
+                      = link_to @item, method: :delete, data: { confirm: t('.confirm_delete')}, rel: 'tooltip' do
+                        i.ico-trash
+                        '
+                        = t('.remove_item')
+  
+  .panel.panel-default
+    .panel-body
+      .row
+        .col-md-6
+          .form-group
+            - unless @item.new_record?
+              h5= "##{ @item.number }"
+            = f.input :name, label: false, autofocus: true, wrapper_html: {class: 'mb10'}, input_html: { placeholder: t('.name_placeholder'), class: 'form-control', required: true }
+
+            = f.association :brand, wrapper_html: {class: 'mb10'}, prompt: t('.brand_placeholder'), label: false, input_html: { class: 'form-control' }
+
+            = f.input :description, label: false, input_html: { placeholder: t('.description_placeholder'), id: 'description-input', class: 'form-control' }
+        .col-md-6.left-border.form-horizontal
+          .form-group
+            .col-md-12
+              .row.mb10
+                label.control-label.col-md-4= raw t('.purchased_as')
+                = f.association :unit, label: false, wrapper_html: {class: 'col-md-8'}, input_html: { required: true, id: 'purchased-as', class: 'form-control input-sm' }
+              .row#pack
+                label.control-label.col-md-4 PACK
+                = f.input :pack_size, as: :string, label: false, wrapper_html: { class: 'col-md-3 mb10' }, input_html: { id: 'pack-size', placeholder: t('.pack_size_placeholder'), class: 'form-control input-sm numeric-input' }
+                = f.association :pack_unit, label: false, wrapper_html: {class: 'col-md-5 mb10'}, input_html: { id: 'pack-unit', class: 'form-control input-sm' }
+              .row#subpack
+                label.control-label.col-md-4 SUBPACK
+                = f.input :subpack_size, as: :string, label: false, wrapper_html: { class: 'col-md-3 mb10' }, input_html: { id: 'subpack-size', placeholder: t('.pack_size_placeholder'), class: 'input-sm form-control numeric-input' }
+                = f.association :subpack_unit, label: false, wrapper_html: {class: 'col-md-5 mb10'}, input_html: { id: 'subpack-unit', class: 'input-sm form-control' }
+            hr.col-md-12
+          .form-group.pt10
+            .col-md-12
+              .row
+                label.control-label.col-md-4= raw t('.purchase_price')
+                = f.input :purchase_cost, label: false, wrapper_html: { class: 'col-md-3 mb10' } do
+                  .input-group
+                    span.input-group-addon $
+                    = f.input_field :purchase_cost, as: :string, class: 'input-sm form-control currency-input'
+                = f.association :price_unit, prompt: t('.select_unit_prompt'), label: false, wrapper_html: {class: 'mb10 col-md-5'}, required: true, input_html: { id: 'purchase-cost-unit', class: 'input-sm form-control' }
+
+              .row.mb10
+                label.control-label.col-md-4= raw t('.inventoried_as')
+                = f.association :inventory_unit, label: false, wrapper_html: {class: 'col-md-8'}, input_html: { required: true, id: 'inventory-unit', class: 'input-sm form-control' }
+              .row
+                label.control-label.col-md-4= t('.par')
+                = f.input :par_level, as: :string, label: false, wrapper_html: { class: 'col-md-3 mb10' }, input_html: { class: 'input-sm form-control numeric-input' }
+                .col-md-5#par-units EACH
+
+      .row
+        hr.nm
+      .row
+        .col-md-6.pt10.form-horizontal
+          .form-group
+            .col-md-12
+              .row.mb10
+                label.control-label.col-md-4.text-left=raw t('.category')
+                = f.input :category_ids, collection: @categories.map{ |c| [c.plain_text_node, c.id] }, wrapper_html: {class: 'col-md-8'}, prompt: t('.category_placeholder'), label: false, input_html: { class: 'form-control', required: true }
+              .row.mb10
+                label.control-label.col-md-4.text-left= t('.locations')
+                .col-md-8
+                  = f.input_field :location_ids, multiple: true, collection: Location.roots_and_descendants_preordered.map{ |c| [c.plain_text_node, c.id] }, class: 'selectize'
+
+        .col-md-6.pt10.form-horizontal.left-border
+          .row
+            .col-md-6
+              .row
+                label.control-label.col-md-6= t('.is_taxable')
+                .col-md-6
+                  = f.input :is_taxable, prompt: "SELECT", label: false, collection: [["Yes", true],["No", false]], input_html: { class: 'form-control' }
+            
+            .col-md-6
+              .row
+                label.control-label.col-md-6= t('.is_asset')
+                .col-md-6
+                  = f.input :is_asset, prompt: "SELECT", label: false, collection: [["Yes", true],["No", false]], input_html: { class: 'form-control' }
+      .row
+        .col-md-12
+          h3
+            | Vendors
+            - if can? :change, @item
+              a.btn.btn-primary.btn-xs.pull-right#add_vendor ADD VENDOR
+          #vendors
+            = f.simple_fields_for :vendor_items do |vendor_items_form|
+              = render 'vendor_fields', f: vendor_items_form, id: SecureRandom.uuid
+
+  #units data-values="#{ Unit.pluck(:id, :name).to_json }"
+  #item-id data-value="#{ @item.id }"

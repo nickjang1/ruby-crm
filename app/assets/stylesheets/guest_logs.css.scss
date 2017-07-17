@@ -1,0 +1,128 @@
+// Place all the styles related to the guest_logs controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+.note-editor .note-editable {
+  overflow: hidden;
+}
+
+[contenteditable='true']:empty:not(:focus):before{
+  content: attr(data-placeholder);
+  color: #aaa;
+}
+.guest-logs-container > .panel {
+  border-bottom: none;
+  .fc-toolbar {
+    padding: 10px 10px 7px;
+  }
+  .fc-button {
+    border-radius: 4px;
+  }
+}
+
+.guest-logs {
+  .panel {
+    margin-bottom: 2px;
+    .ico-quotes-left + div, .ico-quotes-right{
+      margin-top: -5px;
+    }
+    .log-footer {
+      margin-top: 10px;
+      font-size: 9px;
+    }
+    & > .panel-ribbon {
+      width: 50px;
+      height: 50px;
+      &:after {
+        border-width: 0 50px 50px 0;
+      }
+
+      & > [class^="ico-"] {
+        font-size: 18px;
+        line-height: 18px;
+        width: 18px;
+      }
+      i.ico-heart4 {
+        display: inline-block;
+        &:hover {
+          color: #dd172f;
+        }
+      }
+      i.ico-heart3 {
+        display: none;
+      }
+    }
+    .panel-body {
+      padding: 10px;
+    }
+
+    .img-group > img, .img-group > .more {
+      width: 30px;
+      height: 30px;
+    }
+
+    .liked {
+      i.ico-heart4 {
+        display: none;
+      }
+      i.ico-heart3 {
+        display: inline-block;
+        color: #dd172f;
+      }
+    }
+  }
+}
+
+.guest-logs-wrapper {
+  position: relative;
+}
+
+.note-editor {
+  .btn {
+    padding: 10px;
+  }
+  .btn:not(.dropdown-toggle) {
+    min-width: 40px;
+  }
+  .note-statusbar {
+    display: none;
+  }
+}
+.label-datepicker {
+  width: 242px;
+  font-size: 24px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+@media screen and (min-width: 480px) and (max-width: 768px) {
+  .search-container {
+    width: calc(100% - 100px);
+    .has-icon {
+      width: 250px;
+      float: right !important;
+    }
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .search-container {
+    width: calc(100% - 100px);
+  }
+}
+
+.btn-disabled {
+  pointer-events: none;
+}
+
+.alarms {
+  .table > tbody > tr > td {
+    vertical-align: top;
+    padding-left: 7px;
+    padding-right:3px;
+    &.alarm-time {
+      font-size: 14px;
+    }
+  }
+}

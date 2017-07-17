@@ -1,0 +1,27 @@
+%h2
+  Menu
+%ul.nav
+  %li{ class: conditional_class({class: 'active', if: params[:controller] == 'pages' && params[:action] == 'dashboard'}) }
+    = link_to_with_icon 'icon-dashboard', 'Dashboard', dashboard_path
+  %li.wrap
+    = link_to_with_icon 'icon-wrench', 'Maintenance', '#'
+    %ul{ class: 'subnav' }
+      %li{ class: conditional_class({class: 'active', if: params[:controller] == 'users'}) }
+        = link_to_with_icon 'icon-user', 'Users', users_path
+      %li{ class: conditional_class({class: 'active', if: params[:controller] == 'vendors'}) }
+        = link_to_with_icon 'icon-truck', 'Vendors', vendors_path
+      %li{ class: conditional_class({class: 'active', if: params[:controller] == 'categories'}) }
+        = link_to_with_icon 'icon-sitemap', 'Categories', categories_path
+      %li{ class: conditional_class({class: 'active', if: params[:controller] == 'locations'}) }
+        = link_to_with_icon 'icon-key', 'Locations', locations_path
+  %li.wrap{ class: conditional_class({class: 'active', if: params[:controller] == 'lists'}) }
+    = link_to_with_icon 'icon-list-ul', 'Lists', lists_path
+    %ul{ class: 'subnav' }
+      %li{ class: conditional_class({class: 'active', if: params[:controller] == 'lists'}) }
+        = link_to_with_icon 'icon-plus', 'New List', new_list_path
+  %li{ class: conditional_class({class: 'active', if: params[:controller] == 'items'}) }
+    = link_to_with_icon 'icon-shopping-cart', 'Items', items_path
+  %li{ class: conditional_class({class: 'active', if: params[:controller] == 'purchase_requests'}) }
+    = link_to_with_icon 'icon-exchange', 'Requests', purchase_requests_path
+  %li{ class: conditional_class({class: 'active', if: params[:controller] == 'purchase_orders'}) }
+    = link_to_with_icon 'icon-check', 'Orders', purchase_orders_path

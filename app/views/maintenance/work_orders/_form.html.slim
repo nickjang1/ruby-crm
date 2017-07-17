@@ -1,0 +1,116 @@
+.modal-body.pa10.pb0
+  ul.nav.nav-tabs.custom-tabs
+    li.active role="presentation"
+      a href=".detail" role="tab" data-toggle="tab"
+        span.ico-file
+        span  Detail
+    - unless @work_order.new_record?
+      li role="presentation"
+        a href=".comments" role="tab" data-toggle="tab"
+          span.ico-bubbles3
+          span  Comments &nbsp;
+          - messages_count = @work_order.messages.count
+          - if @work_order.closed? && @work_order.closing_comment.present?
+            - messages_count = messages_count + 1
+          span#wo-message-count.label-primary.badge= messages_count
+      li role="presentation"
+        a href=".materials" role="tab" data-toggle="tab"
+          span.ico-stack3
+          '
+          span Materials
+  .tab-content
+    .detail.tab-pane.active
+      = simple_form_for @work_order, html: {class: "detail-form", id: 'new-wo-form', data: { 'parsley-validate' => true, 'parsley-excluded' => "[disabled]", 'new-wo' => @work_order.new_record? }.merge(work_order_form_data_attributes(@work_order)) } do |f|
+        .tab-pane-content
+          .form-group
+            label.control-label= raw t('.description')
+            = f.input_field :description, as: :text, label: false, placeholder: new_work_order_description_placeholder, class: 'form-control', required: true, rows: 4
+          .row.mb5
+            .col-xs-6
+              label.control-label= raw t('.wo_location')
+              = select_tag 'maintenance_work_order[maintainable_type]', options_for_select(Maintenance::WorkOrder::MAINTEINABLE_TYPES.map{ |mt| [mt.demodulize.titleize, mt] } + ["Other"], f.object.maintainable_type),
+                prompt: "Select", class: 'form-control input-sm locked-for-editing', required: true, 'data-parsley-group' => 'main'
+            .col-xs-6
+              // maintainable selectors
+              .hidden data-location-type="Maintenance::Room"
+                label.control-label= raw t('.room')
+                = f.input_field :maintainable_id, as: :select, collection: Maintenance::Room.all, prompt: "Select room", class: 'form-control input-sm locked-for-editing', required: true
+
+              .hidden data-location-type="Maintenance::PublicArea"
+                label.control-label
+                  = raw t('.location')
+                  span.text-danger *
+                = f.input_field :maintainable_id, as: :select, collection: @work_order.new_record? ? Maintenance::PublicArea.active : Maintenance::PublicArea.all, prompt: "Select public area", class: 'form-control input-sm locked-for-editing', required: true
+
+              .hidden data-location-type="Maintenance::Equipment"
+                label.control-label= raw t('.equipment')
+                - if @work_order.new_record?
+                  = f.select :maintainable_id, grouped_options_for_select(Maintenance::EquipmentType.for_work_order_select), {prompt: "Select equipment"}, class: 'form-control locked-for-editing input-sm', required: true
+                - else
+                  = f.grouped_collection_select :maintainable_id, Maintenance::EquipmentType.all, :equipments, :name, :id, :name, {prompt: "Select equipment"}, class: 'form-control locked-for-editing input-sm', required: true
+              .hidden data-location-type="Other"
+                label.control-label= raw t('.other_location')
+                = f.input_field :other_maintainable_location, class: 'form-control input-sm', required: true
+
+          // checklist item selectors:
+          = f.fields_for :checklist_item_maintenance do |cim_form|
+            = cim_form.hidden_field :id
+            .hidden.mb5 data-location-type="Maintenance::Room"
+              label.control-label= t('.checklist_item')
+              = cim_form.grouped_collection_select :maintenance_checklist_item_id, Maintenance::ChecklistItem.room_areas, :checklist_items, :name, :id, :name, {prompt: "Select checklist item"}, class: 'form-control locked-for-editing input-sm'
+
+            .hidden.mb5 data-location-type="Maintenance::PublicArea"
+              label.control-label= t('.checklist_item')
+              - if f.object.new_record?
+                = cim_form.select :maintenance_checklist_item_id, [], {prompt: "Select location first"}, class: 'form-control locked-for-editing input-sm', id: 'public-area-checklist-item'
+              - else
+                = cim_form.grouped_collection_select :maintenance_checklist_item_id, Maintenance::PublicArea.all, :maintenance_checklist_items, :name, :id, :name, {prompt: "Select checklist item", include_blank: 'Select checklist item'}, class: 'form-control locked-for-editing input-sm'
+
+          .row.mb5
+            .col-xs-6
+              label.control-label= raw t('.priority')
+              = f.select :priority, options_for_select(Maintenance::WorkOrder::PRIORITIES.map{ |mt| [mt.titleize, mt.first] }, f.object.priority), {},  class: 'form-control input-sm priority'
+            .col-xs-6
+              label.control-label= raw t('.status')
+              = f.select :status, options_for_select(Maintenance::WorkOrder::STATUSES.map{ |st| [work_order_status_labels[st], st] }, f.object.status), {},  class: 'status-input form-control input-sm status'
+
+          .row.mb5
+            .col-xs-6
+              label.control-label= t('.assigned_to')
+              = f.select :assigned_to_id, options_for_select(users_in_current_property, default_assigned_to_user(f.object)), {}, class: 'form-control input-sm assigned-to-id'
+            .col-xs-6
+              label.control-label= t('.due_to')
+              = f.input_field :due_to_date, as: :string, placeholder: 'mm/dd/yyyy', data: {mask: '99/99/9999'}, value: ( l(f.object.due_to_date, format: :short) if f.object.due_to_date ), id: nil, class: "form-control input-sm due-to-date"
+          = f.hidden_field :closing_comment
+          = f.hidden_field :duration
+          br
+          .row.mb5
+            = f.fields_for :attachments do |attachment|
+              .col-xs-6
+                .wo-image class="#{attachment.object.file.url.nil? ? 'empty' : ''}"
+                  .image-container
+                    div
+                      - image_url = attachment.object.file.url.nil? ? "/assets/default_image.png" : attachment.object.file.url
+                      = image_tag image_url, class: 'img-responsive img-file'
+                      .attachment-hidden
+                        = attachment.file_field :file, accept: 'image/*', capture: 'camera', class: 'comment-attachment'
+                      .add-image.text-center
+                        p.ico-camera3.text-primary
+                        span Attach Photo
+
+                  button.btn.btn-danger.center-block type="button"
+                    i.ico-trash
+        .modal-footer.pa10
+          a.btn.btn-default href="#" data-dismiss="modal" Cancel
+          - if policy(@work_order).destroy? && !@work_order.new_record? && !@work_order.pm_work_order?
+            = link_to "Delete WO ##{@work_order.id}", maintenance_work_order_path(@work_order),
+                      class: 'btn btn-danger delete-work-order ml0 pull-left',
+                      data: {method: :delete, position: 'bottom', remote: true, confirm: "Confirm deletion of WO ##{@work_order.id}. This action cannot be undone. Once deleted, the work order cannot be accessed.", id: @work_order.id}
+          button.btn.btn-success.submit type="submit" class=('hidden' if @work_order.closed?) Save Work Order
+    - unless @work_order.new_record?
+      .comments.tab-pane.panel
+        = render 'comments', model: @work_order
+      .tab-pane.panel.materials.mb0
+        = render 'materials', model: @work_order
+javascript:
+  var public_area_checklists = #{raw @work_order.new_record? ? Maintenance::ChecklistItem.for_public_areas.active.pluck(:id, :name, :public_area_id).to_json : Maintenance::ChecklistItem.for_public_areas.pluck(:id, :name, :public_area_id).to_json};

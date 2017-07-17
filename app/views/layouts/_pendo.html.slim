@@ -1,0 +1,27 @@
+- if user_signed_in? && !Rails.env.test?
+  javascript:
+    window.pendo_options = {
+      apiKey: "#{Settings.pendo_key}",
+      // If you load your user info asynchronously, set this to true
+      usePendoAgentAPI: false,
+
+      visitor: {
+        id: "#{current_user.pendo_visitor_id}",
+        email: "#{current_user.email}",
+        role: "#{current_user.current_property_role.try(:name)}",
+        department: "#{current_user.departments.uniq.map(&:name).join('_')}",
+        title: "#{current_user.title}"
+      },
+      account: {
+        id: "#{current_user.pendo_account_id}"
+      }
+    };
+
+    (function () {
+      var script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.async = true;
+      script.src = ('https:' === document.location.protocol ? 'https://' : 'http://' ) + 'd3accju1t3mngt.cloudfront.net/js/pa.min.js';
+      var firstScript = document.getElementsByTagName('script')[0];
+      firstScript.parentNode.insertBefore(script, firstScript);
+    })();

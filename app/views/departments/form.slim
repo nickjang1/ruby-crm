@@ -1,0 +1,23 @@
+- body_class 'departments-form'
+
+= simple_form_for @department, html: { 'data-parsley-validate' => true, id: 'department-form'} do |f|
+  .page-header.page-header-block
+    .page-header-section
+      h4.title.semibold
+        span.text-muted= @department.name
+        .pull-right
+          - if can?(:update, Department)
+            = f.submit class: 'btn btn-success enabled-on-changes'
+          '
+          = link_to t('.cancel'), :departments, class: 'btn btn-default'
+
+  .panel.panel-default
+    .panel-body
+      .form-group.row
+        .col-md-6
+          label.control-label= raw t('.name')
+          = f.input :name, label: false, required: true, placeholder: t('.name_placeholder'), input_html: { class: 'form-control', required: true }, disabled: cannot?(:update, Department)
+      .form-group.row
+        = render partial: 'items_table', locals: { title: t(".categories"), collection: @department.categories, klass: 'category'}
+        = render partial: 'items_table', locals: { title: t(".users"), collection: @department.users, klass: 'user' }
+

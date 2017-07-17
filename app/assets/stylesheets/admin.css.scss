@@ -1,0 +1,23 @@
+//= require adminre_theme_v120/plugins/gritter/css/jquery.gritter
+//= require adminre_theme_v120/plugins/jqueryui/css/jquery-ui.min
+//= require adminre_theme_v120/library/bootstrap/css/bootstrap
+//= require adminre_theme_v120/stylesheet/layout
+//= require adminre_theme_v120/stylesheet/uielement
+
+@import "variables";
+
+body.modal-open {
+  overflow-y: scroll;
+  padding-right: 0 !important;
+}
+
+.breadcrumb{
+  margin: 0px;
+  color: #5e5e5e;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: "Open Sans",sans-serif;
+  vertical-align: middle;
+  padding: 19px 17px;
+  background-color: white;
+}

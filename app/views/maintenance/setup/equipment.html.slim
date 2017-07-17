@@ -1,0 +1,272 @@
+- body_class 'equipment-setup-page'
+.page-header.page-header-block.pb0
+  .pb15.clearfix
+    .pull-left
+      h4.title.semibold Setup Types of Equipment
+    .pull-right
+      a.btn.btn-primary.add-equipment-type
+        span.ico-plus-sign
+        '
+        | Add Equipment Type
+
+.row
+  .col-md-12
+    #equipment-types
+      .panel-group.items-listing
+
+script#equipment-type-template type="x-tmpl-mustache"
+  div class="panel equipment-type-item {{panel_class}}" data-id="{{id}}"
+    .panel-heading.btn-default
+      h4.panel-title
+        i.area-sort-handle.ico-sort.mr10
+        a.collapsed.equipment-type-toggler data-toggle="collapse" href="#collapse-{{id}}"
+          span.plus.mr10
+        a.equipment-type-name href="#"
+          | {{name}}
+          span.equipment-type-info
+        = link_to 'javascript:void(0)', class: 'pull-right equipment-type-delete', data: {confirm: 'Do you want to delete equipment type?'} do
+          i.ico-trash
+    div.panel-collapse.collapse id="collapse-{{id}}"
+      .panel-body
+        .row
+          .col-md-6
+            .panel.panel-default.panel-checklist-groups
+              .panel-heading
+                h4.panel-title Checklists
+                .panel-toolbar.text-right.hidden
+                  a.btn.btn-primary.btn-outline.add-group
+                    span.ico-plus-sign
+                    '
+                    | New Checklist
+              .panel-body
+                .panel-group.items-listing
+                  | {{#checklist_groups}}
+                  | {{>checklist_group}}
+                  | {{/checklist_groups}}
+                  .no-checklist-groups.text-center.hidden
+                    p You do not have any groups created.
+                    a.btn.btn-primary.btn-outline.add-group
+                      span.ico-plus-sign
+                      '
+                      | Create first Checklist
+          .col-md-6
+            .panel.panel-default.panel-equipments
+              .panel-heading
+                h4.panel-title Equipment
+                .panel-toolbar.text-right.hidden
+                  a.btn.btn-primary.btn-outline.add-equipment
+                    span.ico-plus-sign
+                    '
+                    | New Equipment
+              .panel-body
+                .panel-group.equipments-listing
+                  | {{#active_equipments}}
+                  | {{>active_equipment}}
+                  | {{/active_equipments}}
+                  .no-equipments.text-center.hidden
+                    p You do not have any equipments created.
+                    a.btn.btn-primary.btn-outline.add-equipment
+                      span.ico-plus-sign
+                      '
+                      | Create first Equipment
+
+script#checklist-group-template type="x-tmpl-mustache"
+  .panel.checklist-group data-id="{{id}}"
+    .panel-heading
+      h5
+        i.checklist-sort-handle.ico-sort.mr10
+        a.checklist-group-name href="#"
+          | {{name}} (<span class="item-count">{{item_count}}</span> items)
+        = link_to 'javascript:void(0)', class: 'pull-right checklist-group-delete', data: {confirm: 'Do you want to delete checklist?'} do
+          i.ico-trash.text-danger
+
+script#equipment-template type="x-tmpl-mustache"
+  .panel.equipment-item data-id="{{id}}"
+    .panel-heading
+      h5
+        i.equipment-sort-handle.ico-sort.mr10
+        a.equipment-name href="#"
+          | {{name}} ({{location}})
+        = link_to 'javascript:void(0)', class: 'pull-right equipment-delete', data: {confirm: 'Do you want to delete equipment?'} do
+          i.ico-trash.text-danger
+
+script#checklist-item-template type="x-tmpl-mustache"
+  .panel.checklist-item data-id="{{id}}"
+    .panel-heading
+      h5
+        i.item-sort-handle.ico-sort.mr10
+        a
+          span.count
+          | )&nbsp;
+        a.checklist-item-name.x-editable href="#" data-title="Edit Checklist Item" data-type="text" data-url="{{update_url}}" data-send="always"
+          | {{name}}
+        = link_to 'javascript:void(0)', class: 'pull-right checklist-item-delete', data: {confirm: 'Do you want to delete checklist item?'} do
+          i.ico-trash.text-danger
+
+#equipment-type-modal.modal.fade
+  .modal-dialog
+
+script#equipment-type-form-template type="x-tmpl-mustache"
+  form.modal-content id="equipment-type-form" data-parsley-validate=true
+    .modal-header
+      .cell.text-center
+        button.close data-dismiss="modal" type="button" ×
+        h4.semibold.text-primary.modal-title Enter Equipment Type
+    .modal-body
+      .form-group
+        label.control-label for="equipment-type-name" Name
+        span.text-danger *
+        input type="text" class="form-control" placeholder="Enter name" id="equipment-type-name" value="{{name}}" required=true
+      .form-group
+        label.control-label for="instruction-description" Instruction description
+        textarea class="form-control" rows=3 placeholder="Enter instruction description" id="instruction-description" {{instruction}}
+      .form-group
+        .attachment
+          label.control-label for="attachment" Attachment file
+          | {{#attachment.file.url}}
+          .attachment-info.pull-right data-id="{{attachment.id}}"
+            a.inline-block.mr10 href="{{attachment.file.url}}" target="_blank" {{attachment.file.name}}
+            a.inline-block.text-danger.delete-attachment href="#" data-type="equipment_type" data-id="{{id}}" data-confirm="Do you want to delete attachment?"
+              span.ico-remove
+              '
+              | Delete Attachment
+          | {{/attachment.file.url}}
+          .input-group
+            input type="text" class="form-control" readonly="" id="attachment-name" placeholder="{{#attachment.file.url}}Replace current attachment{{/attachment.file.url}}"
+            span.input-group-btn
+              .btn.btn-primary.btn-file
+                span.icon.iconmoon-file-3
+                  | Browse
+                  input type="file" id="attachment"
+    .modal-footer
+      button.btn.btn-default.btn-expanded data-dismiss="modal" type="button" Cancel
+      input.btn.btn-primary.btn-expanded type="submit" id="equipment-type-form-submit" value="Save"
+
+#equipment-checklist-item-modal.modal.fade
+  .modal-dialog
+
+script#equipment-checklist-item-form-template type="x-tmpl-mustache"
+  form.modal-content id="equipment-checklist-item-form" data-parsley-validate=true data-group-id="{{id}}" data-type-id="{{type_id}}"
+    .modal-header
+      .cell.text-center
+        button.close data-dismiss="modal" type="button" ×
+        h4.semibold.text-primary.modal-title
+          | {{^id}}
+          | New Checklist for '{{type_name}}'
+          | {{/id}}
+          | {{#id}}
+          | Edit Checklist '{{name}}'
+          | {{/id}}
+    .modal-body
+      .form-group.text-right
+        button.btn.btn-default.btn-expanded data-dismiss="modal" type="button" Cancel
+        input.btn.btn-success.ml5.btn-expanded#checklist-group-form-submit type="submit" disabled="disabled" value="Save"
+      .form-group
+        .row
+          .col-sm-6
+            label.control-label for="checklist-item-name" Name
+            span.text-danger *
+            input type="text" class="form-control" placeholder="Enter name" id="checklist-group-name" value="{{name}}" required=true
+          .col-sm-6
+            label.control-label for="frequency" Maintain Equipment every
+            span.text-danger *
+            = select_tag :frequency,
+                         options_for_select(Maintenance::EquipmentChecklistItem::FREQUENCIES, selected='1'),
+                         class: 'form-control', required: true
+      .form-group
+        label.control-label for="tools-required" Tools Required
+        textarea class="form-control" rows=5 placeholder="Enter required tools" id="tools-required" {{tools_required}}
+      #checklist-items-panel class="{{^id}}hidden{{/id}}"
+        hr
+        .form-group
+          .input-group
+            input.form-control type="text" id="checklist-item-name" placeholder="Enter Item name here"
+            span.input-group-btn
+              a.btn.btn-default.add-item
+                span.ico-plus-sign
+                '
+                | Save Checklist Item
+        .form-group
+          .panel-group.items-listing
+            | {{#checklist_items}}
+            | {{>checklist_item}}
+            | {{/checklist_items}}
+    .modal-footer
+
+#equipment-modal.modal.fade
+  .modal-dialog
+
+script#equipment-form-template type="x-tmpl-mustache"
+  form.modal-content id="equipment-form" data-parsley-validate=true
+    .modal-header
+      .cell.text-center
+        button.close data-dismiss="modal" type="button" ×
+        h4.semibold.text-primary.modal-title
+          | {{^id}}
+          | New Equipment for '{{type_name}}'
+          | {{/id}}
+          | {{#id}}
+          | {{name}} ({{location}})
+          | {{/id}}
+    .modal-body
+      .form-group
+        .row
+          .col-sm-6
+            label.control-label for="equipment-name" Name
+            span.text-danger *
+            input type="text" class="form-control" placeholder="Enter name" id="equipment-name" value="{{name}}" required=true
+          .col-sm-6
+            label.control-label for="equipment-location" Location
+            span.text-danger *
+            input type="text" class="form-control" placeholder="Enter location" id="equipment-location" value="{{location}}" required=true
+      .form-group
+        .row
+          .col-sm-6
+            label.control-label for="equipment-buy-date" Buy Date
+            input type="text" class="form-control datepicker" placeholder="Enter buy date" id="equipment-buy-date" value="{{buy_date}}"
+          .col-sm-6
+            label.control-label for="equipment-replacement-date" Replacement Date
+            input type="text" class="form-control datepicker" placeholder="Enter replacement date" id="equipment-replacement-date" value="{{replacement_date}}"
+      .form-group
+        .row
+          .col-sm-6
+            label.control-label for="equipment-warranty" Warranty Period
+            input type="text" class="form-control numeric-input" placeholder="Enter warranty period" id="equipment-warranty" value="{{warranty}}"
+          .col-sm-6
+            label.control-label for="equipment-lifespan" Expected Lifespan
+            input type="text" class="form-control numeric-input" placeholder="Enter expected lifespan" id="equipment-lifespan" value="{{lifespan}}"
+      .form-group
+        .row
+          .col-sm-12
+            label.control-label for="equipment-make" Make
+            input type="text" class="form-control" placeholder="Enter make" id="equipment-make" value="{{make}}"
+      .form-group
+        .row
+          .col-sm-12
+            label.control-label for="equipment-instruction-description" Instruction description
+            textarea class="form-control" rows=3 placeholder="Enter instruction description" id="equipment-instruction-description" {{instruction}}
+      .form-group
+        .attachment
+          label.control-label for="attachment" Attachment file
+          | {{#attachment.file.url}}
+          .attachment-info.pull-right data-id="{{attachment.id}}"
+            a.inline-block.mr10 href="{{attachment.file.url}}" target="_blank" {{attachment.file.name}}
+            a.inline-block.text-danger.delete-attachment href="#" data-type="equipment" data-id="{{id}}" data-type-id="{{equipment_type_id}}" data-confirm="Do you want to delete attachment?"
+              span.ico-remove
+              '
+              | Delete Attachment
+          | {{/attachment.file.url}}
+          .input-group
+            input type="text" class="form-control" readonly="" id="attachment-name" placeholder="{{#attachment.file.url}}Replace current attachment{{/attachment.file.url}}"
+            span.input-group-btn
+              .btn.btn-primary.btn-file
+                span.icon.iconmoon-file-3
+                  | Browse
+                  input type="file" id="equipment-attachment"
+    .modal-footer
+      | {{#id}}
+      - if current_user.current_property_role.gm?
+        = link_to 'Remove from use', '#', class: 'btn btn-danger', id: 'remove-equipment', data: {id: '{{id}}', 'type-id' => '{{equipment_type_id}}', confirm: 'Do you want to remove the equipment \'{{name}}\'?'}
+      | {{/id}}
+      button.btn.btn-default.btn-expanded data-dismiss="modal" type="button" Cancel
+      input.btn.btn-primary.btn-expanded#equipment-form-submit type="submit" value="Save"

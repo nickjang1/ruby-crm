@@ -1,0 +1,35 @@
+- body_class 'permissions'
+
+.row
+  .col-sm-3
+    ul.list-group.list-group-tabs#role-list
+      - @roles.each_with_index do |role, index|
+        li class=("list-group-item #{border_colors[index % border_colors.count]} #{role.id == @role_id ? 'active' : ''}")
+          a data-toggle="tab" href="#" data-id=(role.id)
+            = role.name
+  .col-sm-9
+    .panel class=("#{border_colors[@roles.pluck(:id).index(@role_id) % border_colors.count]}")
+      .panel-body
+        .row
+          .col-sm-7
+            = form_for :permissions, url: update_all_permissions_path, method: 'POST', html: {class: 'form-horizontal'} do |f|
+              = f.select :department, options_for_select(@departments.pluck(:name, :id), @department_id), {}, class: 'form-control inline-block'
+              = f.submit 'Save Permissions', class: 'btn btn-primary inline-block ml10', id: 'save-permissions'
+              .form-group
+                = f.hidden_field :role, value: @role_id
+                = f.hidden_field :filter, value: @filter
+              .permissions-panel.ml15
+                = render partial: 'root', collection: @roots, as: :root, locals: {f: f}
+          .col-sm-5
+            h4.mb0 Users Affected
+            hr.mt10
+            - if @users.count > 0
+              - @users.each do |user|
+                h5.semibold.ellipsis.mt15
+                  = link_to user.name, edit_user_path(user), target: '_blank'
+                  br
+                  small.ml0.text-muted.ml15.mt10= user.title
+            - else
+              h5.semibold.ellipsis.mt15 No Users
+        .indicator#loading-indicator
+          span.spinner
